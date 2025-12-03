@@ -515,7 +515,7 @@ export default function PegawaiPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Database Pegawai">
-        <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
               placeholder="Cari nama pegawai..."
               value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -524,7 +524,7 @@ export default function PegawaiPage() {
               }
               className="w-full sm:max-w-sm"
             />
-            <div className="flex gap-2 w-full sm:w-auto">
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button variant="outline" onClick={handleDownloadData} className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" />
                 Download

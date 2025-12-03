@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -145,7 +146,7 @@ export function NewBriefingForm({ setModalOpen, employees }: NewBriefingFormProp
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Left Column: Material */}
             <div className="space-y-4">
                  <FormField

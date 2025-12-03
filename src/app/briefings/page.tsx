@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -90,7 +91,7 @@ export default function BriefingsPage() {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
-  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAcknowledgeModalOpen, setIsAcknowledgeModalOpen] = useState(false);
   
   const [selectedBriefing, setSelectedBriefing] = useState<Briefing | null>(null);

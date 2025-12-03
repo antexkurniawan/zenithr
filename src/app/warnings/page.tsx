@@ -367,9 +367,9 @@ export default function WarningsPage() {
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={!!isProcessing}>
+                    <AlertDialogAction onClick={handleDelete} disabled={!!isProcessing} className="bg-destructive hover:bg-destructive/90">
                         {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Hapus
+                        Ya, Hapus
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
@@ -592,5 +592,3 @@ export default function WarningsPage() {
     </div>
   );
 }
-
-    

@@ -183,12 +183,12 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="employeeId"
           render={({ field }) => (
-            <FormItem className="md:col-span-2">
+            <FormItem className="sm:col-span-2">
               <FormLabel>Nama Pegawai</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
@@ -280,7 +280,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
             control={form.control}
             name="description"
             render={({ field }) => (
-            <FormItem className="md:col-span-2">
+            <FormItem className="sm:col-span-2">
                 <FormLabel>Deskripsi Pelanggaran</FormLabel>
                 <FormControl>
                 <Textarea
@@ -294,7 +294,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
             )}
         />
         
-        <div className="md:col-span-2 space-y-2">
+        <div className="sm:col-span-2 space-y-2">
             <FormLabel>Panduan Peraturan</FormLabel>
             <Select onValueChange={handleRuleSelection}>
                 <FormControl>
@@ -317,7 +317,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
           control={form.control}
           name="peraturanDilanggar"
           render={({ field }) => (
-            <FormItem className="md:col-span-2">
+            <FormItem className="sm:col-span-2">
               <FormLabel>Peraturan yang Dilanggar</FormLabel>
               <FormControl>
                 <Input placeholder="cth. Peraturan Perusahaan Pasal 23..." {...field} />
@@ -327,7 +327,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
           )}
         />
         
-        <div className="flex justify-end gap-2 pt-4 md:col-span-2">
+        <div className="flex justify-end gap-2 pt-4 sm:col-span-2">
           <Button
             type="button"
             variant="outline"

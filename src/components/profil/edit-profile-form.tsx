@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -83,45 +84,47 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nama Lengkap</FormLabel>
-              <FormControl>
-                <Input placeholder="Nama lengkap Anda" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="jobTitle"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Jabatan</FormLabel>
-              <FormControl>
-                <Input placeholder="cth. Field Coordinator" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="workArea"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Area Kerja</FormLabel>
-              <FormControl>
-                <Input placeholder="cth. Gorontalo" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-1 gap-4">
+            <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Nama Lengkap</FormLabel>
+                <FormControl>
+                    <Input placeholder="Nama lengkap Anda" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+            control={form.control}
+            name="jobTitle"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Jabatan</FormLabel>
+                <FormControl>
+                    <Input placeholder="cth. Field Coordinator" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+            control={form.control}
+            name="workArea"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Area Kerja</FormLabel>
+                <FormControl>
+                    <Input placeholder="cth. Gorontalo" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+        </div>
         <div className="flex justify-end pt-2 gap-2">
            <Button type="button" variant="outline" onClick={() => setModalOpen(false)} disabled={isSubmitting}>
                 Batal

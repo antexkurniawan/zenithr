@@ -174,7 +174,7 @@ export default function AbsensiPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Rekap Absensi Pegawai">
-        <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
               placeholder="Cari nama pegawai..."
               value={(table.getColumn("employeeName")?.getFilterValue() as string) ?? ""}
