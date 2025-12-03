@@ -459,60 +459,115 @@ export default function WarningsPage() {
         </Dialog>
 
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={columns.length}>
-                         <Skeleton className="h-16 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
                       ))}
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      Tidak ada data surat peringatan.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={columns.length}>
+                           <Skeleton className="h-16 w-full" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                        Tidak ada data surat peringatan.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+       {/* Mobile Card View */}
+       <div className="grid gap-4 md:hidden">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+             <Card key={i}>
+                <CardContent className="p-4">
+                  <Skeleton className="h-24 w-full" />
+                </CardContent>
+             </Card>
+          ))
+        ) : table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => {
+              const warning = row.original;
+              const status = getWarningStatus(warning.expiryDate);
+              return (
+                <Card key={row.id} className="w-full">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                        <div>
+                            <p className="font-semibold text-left">{warning.employeeName}</p>
+                            <p className="text-sm text-muted-foreground">No: {warning.nomorSurat}</p>
+                        </div>
+                        {flexRender(row.getVisibleCells().find(cell => cell.column.id === 'actions')?.column.columnDef.cell, row.getVisibleCells().find(cell => cell.column.id === 'actions')?.getContext())}
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                        <Badge variant={warningTypeVariant[warning.type]}>{warning.type}</Badge>
+                        <Badge variant={statusVariant[status]}>{status}</Badge>
+                    </div>
+                    <div className="border-t my-3"></div>
+                    <div className="text-xs text-muted-foreground space-y-1">
+                        <div className="flex justify-between">
+                            <span>Tgl Terbit:</span>
+                            <span className="font-medium text-foreground">{formatDate(warning.issueDate)}</span>
+                        </div>
+                         <div className="flex justify-between">
+                            <span>Kedaluwarsa:</span>
+                            <span className="font-medium text-foreground">{formatDate(warning.expiryDate)}</span>
+                        </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })
+        ) : (
+          <Card>
+            <CardContent className="p-4 text-center text-muted-foreground">
+              Tidak ada data surat peringatan.
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button

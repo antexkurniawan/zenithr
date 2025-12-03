@@ -74,7 +74,16 @@ import { Label } from '@/components/ui/label';
 
 const formatDateForDisplay = (dateString: string) => {
   if (!dateString) return '-';
-  return format(new Date(dateString), "eeee, d MMMM yyyy 'jam' HH:mm", { locale: id });
+  return format(new Date(dateString), "eeee, d MMM yyyy 'jam' HH:mm", { locale: id });
+};
+
+const formatDateForCard = (dateString: string) => {
+    if (!dateString) return { date: '-', time: '-' };
+    const date = new Date(dateString);
+    return {
+        date: format(date, "d MMM yyyy", { locale: id }),
+        time: format(date, "HH:mm", { locale: id }),
+    };
 };
 
 export default function BriefingsPage() {
@@ -373,52 +382,105 @@ export default function BriefingsPage() {
           </Dialog>
       </PageHeader>
       
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {isLoadingBriefings ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={columns.length}>
-                        <Skeleton className="h-16 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
+       {/* Desktop Table */}
+      <div className="hidden md:block">
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                        </TableHead>
                       ))}
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      Belum ada data briefing.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {isLoadingBriefings ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={columns.length}>
+                          <Skeleton className="h-16 w-full" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                        Belum ada data briefing.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+       {/* Mobile Card View */}
+      <div className="grid gap-4 md:hidden">
+        {isLoadingBriefings ? (
+          Array.from({ length: 5 }).map((_, i) => (
+             <Card key={i}>
+                <CardContent className="p-4">
+                  <Skeleton className="h-24 w-full" />
+                </CardContent>
+             </Card>
+          ))
+        ) : table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => {
+              const briefing = row.original;
+              const { date, time } = formatDateForCard(briefing.briefingDate);
+              return (
+                <Card key={row.id} className="w-full">
+                  <CardContent className="p-4 flex gap-4">
+                    <div className="flex-grow">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-left">{briefing.area}</p>
+                          <p className="text-sm text-muted-foreground">{date} jam {time}</p>
+                        </div>
+                        {flexRender(row.getVisibleCells().find(cell => cell.column.id === 'actions')?.column.columnDef.cell, row.getVisibleCells().find(cell => cell.column.id === 'actions')?.getContext())}
+                      </div>
+                      <div className="border-t my-2"></div>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div className="flex justify-between">
+                            <span>Topik:</span>
+                            <span className="font-medium text-foreground text-right truncate pl-4">{(briefing.topics || []).join(', ')}</span>
+                        </div>
+                         <div className="flex justify-between">
+                            <span>Dibuat oleh:</span>
+                            <span className="font-medium text-foreground">{briefing.creatorName}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })
+        ) : (
+          <Card>
+            <CardContent className="p-4 text-center text-muted-foreground">
+              Belum ada data briefing.
+            </CardContent>
+          </Card>
+        )}
+      </div>
       
       {/* Edit Modal */}
       {selectedBriefing && (

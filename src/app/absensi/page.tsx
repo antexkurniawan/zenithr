@@ -13,7 +13,7 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Upload, CalendarDays } from 'lucide-react';
+import { Upload, CalendarDays, MoreHorizontal } from 'lucide-react';
 import { collection } from 'firebase/firestore';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
@@ -141,6 +141,17 @@ export default function AbsensiPage() {
       header: "Cuti",
        cell: ({ row }) => <div className="text-center">{row.original.cuti}</div>
     },
+    {
+      id: "actions",
+      cell: () => {
+        return (
+            <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Buka menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+            </Button>
+        );
+      },
+    }
   ];
 
   const table = useReactTable({
@@ -189,60 +200,122 @@ export default function AbsensiPage() {
         </div>
       </PageHeader>
       
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  Array.from({ length: 10 }).map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell colSpan={columns.length}>
-                        <Skeleton className="h-12 w-full" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.original.employeeId}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </TableCell>
+      {/* Desktop Table */}
+      <div className="hidden md:block">
+        <Card>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
                       ))}
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={columns.length} className="h-24 text-center">
-                      Belum ada data absensi. Silakan impor data terlebih dahulu.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    Array.from({ length: 10 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell colSpan={columns.length}>
+                          <Skeleton className="h-12 w-full" />
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.original.employeeId}
+                        data-state={row.getIsSelected() && "selected"}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="h-24 text-center">
+                        Belum ada data absensi. Silakan impor data terlebih dahulu.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="grid gap-4 md:hidden">
+        {isLoading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+             <Card key={i}>
+                <CardContent className="p-4">
+                  <Skeleton className="h-28 w-full" />
+                </CardContent>
+             </Card>
+          ))
+        ) : table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => {
+              const summary = row.original;
+              return (
+                <Card key={row.id} className="w-full">
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-3">
+                        <div>
+                            <p className="font-semibold text-left">{summary.employeeName}</p>
+                            <p className="text-sm text-muted-foreground">{summary.employeeJobTitle} (NIK: {summary.employeeNik})</p>
+                        </div>
+                        {flexRender(row.getVisibleCells().find(cell => cell.column.id === 'actions')?.column.columnDef.cell, row.getVisibleCells().find(cell => cell.column.id === 'actions')?.getContext())}
+                    </div>
+                     <div className="grid grid-cols-5 gap-2 text-center text-xs">
+                        <div>
+                            <p className="font-bold text-lg">{summary.hadir}</p>
+                            <p className="text-muted-foreground">Hadir</p>
+                        </div>
+                        <div>
+                            <p className="font-bold text-lg">{summary.sakit}</p>
+                            <p className="text-muted-foreground">Sakit</p>
+                        </div>
+                        <div>
+                            <p className="font-bold text-lg">{summary.izin}</p>
+                            <p className="text-muted-foreground">Izin</p>
+                        </div>
+                        <div>
+                            <p className="font-bold text-lg">{summary.alpha}</p>
+                            <p className="text-muted-foreground">Alpha</p>
+                        </div>
+                        <div>
+                            <p className="font-bold text-lg">{summary.cuti}</p>
+                            <p className="text-muted-foreground">Cuti</p>
+                        </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })
+        ) : (
+          <Card>
+            <CardContent className="p-4 text-center text-muted-foreground">
+              Belum ada data absensi.
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
