@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -35,6 +36,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore } from '@/firebase';
 import type { Employee } from '@/lib/types';
+import { DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nama lengkap minimal 2 karakter.'),
@@ -105,8 +107,13 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
   }
 
   return (
+    <>
+    <DialogHeader>
+        <DialogTitle>Edit Data Pegawai</DialogTitle>
+        <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
+    </DialogHeader>
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -303,5 +310,8 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
         </div>
       </form>
     </Form>
+    </>
   );
 }
+
+    
