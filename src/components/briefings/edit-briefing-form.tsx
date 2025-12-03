@@ -145,6 +145,7 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
   }
 
   return (
+    <ScrollArea className="flex-grow pr-6 -mr-6">
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -334,7 +335,7 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
             </div>
        </div>
        <Separator />
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="flex justify-end gap-2 pt-2 sticky bottom-0 bg-background py-4 -mx-6 px-6">
           <Button
             type="button"
             variant="outline"
@@ -350,5 +351,6 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
         </div>
       </form>
     </Form>
+    </ScrollArea>
   );
 }

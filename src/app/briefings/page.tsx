@@ -71,6 +71,7 @@ import { PrintableBriefing } from "@/components/briefings/printable-briefing";
 import { generatePdfFromComponent } from "@/lib/pdf-generator";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const formatDateForDisplay = (dateString: string) => {
@@ -361,6 +362,7 @@ export default function BriefingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Riwayat Briefing">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
           <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -368,7 +370,7 @@ export default function BriefingsPage() {
                 Buat Briefing Baru
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl">
+            <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col">
               <DialogHeader>
                 <DialogTitle>Buat Materi Briefing Baru</DialogTitle>
               </DialogHeader>
@@ -381,6 +383,7 @@ export default function BriefingsPage() {
               )}
             </DialogContent>
           </Dialog>
+        </div>
       </PageHeader>
       
        {/* Desktop Table */}
@@ -489,7 +492,7 @@ export default function BriefingsPage() {
             setIsEditModalOpen(isOpen);
             if (!isOpen) setSelectedBriefing(null);
         }}>
-          <DialogContent className="sm:max-w-3xl">
+          <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col">
             <DialogHeader>
               <DialogTitle>Edit Materi Briefing</DialogTitle>
             </DialogHeader>
@@ -533,14 +536,15 @@ export default function BriefingsPage() {
           setDetailModalOpen(isOpen);
           if (!isOpen) setSelectedBriefing(null);
       }}>
-        <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+        <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
             {selectedBriefing && (
                 <>
                     <DialogHeader>
                         <DialogTitle>Detail Briefing Area {selectedBriefing.area}</DialogTitle>
                         <DialogDescription>{formattedDate}</DialogDescription>
                     </DialogHeader>
-                    <div className="flex-grow overflow-y-auto pr-6 space-y-6">
+                    <ScrollArea className="flex-grow pr-6 -mr-6">
+                      <div className="space-y-6">
                         <Card>
                             <CardHeader>
                                 <CardTitle>Materi Briefing</CardTitle>
@@ -620,7 +624,8 @@ export default function BriefingsPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </div>
+                      </div>
+                    </ScrollArea>
                 </>
             )}
         </DialogContent>

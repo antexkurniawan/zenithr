@@ -63,6 +63,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SignaturePad } from '@/components/pegawai/signature-pad';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const formatDateForDisplay = (dateString: string) => {
@@ -158,117 +159,121 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
                 </div>
             </DialogHeader>
 
-            <Tabs defaultValue="profil" className="w-full mt-4">
-                <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="profil"><User className="mr-2 h-4 w-4" /> Profil</TabsTrigger>
-                    <TabsTrigger value="dokumen"><FileText className="mr-2 h-4 w-4" /> Dokumen</TabsTrigger>
-                    <TabsTrigger value="peringatan"><ShieldAlert className="mr-2 h-4 w-4" /> Riwayat Peringatan</TabsTrigger>
-                </TabsList>
-                <TabsContent value="profil" className="mt-6 grid gap-6 md:grid-cols-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Informasi Kontrak</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                             <div className="flex items-center">
-                                <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
-                                <span className="text-sm">Awal Kontrak: {formatDateForDisplay(employee.contractStartDate)}</span>
-                            </div>
-                            <div className="flex items-center">
-                                <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
-                                <span className="text-sm">Akhir Kontrak: {formatDateForDisplay(employee.contractEndDate)}</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Tanda Tangan Digital</CardTitle>
-                            <CardDescription>Digunakan untuk absensi briefing.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {employee.signatureUrl ? (
-                                <div className="space-y-4">
-                                    <div className="border rounded-md p-2 bg-muted/50 flex justify-center items-center">
-                                        <Image src={employee.signatureUrl} alt="Tanda tangan" width={200} height={100} className="object-contain" />
+            <ScrollArea className="flex-grow -mx-6">
+                <div className="px-6">
+                    <Tabs defaultValue="profil" className="w-full mt-4">
+                        <TabsList className="grid w-full grid-cols-3">
+                            <TabsTrigger value="profil"><User className="mr-2 h-4 w-4" /> Profil</TabsTrigger>
+                            <TabsTrigger value="dokumen"><FileText className="mr-2 h-4 w-4" /> Dokumen</TabsTrigger>
+                            <TabsTrigger value="peringatan"><ShieldAlert className="mr-2 h-4 w-4" /> Riwayat Peringatan</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="profil" className="mt-6 grid gap-6 md:grid-cols-2">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Informasi Kontrak</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center">
+                                        <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
+                                        <span className="text-sm">Awal Kontrak: {formatDateForDisplay(employee.contractStartDate)}</span>
                                     </div>
-                                     <Button variant="outline" className="w-full" onClick={() => setIsSignatureModalOpen(true)}>Ganti Tanda Tangan</Button>
-                                </div>
-                            ) : (
-                                <Button className="w-full" onClick={() => setIsSignatureModalOpen(true)}>
-                                    <PenSquare className="mr-2 h-4 w-4"/>
-                                    Upload Tanda Tangan
-                                </Button>
-                            )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                 <TabsContent value="dokumen" className="mt-6">
-                    <Card>
-                        <CardHeader>
-                        <CardTitle>Dokumen Pegawai</CardTitle>
-                        <CardDescription>
-                            Kumpulan dokumen pribadi dan kontrak kerja. (Fitur segera hadir)
-                        </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                             <div className="text-center text-muted-foreground py-8">
-                                <FileText className="mx-auto h-12 w-12" />
-                                <p className="mt-4">Belum ada dokumen yang diunggah.</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-                <TabsContent value="peringatan" className="mt-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Riwayat Surat Peringatan</CardTitle>
-                            <CardDescription>Daftar semua surat peringatan yang pernah diterima.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                        {isLoadingWarnings ? (
-                            <div className="flex items-center justify-center py-8">
-                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                            </div>
-                        ) : employeeWarnings && employeeWarnings.length > 0 ? (
-                            <div className='overflow-x-auto'>
-                            <Table>
-                                <TableHeader>
-                                <TableRow>
-                                    <TableHead>Jenis</TableHead>
-                                    <TableHead>Tanggal Terbit</TableHead>
-                                    <TableHead>Deskripsi</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                {employeeWarnings.map((warning) => {
-                                    const status = getWarningStatus(warning.expiryDate);
-                                    return (
-                                    <TableRow key={warning.id}>
-                                        <TableCell className="font-semibold">{warning.type}</TableCell>
-                                        <TableCell>{formatDateForDisplay(warning.issueDate)}</TableCell>
-                                        <TableCell className="max-w-xs truncate">{warning.description}</TableCell>
-                                        <TableCell>
-                                        <Badge variant={status === 'Aktif' ? 'destructive' : 'secondary'}>{status}</Badge>
-                                        </TableCell>
-                                    </TableRow>
-                                    )
-                                })}
-                                </TableBody>
-                            </Table>
-                            </div>
-                        ) : (
-                            <div className="text-center text-muted-foreground py-8">
-                            <ShieldAlert className="mx-auto h-12 w-12" />
-                            <p className="mt-4">Tidak ada riwayat surat peringatan.</p>
-                            </div>
-                        )}
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-            </Tabs>
+                                    <div className="flex items-center">
+                                        <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
+                                        <span className="text-sm">Akhir Kontrak: {formatDateForDisplay(employee.contractEndDate)}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Tanda Tangan Digital</CardTitle>
+                                    <CardDescription>Digunakan untuk absensi briefing.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {employee.signatureUrl ? (
+                                        <div className="space-y-4">
+                                            <div className="border rounded-md p-2 bg-muted/50 flex justify-center items-center">
+                                                <Image src={employee.signatureUrl} alt="Tanda tangan" width={200} height={100} className="object-contain" />
+                                            </div>
+                                            <Button variant="outline" className="w-full" onClick={() => setIsSignatureModalOpen(true)}>Ganti Tanda Tangan</Button>
+                                        </div>
+                                    ) : (
+                                        <Button className="w-full" onClick={() => setIsSignatureModalOpen(true)}>
+                                            <PenSquare className="mr-2 h-4 w-4"/>
+                                            Upload Tanda Tangan
+                                        </Button>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="dokumen" className="mt-6">
+                            <Card>
+                                <CardHeader>
+                                <CardTitle>Dokumen Pegawai</CardTitle>
+                                <CardDescription>
+                                    Kumpulan dokumen pribadi dan kontrak kerja. (Fitur segera hadir)
+                                </CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-center text-muted-foreground py-8">
+                                        <FileText className="mx-auto h-12 w-12" />
+                                        <p className="mt-4">Belum ada dokumen yang diunggah.</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                        <TabsContent value="peringatan" className="mt-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Riwayat Surat Peringatan</CardTitle>
+                                    <CardDescription>Daftar semua surat peringatan yang pernah diterima.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                {isLoadingWarnings ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                    </div>
+                                ) : employeeWarnings && employeeWarnings.length > 0 ? (
+                                    <div className='overflow-x-auto'>
+                                    <Table>
+                                        <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Jenis</TableHead>
+                                            <TableHead>Tanggal Terbit</TableHead>
+                                            <TableHead>Deskripsi</TableHead>
+                                            <TableHead>Status</TableHead>
+                                        </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                        {employeeWarnings.map((warning) => {
+                                            const status = getWarningStatus(warning.expiryDate);
+                                            return (
+                                            <TableRow key={warning.id}>
+                                                <TableCell className="font-semibold">{warning.type}</TableCell>
+                                                <TableCell>{formatDateForDisplay(warning.issueDate)}</TableCell>
+                                                <TableCell className="max-w-xs truncate">{warning.description}</TableCell>
+                                                <TableCell>
+                                                <Badge variant={status === 'Aktif' ? 'destructive' : 'secondary'}>{status}</Badge>
+                                                </TableCell>
+                                            </TableRow>
+                                            )
+                                        })}
+                                        </TableBody>
+                                    </Table>
+                                    </div>
+                                ) : (
+                                    <div className="text-center text-muted-foreground py-8">
+                                    <ShieldAlert className="mx-auto h-12 w-12" />
+                                    <p className="mt-4">Tidak ada riwayat surat peringatan.</p>
+                                    </div>
+                                )}
+                                </CardContent>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+                </div>
+            </ScrollArea>
             
-            <div className="flex justify-end gap-2 pt-4">
+            <div className="flex justify-end gap-2 pt-4 border-t mt-4">
                 <Button variant="outline" onClick={closeMainModal}>Tutup</Button>
                 <Button onClick={() => setIsEditModalOpen(true)}>
                     <Edit className="mr-2 h-4 w-4" />
@@ -279,9 +284,6 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
             {/* Nested Modals */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                 <DialogContent className="sm:max-w-[600px]">
-                    <DialogHeader>
-                        <DialogTitle>Edit Profil Pegawai</DialogTitle>
-                    </DialogHeader>
                     <EditEmployeeForm employee={employee} setModalOpen={setIsEditModalOpen} />
                 </DialogContent>
             </Dialog>
@@ -683,7 +685,7 @@ export default function PegawaiPage() {
       
       {/* Detail/Edit Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-            <DialogContent className="sm:max-w-4xl">
+            <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
                 {selectedEmployee ? (
                     <DetailModalContent 
                         employee={selectedEmployee} 
@@ -719,7 +721,3 @@ export default function PegawaiPage() {
     </div>
   );
 }
-
-
-
-    
