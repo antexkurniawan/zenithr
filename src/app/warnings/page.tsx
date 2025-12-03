@@ -63,8 +63,6 @@ import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NewWarningForm } from '@/components/warnings/new-warning-form';
 import { EditWarningForm } from '@/components/warnings/edit-warning-form';
-import { generatePdfFromComponent } from '@/lib/pdf-generator';
-import { PrintableWarningLetter } from '@/app/warnings/[id]/print/page';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isAfter } from 'date-fns';
@@ -128,6 +126,10 @@ export default function WarningsPage() {
     });
 
     try {
+        // Dynamically import the necessary components and functions
+        const { PrintableWarningLetter } = await import('@/app/warnings/[id]/print/page');
+        const { generatePdfFromComponent } = await import('@/lib/pdf-generator');
+        
         const ComponentToPrint = PrintableWarningLetter({ warning, fieldCoordinator });
         await generatePdfFromComponent(
             ComponentToPrint,
@@ -590,3 +592,5 @@ export default function WarningsPage() {
     </div>
   );
 }
+
+    
