@@ -1,0 +1,133 @@
+
+{
+  "companyRules": {
+    "Teguran": [
+      {
+        "ruleId": "TG-001",
+        "description": "Tidak mematuhi Pengarahaan atasannya tanpa suatu alasan yang wajar untuk dapat di terima",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.1 Huruf (a)"
+      },
+      {
+        "ruleId": "TG-002",
+        "description": "Lalai dalam melaksanakan tugas dan tidak menggunakan alat-alat yang telah di tetapkan terutama yang menyangkut tugas dengan masalah kesehatan dan keselamatan kerja.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.1 Huruf (b)"
+      },
+      {
+        "ruleId": "TG-003",
+        "description": "Beristirahat di luar jam istirahat yang telah ditetapkan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.1 Huruf (c)"
+      },
+      {
+        "ruleId": "TG-004",
+        "description": "Melakukan pekerjaan yang tidak ada kaitannya dengan kepentingan Perusahaan pda waktu jam kerja.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.1 Huruf (d)"
+      },
+      {
+        "ruleId": "TG-005",
+        "description": "Tidak mengenakan Pakaian dan atau perlengkapan kerja sesuai dengan ketentuan yang telah di tetapkan oleh Perusahaan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.1 Huruf (e)"
+      }
+    ],
+    "SP1": [
+      {
+        "ruleId": "SP1-001",
+        "description": "Pengulangan atau peningkatan atas sanksi pelanggaran tingkat I dalam kurun waktu 3 (tiga) bulan dengan jenis pelanggaran yang sama.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (a)"
+      },
+      {
+        "ruleId": "SP1-002",
+        "description": "Datang terlambat masuk kerja 5 (lima) kali dalam sebulan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (b)"
+      },
+      {
+        "ruleId": "SP1-003",
+        "description": "Tidak hadir bekerja (mangkir) selama 2 (dua) hari secara berturut-turut dan/atau 4 (empat) hari tidak berturut-turut dalam 1 (satu) bulan tanpa memberi laporan/keterangan tertulis atau memberi laporan yang dikemudian hari laporan tersebut merupakan laporan palsu.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (c)"
+      },
+      {
+        "ruleId": "SP1-003a",
+        "description": "Melalaikan kewajiban untuk menyerahkan surat keterangan sakit dari dokter minimal 2 (dua) hari sejak hari pertama masuk kerja setelah sakit.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (d)"
+      },
+      {
+        "ruleId": "SP1-004",
+        "description": "Memaksakan pekerjaan yang seharusnya menjadi tanggungjawabnya kepada orang lain.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (e)"
+      },
+      {
+        "ruleId": "SP1-005",
+        "description": "Mengerjakan sesuatu yang baru atau meninggalkan pekerjaan tanpa ijin dari atasan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (f)"
+      },
+      {
+        "ruleId": "SP1-006",
+        "description": "Tidak melaporkan pada pimpinannya tentang adanya gangguan keamanan yang diketahuinya yang dapat merugikan Perusahaan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (g)"
+      },
+      {
+        "ruleId": "SP1-007",
+        "description": "Pengulangan atau peningkatan atas sanksi pelanggaran tingkat I dalam kurun waktu 3 (tiga) bulan dengan jenis pelanggaran yang sama.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (h)"
+      },
+      {
+        "ruleId": "SP1-008",
+        "description": "Tidak mentaati perintah yang layak dari atasannya.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (i)"
+      },
+      {
+        "ruleId": "SP1-009",
+        "description": "Melakukan perbuatan-perbuatan yang dapat digolongkan sebagai perbuatan tidak patut.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (j)"
+      },
+      {
+        "ruleId": "SP1-010",
+        "description": "Menggunakan kendaraan operasional Perusahaan tanpa ijin dari atasan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (k)"
+      },
+      {
+        "ruleId": "SP1-011",
+        "description": "Melakukan penyimpangan prosedur kerja yang telah ditetapkan.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (l)"
+      },
+      {
+        "ruleId": "SP1-012",
+        "description": "Tidur pada waktu jam kerja.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 3.2 Huruf (m)"
+      }
+    ],
+    "SP2": [
+      {
+        "ruleId": "SP2-001",
+        "description": "Karyawan mengulangi pelanggaran yang sama setelah menerima Surat Peringatan Pertama (SP1) yang masih berlaku.",
+        "text": "Peraturan Perusahaan Pasal 30 Ayat 2 tentang Sanksi Pelanggaran."
+      },
+      {
+        "ruleId": "SP2-002",
+        "description": "Mangkir atau tidak masuk kerja selama 1-2 hari kerja berturut-turut tanpa keterangan tertulis atau bukti yang sah.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 32 Huruf g tentang Mangkir."
+      },
+      {
+        "ruleId": "SP2-003",
+        "description": "Kelalaian dalam menjalankan tugas yang mengakibatkan kerugian kecil bagi perusahaan.",
+        "text": "Peraturan Perusahaan Pasal 20 tentang Tanggung Jawab Pekerjaan."
+      }
+    ],
+    "SP3": [
+      {
+        "ruleId": "SP3-001",
+        "description": "Karyawan tetap melakukan pelanggaran lain meskipun telah menerima SP2 yang masih berlaku.",
+        "text": "Peraturan Perusahaan Pasal 30 Ayat 3 tentang Sanksi Pelanggaran Lanjutan."
+      },
+      {
+        "ruleId": "SP3-002",
+        "description": "Mangkir atau tidak masuk kerja selama 3-4 hari kerja berturut-turut atau total 5 hari dalam sebulan tanpa keterangan yang sah.",
+        "text": "Peraturan Perusahaan Pasal 23 Point 32 Huruf i tentang Mangkir."
+      },
+      {
+        "ruleId": "SP3-003",
+        "description": "Melakukan tindakan intimidasi atau perkelahian di lingkungan kerja.",
+        "text": "Peraturan Perusahaan Pasal 25 tentang Tata Tertib dan Perilaku."
+      }
+    ]
+  }
+}

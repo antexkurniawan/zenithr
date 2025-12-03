@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* White background for main content */
+    --foreground: 224 71% 4%;
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+    --primary: 243 75% 58%; /* Indigo #4F46E5 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 213 44% 62%; /* #729CC9 - from previous theme, good accent */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 198 95% 74%; /* Light blue #7DD3FC */
+    --accent-foreground: 224 71% 4%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 243 75% 58%;
+    --radius: 0.8rem;
+
+    --chart-1: 243 75% 58%;
+    --chart-2: 198 95% 74%;
+    --chart-3: 213 44% 62%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
+    /* Custom Sidebar colors for light mode */
+    --sidebar-background: 243 75% 58%; /* Primary indigo for sidebar */
+    --sidebar-foreground: 0 0% 100%; /* White text for sidebar */
+    --sidebar-primary: 0 0% 100%;
+    --sidebar-primary-foreground: 243 75% 58%;
+    --sidebar-accent: 243 75% 50%; /* Darker indigo for hover/active */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 243 75% 50%;
+    --sidebar-ring: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 0 0% 7%; /* Dark Gray #121212 */
+    --foreground: 210 40% 98%;
+    --card: 0 0% 10%; /* Slightly lighter gray for cards */
+    --card-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 243 75% 58%; /* Indigo #4F46E5 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 218 11% 65%;
+    --accent: 198 95% 74%; /* Light blue #7DD3FC */
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 215 28% 17%;
+    --input: 215 28% 17%;
+    --ring: 243 75% 58%;
+
+    /* Custom Sidebar colors for dark mode */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 243 75% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 243 75% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', sans-serif;
+  }
+}

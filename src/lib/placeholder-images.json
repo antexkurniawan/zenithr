@@ -1,0 +1,76 @@
+{
+  "placeholderImages": [
+    {
+      "id": "avatar-1",
+      "description": "Avatar for Budi Susanto",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjQwNDMwMjd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "avatar-2",
+      "description": "Avatar for Rina Amelia",
+      "imageUrl": "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx3b21hbiUyMHBvcnRyYWl0fGVufDB8fHx8MTc2NDA3OTg1Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "avatar-3",
+      "description": "Avatar for Agus Setiawan",
+      "imageUrl": "https://images.unsplash.com/photo-1554765345-6ad6a5417cde?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYW4lMjBwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwwfHx8fDE3NjQwNzE5NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait professional"
+    },
+    {
+      "id": "avatar-4",
+      "description": "Avatar for Dewi Lestari",
+      "imageUrl": "https://images.unsplash.com/photo-1623594675959-02360202d4d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx3b21hbiUyMHBvcnRyYWl0JTIwcHJvZmVzc2lvbmFsfGVufDB8fHx8MTc2NDA2OTI4MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman portrait professional"
+    },
+    {
+      "id": "avatar-5",
+      "description": "Avatar for Eko Prasetyo",
+      "imageUrl": "https://images.unsplash.com/photo-1713947503813-da5351679a0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bWFuJTIwcHJvZ3JhbW1lcnxlbnwwfHx8fDE3NjQxMzEwMjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man programmer"
+    },
+    {
+      "id": "avatar-fico",
+      "description": "Avatar for FICO user",
+      "imageUrl": "https://images.unsplash.com/photo-1750535135451-7c20e24b60c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwYXZhdGFyfGVufDB8fHx8MTc2NDExMTAzNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person avatar"
+    },
+    {
+      "id": "genz-avatar-1",
+      "description": "Stylish Gen-Z portrait with glasses",
+      "imageUrl": "https://images.unsplash.com/photo-1542157585-23161c6b325d?q=80&w=1287&auto=format&fit=crop",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "genz-avatar-2",
+      "description": "Woman with beanie and creative look",
+      "imageUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1364&auto=format&fit=crop",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "genz-avatar-3",
+      "description": "Man with curly hair and casual style",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1287&auto=format&fit=crop",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "genz-avatar-4",
+      "description": "Woman in a city environment at night",
+      "imageUrl": "https://images.unsplash.com/photo-1521146764736-56c929d59c83?q=80&w=1287&auto=format&fit=crop",
+      "imageHint": "woman portrait"
+    },
+    {
+      "id": "genz-avatar-5",
+      "description": "Man in a vibrant, colorful setting",
+      "imageUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1287&auto=format&fit=crop",
+      "imageHint": "man portrait"
+    },
+    {
+      "id": "genz-avatar-6",
+      "description": "Woman with long hair in a natural setting",
+      "imageUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1287&auto=format&fit=crop",
+      "imageHint": "woman portrait"
+    }
+  ]
+}

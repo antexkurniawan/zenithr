@@ -1,0 +1,415 @@
+
+{
+  "entities": {
+    "Employee": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Employee",
+      "type": "object",
+      "description": "Represents an employee in the HRMS system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Employee entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The employee's full name."
+        },
+        "nik": {
+          "type": "string",
+          "description": "Employee Identification Number (NIK)."
+        },
+        "jobTitle": {
+          "type": "string",
+          "description": "The employee's job title.",
+          "enum": ["Driver", "Dispatcher", "Checker", "Field Coordinator"]
+        },
+        "areaTugas": {
+          "type": "string",
+          "description": "The employee's area of assignment."
+        },
+        "contractStartDate": {
+          "type": "string",
+          "description": "The date the employee's contract started.",
+          "format": "date-time"
+        },
+        "contractEndDate": {
+          "type": "string",
+          "description": "The date the employee's contract ends.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "nik",
+        "jobTitle",
+        "areaTugas",
+        "contractStartDate",
+        "contractEndDate"
+      ]
+    },
+    "WarningLetter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WarningLetter",
+      "type": "object",
+      "description": "Represents a warning letter issued to an employee.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the WarningLetter entity."
+        },
+        "employeeId": {
+          "type": "string",
+          "description": "Reference to Employee. (Relationship: Employee 1:N WarningLetter)"
+        },
+        "nomorSurat": {
+          "type": "string",
+          "description": "The official number of the warning letter."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of warning (e.g., SP1, SP2, SP3, Teguran)."
+        },
+        "issueDate": {
+          "type": "string",
+          "description": "Date the warning letter was issued.",
+          "format": "date-time"
+        },
+        "expiryDate": {
+          "type": "string",
+          "description": "Date the warning letter is valid until.",
+          "format": "date-time"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the violation that led to the warning."
+        },
+        "peraturanDilanggar": {
+            "type": "string",
+            "description": "The specific company rule that was violated."
+        }
+      },
+      "required": [
+        "id",
+        "employeeId",
+        "nomorSurat",
+        "type",
+        "issueDate",
+        "description",
+        "peraturanDilanggar",
+        "expiryDate"
+      ]
+    },
+    "Report": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Report",
+      "type": "object",
+      "description": "Represents a HR report.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Report entity."
+        },
+        "reportType": {
+          "type": "string",
+          "description": "Type of Report."
+        },
+        "filter": {
+          "type": "string",
+          "description": "JSON string of filters (date range, employee status, etc.)"
+        },
+        "outputType": {
+          "type": "string",
+          "description": "Output type, such as Excel/CSV, PDF"
+        },
+        "generatedDate": {
+          "type": "string",
+          "description": "Date report was generated",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "reportType",
+        "filter",
+        "outputType"
+      ]
+    },
+    "Briefing": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Briefing",
+      "type": "object",
+      "description": "Represents a daily or periodic briefing session.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Briefing entity."
+        },
+        "area": {
+          "type": "string",
+          "description": "The work area where the briefing is held."
+        },
+        "briefingDate": {
+          "type": "string",
+          "description": "The date and time of the briefing.",
+          "format": "date-time"
+        },
+        "topics": {
+          "type": "array",
+          "description": "List of topics covered, e.g., 'Operasional', 'Safety'.",
+          "items": { "type": "string" }
+        },
+        "content": {
+          "type": "array",
+          "description": "The main points or materials of the briefing.",
+          "items": { "type": "string" }
+        },
+        "createdBy": {
+          "type": "string",
+          "description": "The ID of the user who created the briefing (e.g., Field Coordinator)."
+        },
+        "acknowledgedBy": {
+          "type": "string",
+          "description": "The ID of the user who acknowledged the briefing (e.g., Operation Point Coordinator)."
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the briefing was created."
+        }
+      },
+      "required": ["id", "area", "briefingDate", "topics", "content", "createdBy"]
+    },
+    "BriefingParticipant": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "BriefingParticipant",
+        "type": "object",
+        "description": "Represents an employee who attended a specific briefing.",
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "Unique identifier for the participant record."
+            },
+            "employeeId": {
+                "type": "string",
+                "description": "The ID of the attending employee."
+            },
+            "employeeName": {
+                "type": "string",
+                "description": "Denormalized name of the employee."
+            },
+            "employeeJobTitle": {
+                "type": "string",
+                "description": "Denormalized job title of the employee."
+            },
+            "hasSigned": {
+                "type": "boolean",
+                "description": "Indicates if the employee has signed the attendance."
+            }
+        },
+        "required": ["id", "employeeId", "employeeName", "employeeJobTitle"]
+    },
+     "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores user profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The user's unique ID from Firebase Auth."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's full name."
+        },
+        "jobTitle": {
+          "type": "string",
+          "description": "The user's job title (e.g., Field Coordinator)."
+        },
+        "workArea": {
+          "type": "string",
+          "description": "The user's assigned work area (e.g., Gorontalo)."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        }
+      },
+      "required": ["id", "name", "jobTitle", "workArea", "email"]
+    },
+    "Attendance": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Attendance",
+      "type": "object",
+      "description": "Represents an employee's attendance record for a single day.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the attendance record."
+        },
+        "employeeId": {
+          "type": "string",
+          "description": "The ID of the employee."
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "description": "The date of the attendance record."
+        },
+        "status": {
+          "type": "string",
+          "description": "Attendance status.",
+          "enum": ["Hadir", "Sakit", "Izin", "Alpha", "Cuti"]
+        },
+        "checkIn": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp for check-in."
+        },
+        "checkOut": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp for check-out."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Any notes related to the attendance (e.g., reason for leave)."
+        },
+        "importedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the record was imported."
+        }
+      },
+      "required": ["id", "employeeId", "date", "status", "importedAt"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. A user can only access their own profile.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user, matching their Auth UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/employees/{employeeId}",
+        "definition": {
+          "entityName": "Employee",
+          "schema": {
+            "$ref": "#/backend/entities/Employee"
+          },
+          "description": "Stores employee data. Accessible only to authorized HR staff.",
+          "params": [
+            {
+              "name": "employeeId",
+              "description": "Unique identifier for the employee."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/employees/{employeeId}/warningLetters/{warningLetterId}",
+        "definition": {
+          "entityName": "WarningLetter",
+          "schema": {
+            "$ref": "#/backend/entities/WarningLetter"
+          },
+          "description": "Stores warning letters associated with an employee. Includes denormalized 'employeeId' for authorization independence.",
+          "params": [
+            {
+              "name": "employeeId",
+              "description": "Unique identifier for the employee."
+            },
+            {
+              "name": "warningLetterId",
+              "description": "Unique identifier for the warning letter."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/reports/{reportId}",
+        "definition": {
+          "entityName": "Report",
+          "schema": {
+            "$ref": "#/backend/entities/Report"
+          },
+          "description": "Stores HR reports. Accessible only to authorized HR staff.",
+          "params": [
+            {
+              "name": "reportId",
+              "description": "Unique identifier for the report."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/briefings/{briefingId}",
+        "definition": {
+          "entityName": "Briefing",
+          "schema": { "$ref": "#/backend/entities/Briefing" },
+          "description": "Stores main briefing documents.",
+          "params": [{ "name": "briefingId", "description": "Unique identifier for the briefing." }]
+        }
+      },
+      {
+        "path": "/briefings/{briefingId}/participants/{participantId}",
+        "definition": {
+          "entityName": "BriefingParticipant",
+          "schema": { "$ref": "#/backend/entities/BriefingParticipant" },
+          "description": "Stores attendance records for a specific briefing.",
+          "params": [
+            { "name": "briefingId", "description": "Identifier of the parent briefing." },
+            { "name": "participantId", "description": "Unique identifier for the participant record." }
+          ]
+        }
+      },
+      {
+        "path": "/attendances/{attendanceId}",
+        "definition": {
+          "entityName": "Attendance",
+          "schema": { "$ref": "#/backend/entities/Attendance" },
+          "description": "Stores imported attendance records for all employees.",
+          "params": [{ "name": "attendanceId", "description": "Unique identifier for the attendance record." }]
+        }
+      },
+      {
+        "path": "/roles_admin/{uid}",
+        "definition": {
+          "entityName": "admin_role",
+          "schema": {
+            "$ref": "#/backend/entities/Report"
+          },
+          "description": "Indicates administrator privileges for a user. Existence of a document at this path grants admin rights.",
+          "params": [
+            {
+              "name": "uid",
+              "description": "Unique identifier for the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to optimize for security, scalability, and query performance, adhering to the principles of Authorization Independence, Structural Segregation, and Access Modeling. Here's a detailed breakdown:\n\n1.  **Authorization Independence:** The design avoids hierarchical authorization dependencies (`get()` calls in security rules). Each collection is secured independently, allowing atomic operations and simplifying security rules. The `WarningLetter` subcollection includes a denormalized `employeeId` which allows rules to check the user's permission on `Employee` data directly without needing a `get()` call to the parent document.\n\n2.  **Structural Segregation:**  The structure separates data with different access requirements into distinct collections. All documents within a collection share the same security posture, simplifying rules and improving maintainability.\n\n3.  **Access Modeling:**\n    *   **Private Data (Employee):**  The `/employees/{employeeId}` path provides a secure, path-based ownership model for employee data. Only authorized users (e.g., HR staff) can access employee documents.\n    *   **Hierarchical Paths for User-Owned Data (WarningLetter):** Warning letters are stored as a subcollection of employees: `/employees/{employeeId}/warningLetters/{warningLetterId}`. This is a typical 1:N structure. This allows for straightforward security rules based on the employee's ID.\n    *   **Global Roles (DBAC):**  The system does not implement custom claims. Instead, it relies on direct database access control (DBAC) to store roles. A dedicated collection, `/roles_admin/{uid}`, is used to determine if a user is an admin. The existence of a document at this path grants admin privileges.\n\n4.  **QAPs (Rules Are Not Filters):** The structure is designed to support secure list operations. For example, listing warning letters for a specific employee is secure because the rules can verify the user's access to the employee document and the list query is scoped to that specific employee. Admin users can access all warning letters, as defined by the rules accessing `/roles_admin/{uid}`. Segregation of data ensures that no sensitive data is exposed through list operations without proper authorization.\n\n5. **Attendance Data**: A top-level `/attendances` collection is chosen for simplicity of import. When importing a large batch of attendance data for many employees at once, writing to a single collection is more efficient than writing to many different subcollections under each employee. Queries for reports across all employees (e.g., 'show all absences in May') are also more straightforward on a top-level collection.\n\nThe database structure supports integrity constraints by using transactions when updating employee data alongside related documents, such as `WarningLetter` records. This ensures consistency across the system."
+  }
+}
