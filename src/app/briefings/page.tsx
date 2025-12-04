@@ -17,6 +17,7 @@ import {
 import { MoreHorizontal, PlusCircle, ArrowUpDown, Loader2, Trash2, Edit, FileDown, Users, CheckCircle, Printer, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
+import dynamic from 'next/dynamic';
 
 import { useCollection, useFirestore, useMemoFirebase, useDoc, useUser } from '@/firebase';
 import type { Briefing, Employee, BriefingParticipant, UserProfile } from '@/lib/types';
@@ -64,13 +65,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { NewBriefingForm } from '@/components/briefings/new-briefing-form';
-import { EditBriefingForm } from '@/components/briefings/edit-briefing-form';
 import { useToast } from '@/hooks/use-toast';
-import { PrintableBriefing } from "@/components/briefings/printable-briefing";
 import { generatePdfFromComponent } from "@/lib/pdf-generator";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+
+// Dynamically import heavy components
+const NewBriefingForm = dynamic(() => import('@/components/briefings/new-briefing-form').then(mod => mod.NewBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
+const EditBriefingForm = dynamic(() => import('@/components/briefings/edit-briefing-form').then(mod => mod.EditBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
+const PrintableBriefing = dynamic(() => import('@/components/briefings/printable-briefing').then(mod => mod.PrintableBriefing), { ssr: false });
 
 
 const formatDateForDisplay = (dateString: string) => {
@@ -178,7 +181,7 @@ export default function BriefingsPage() {
             acknowledgerSignatureUrl: briefingToPrint.acknowledgerSignatureUrl || userProfile.operationPointCoordinatorSignatureUrl,
         };
 
-        const ComponentToPrint = PrintableBriefing({ briefing: briefingWithSignatures, participants: participantsWithFullData });
+        const ComponentToPrint = <PrintableBriefing briefing={briefingWithSignatures} participants={participantsWithFullData} />;
         await generatePdfFromComponent(
             ComponentToPrint,
             `Briefing - ${briefingToPrint.area} - ${format(new Date(briefingToPrint.briefingDate), 'yyyy-MM-dd')}.pdf`
@@ -672,3 +675,5 @@ export default function BriefingsPage() {
     </div>
   );
 }
+
+    
