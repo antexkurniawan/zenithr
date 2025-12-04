@@ -4,74 +4,74 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71% 4%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-    --primary: 243 75% 58%; /* Indigo from logo */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 213 44% 62%; /* Softer purple/blue as secondary */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 198 95% 74%; /* Bright Cyan from logo for hover/accent */
-    --accent-foreground: 224 71% 4%;
+    --background: 0 0% 98%; /* Gray-50 */
+    --foreground: 222 47% 11%; /* Gray-800 */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 222 47% 11%; /* Gray-800 */
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 222 47% 11%; /* Gray-800 */
+    --primary: 197 100% 50%; /* Cyan #00DFFF */
+    --primary-foreground: 222 47% 11%; /* Gray-800 for contrast on Cyan */
+    --secondary: 262 88% 66%; /* Purple #A855F7 */
+    --secondary-foreground: 0 0% 98%; /* White/Gray-50 for contrast on Purple */
+    --muted: 210 40% 96.1%; /* Gray-100 */
+    --muted-foreground: 215 20% 65%; /* Gray-400/500 */
+    --accent: 210 40% 96.1%; /* Gray-100 for hover */
+    --accent-foreground: 222 47% 11%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 243 75% 58%;
+    --ring: 197 100% 50%;
     --radius: 0.8rem;
 
-    --chart-1: 243 75% 58%;
-    --chart-2: 198 95% 74%;
+    --chart-1: 197 100% 50%;
+    --chart-2: 262 88% 66%;
     --chart-3: 213 44% 62%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    /* Custom Sidebar colors for light mode - uses the new primary color */
-    --sidebar-background: 243 75% 58%; /* Primary indigo for sidebar */
-    --sidebar-foreground: 0 0% 100%; /* White text for sidebar */
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 243 75% 58%;
-    --sidebar-accent: 243 75% 50%; /* Darker indigo for hover/active */
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 243 75% 50%;
-    --sidebar-ring: 0 0% 100%;
+    /* Custom Sidebar colors for light mode */
+    --sidebar-background: 222 47% 11%; /* Dark Gray-800 for contrast */
+    --sidebar-foreground: 0 0% 98%; /* White text */
+    --sidebar-primary: 197 100% 50%; /* Cyan for active item */
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 224 34% 19%; /* Slightly lighter gray for hover */
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 224 34% 19%;
+    --sidebar-ring: 197 100% 50%;
   }
 
   .dark {
-    --background: 0 0% 7%; /* Dark Gray #121212 */
-    --foreground: 210 40% 98%;
-    --card: 0 0% 10%; /* Slightly lighter gray for cards */
-    --card-foreground: 210 40% 98%;
-    --popover: 0 0% 10%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 243 75% 58%; /* Indigo #4F46E5 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 215 28% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 215 28% 17%;
-    --muted-foreground: 218 11% 65%;
-    --accent: 198 95% 74%; /* Light blue #7DD3FC */
-    --accent-foreground: 0 0% 7%;
+    --background: 222 47% 11%; /* Gray-900 */
+    --foreground: 210 40% 98%; /* Gray-50 */
+    --card: 224 34% 19%; /* Gray-800 */
+    --card-foreground: 210 40% 98%; /* Gray-50 */
+    --popover: 224 34% 19%; /* Gray-800 */
+    --popover-foreground: 210 40% 98%; /* Gray-50 */
+    --primary: 197 100% 50%; /* Cyan #00DFFF */
+    --primary-foreground: 222 47% 11%;
+    --secondary: 262 88% 66%; /* Purple #A855F7 */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 224 34% 19%; /* Gray-800 */
+    --muted-foreground: 215 20% 65%; /* Gray-400 */
+    --accent: 224 34% 19%; /* Gray-800 for hover */
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 28% 17%;
-    --input: 215 28% 17%;
-    --ring: 243 75% 58%;
+    --border: 224 34% 19%;
+    --input: 224 34% 19%;
+    --ring: 197 100% 50%;
 
     /* Custom Sidebar colors for dark mode */
-    --sidebar-background: 0 0% 10%;
+    --sidebar-background: 224 34% 13%; /* Darker than card */
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 243 75% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 215 28% 17%;
+    --sidebar-primary: 197 100% 50%;
+    --sidebar-primary-foreground: 222 47% 11%;
+    --sidebar-accent: 224 34% 19%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 28% 17%;
-    --sidebar-ring: 243 75% 58%;
+    --sidebar-border: 224 34% 19%;
+    --sidebar-ring: 197 100% 50%;
   }
 }
 
