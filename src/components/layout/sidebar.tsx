@@ -43,15 +43,15 @@ export function SiteSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link href="/" className="flex items-center gap-2.5 font-semibold text-lg px-2">
+        <Link href="/" className="flex items-center justify-center py-2 group-data-[collapsible=icon]:py-0">
             <Image
                 src="/zenithr-logo.png"
                 alt="ZENITHR Logo"
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain"
+                width={100}
+                height={28}
+                className="h-7 w-auto object-contain transition-all duration-300 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10"
+                priority
             />
-            <span className="group-data-[collapsible=icon]:hidden">ZENITHR</span>
         </Link>
       </SidebarHeader>
       <SidebarMenu className="p-2">
