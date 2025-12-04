@@ -303,12 +303,12 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                             <SelectValue placeholder="Pilih deskripsi pelanggaran untuk mengisi otomatis..." />
                         </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
                         {isLoadingRules ? (
                             <div className="flex items-center justify-center p-2"><Loader2 className="h-4 w-4 animate-spin"/></div>
                         ) : (
                             (allRules || []).filter(rule => rule.type === warningType).map((rule) => (
-                                <SelectItem key={rule.id} value={rule.text}>
+                                <SelectItem key={rule.id} value={rule.text} className="whitespace-normal">
                                     {rule.description}
                                 </SelectItem>
                             ))
