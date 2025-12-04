@@ -8,9 +8,12 @@ import {
   CalendarClock,
   PlusCircle,
   Loader2,
+  AlertTriangle,
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { collection, where, query, orderBy } from 'firebase/firestore';
+import Image from 'next/image';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -34,21 +37,39 @@ import { NewEmployeeForm } from '@/components/pegawai/new-employee-form';
 import { useState } from 'react';
 import { NewWarningForm } from '@/components/warnings/new-warning-form';
 import { isAfter } from 'date-fns';
+import { cn } from '@/lib/utils';
 
-function StatCard({ title, value, icon: Icon, isLoading }: { title: string, value: string | number, icon: React.ElementType, isLoading: boolean }) {
+function StatCard({ 
+    title, 
+    value, 
+    icon: Icon, 
+    isLoading,
+    description,
+    className 
+}: { 
+    title: string, 
+    value: string | number, 
+    icon: React.ElementType, 
+    isLoading: boolean,
+    description?: string,
+    className?: string 
+}) {
   return (
-    <Card>
+    <Card className={cn("flex flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">
           {title}
         </CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <Icon className="h-5 w-5 text-muted-foreground" />
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col justify-center">
         {isLoading ? (
             <Loader2 className="h-8 w-8 animate-spin" />
         ) : (
-            <div className="text-4xl font-bold">{value}</div>
+            <>
+                <div className="text-4xl font-bold">{value}</div>
+                {description && <p className="text-xs text-muted-foreground">{description}</p>}
+            </>
         )}
       </CardContent>
     </Card>
@@ -64,13 +85,16 @@ export default function DashboardPage() {
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
   const activeEmployeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   
+  // This is a subcollection query, which is more complex. Let's simplify for now.
   const warningsCollection = useMemoFirebase(() => collection(firestore, 'warnings'), [firestore]);
   const { data: allWarnings, isLoading: isLoadingWarnings } = useCollection<Warning>(warningsCollection);
+
   const { data: allEmployees, isLoading: isLoadingEmployees } = useCollection<Employee>(activeEmployeesQuery);
   
   const activeWarningsCount = allWarnings?.filter(w => isAfter(new Date(w.expiryDate), new Date())).length ?? 0;
 
   const totalEmployees = allEmployees?.length ?? 0;
+  
   const expiringContracts = allEmployees?.filter(e => {
       if (!e.contractEndDate) return false;
       const diff = new Date(e.contractEndDate).getTime() - new Date().getTime();
@@ -78,94 +102,67 @@ export default function DashboardPage() {
       return days > 0 && days <= 30;
   }).length ?? 0;
 
+  const isLoading = isLoadingEmployees || isLoadingWarnings;
+
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard 
-            title="Total Pegawai" 
-            value={totalEmployees} 
-            icon={Users} 
-            isLoading={isLoadingEmployees}
-        />
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">SP Aktif</CardTitle>
-            <FileWarning className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            {isLoadingWarnings ? <Loader2 className="h-8 w-8 animate-spin" /> : <div className="text-4xl font-bold">{activeWarningsCount}</div> }
-          </CardContent>
-          <CardFooter>
-            <Button size="sm" asChild>
-              <Link href="/warnings">Lihat Detail</Link>
-            </Button>
-          </CardFooter>
+        <div className="flex items-center gap-4">
+            <Image
+                src="/zenithr-logo.png"
+                alt="ZENITHR Logo"
+                width={50}
+                height={50}
+                className="h-12 w-auto object-contain"
+                priority
+            />
+            <h1 className="text-3xl font-bold tracking-tight">ZENITHR Dashboard</h1>
+        </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Main Hero Card */}
+        <Card className="lg:col-span-3 relative flex flex-col justify-between overflow-hidden p-6 bg-gradient-to-br from-primary via-primary to-secondary text-primary-foreground">
+           <div className="space-y-2">
+                <h2 className="text-lg font-semibold">Total Active Workforce</h2>
+                {isLoading ? (
+                     <Loader2 className="h-10 w-10 animate-spin" />
+                ): (
+                    <p className="text-6xl font-bold tracking-tighter">{totalEmployees}</p>
+                )}
+                {/* Placeholder for now */}
+                <p className="text-sm opacity-80">Shift Compliance: 92%</p>
+           </div>
         </Card>
+
+        {/* Other Stat Cards */}
         <StatCard 
-            title="Perekrutan Bulan Ini" 
-            value={0} // Static for now
-            icon={UserPlus} 
-            isLoading={false}
+            title="SP Aktif" 
+            value={activeWarningsCount} 
+            icon={FileWarning} 
+            isLoading={isLoadingWarnings}
+            description="Surat peringatan yang masih berlaku"
         />
         <StatCard 
             title="Kontrak Segera Berakhir" 
             value={expiringContracts} 
             icon={CalendarClock} 
             isLoading={isLoadingEmployees}
+            description="Dalam 30 hari ke depan"
         />
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>Aksi Cepat</CardTitle>
-            <CardDescription>
-              Mulai tugas umum dengan satu klik.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-2">
-            <Dialog open={isEmployeeModalOpen} onOpenChange={setEmployeeModalOpen}>
-                <DialogTrigger asChild>
-                    <Button size="lg" className="w-full">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Tambah Pegawai Baru
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
-                    <DialogHeader>
-                        <DialogTitle>Tambah Pegawai Baru</DialogTitle>
-                    </DialogHeader>
-                    <NewEmployeeForm setModalOpen={setEmployeeModalOpen} />
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isWarningModalOpen} onOpenChange={setWarningModalOpen}>
-                <DialogTrigger asChild>
-                    <Button size="lg" variant="secondary" className="w-full">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Buat Surat Peringatan
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
-                    <DialogHeader>
-                        <DialogTitle>Buat Surat Peringatan Baru</DialogTitle>
-                    </DialogHeader>
-                    {isLoadingEmployees ? (
-                        <div className="flex justify-center items-center p-8">
-                            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-                        </div>
-                    ) : (
-                        <NewWarningForm employees={allEmployees ?? []} setModalOpen={setWarningModalOpen} />
-                    )}
-                </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
+        <StatCard 
+            title="Keterlambatan Check-in" 
+            value={8} // Placeholder
+            icon={AlertTriangle} 
+            isLoading={false}
+            description="Bulan ini"
+        />
+         <StatCard 
+            title="Jam Lembur" 
+            value={1200} // Placeholder
+            icon={Clock} 
+            isLoading={false}
+            description="Bulan ini"
+        />
       </div>
     </div>
   );
 }
-
-    
-
-    
