@@ -174,10 +174,13 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                                 <CommandItem
                                 value={employee.name}
                                 key={employee.id}
-                                onSelect={() => {
-                                    form.setValue("employeeId", employee.id);
+                                onSelect={(currentValue) => {
+                                    const selectedEmployee = employees.find(e => e.name.toLowerCase() === currentValue.toLowerCase());
+                                    if (selectedEmployee) {
+                                      form.setValue("employeeId", selectedEmployee.id);
+                                    }
                                     setComboboxOpen(false);
-                                }}
+                                  }}
                                 >
                                 <Check
                                     className={cn(
