@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -20,7 +21,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth, useFirestore } from '@/firebase';
 
@@ -31,7 +31,6 @@ const formSchema = z.object({
   password: z
     .string({ required_error: 'Password harus diisi.' })
     .min(6, 'Password minimal 6 karakter.'),
-  remember: z.boolean().optional(),
 });
 
 type LoginFormValues = z.infer<typeof formSchema>;
@@ -41,7 +40,6 @@ const ensureUserProfileExists = async (firestore: any, user: any) => {
   const userProfileSnap = await getDoc(userProfileRef);
 
   if (!userProfileSnap.exists()) {
-    // User profile doesn't exist, create one
     try {
       await setDoc(userProfileRef, {
         id: user.uid,
@@ -53,7 +51,6 @@ const ensureUserProfileExists = async (firestore: any, user: any) => {
       });
     } catch (error) {
       console.error("Failed to create user profile:", error);
-      // We can decide to throw the error or handle it gracefully
     }
   }
 };
@@ -71,7 +68,6 @@ export default function LoginPage() {
     defaultValues: {
       email: 'hrd@example.com',
       password: 'password',
-      remember: false,
     },
   });
 
@@ -80,7 +76,6 @@ export default function LoginPage() {
     try {
       const userCredential: UserCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
       
-      // Ensure user profile exists before redirecting
       await ensureUserProfileExists(firestore, userCredential.user);
 
       toast({
@@ -105,26 +100,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
-      <div className="w-full max-w-4xl rounded-2xl shadow-2xl grid md:grid-cols-2 overflow-hidden bg-card text-card-foreground">
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-900 text-white overflow-hidden p-4">
+      {/* Background Gradients */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-pulse"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-pulse animation-delay-4000"></div>
+
+      <div className="relative w-full max-w-5xl rounded-2xl shadow-2xl grid md:grid-cols-2 overflow-hidden bg-gray-800/20 backdrop-blur-lg border border-white/10">
         
-        {/* Left Side */}
-        <div className="hidden md:flex flex-col justify-between p-10 bg-primary text-primary-foreground relative">
-           <div className="absolute inset-0 bg-black/10"></div>
-           <div className="relative z-10">
-             <h2 className="text-3xl font-bold">ZENITHR</h2>
-             <p className="text-white/80">Sistem Manajemen Sumber Daya Manusia</p>
+        {/* Left Side - Branding */}
+        <div className="hidden md:flex flex-col items-center justify-center p-12 bg-gray-900/40 border-r border-white/10">
+           <div className="flex items-center gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-16 w-16 text-primary" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+              <path d="M2 17l10 5 10-5"></path>
+              <path d="M2 12l10 5 10-5"></path>
+            </svg>
+             <h2 className="text-5xl font-bold tracking-wider">ZENITHR</h2>
           </div>
-          <div className="relative z-10 text-sm">
-            &copy; 2024 FICO
-          </div>
+           <p className="text-white/60 mt-4 text-center">Sistem Manajemen Sumber Daya Manusia Modern</p>
         </div>
 
-        {/* Right Side */}
-        <div className="p-6 sm:p-10">
+        {/* Right Side - Form */}
+        <div className="p-8 sm:p-12">
           <div className='mb-8 text-center'>
-            <h3 className='text-2xl font-bold text-gray-800 dark:text-gray-200'>Selamat Datang</h3>
-            <p className='text-muted-foreground'>Silakan masuk ke akun Anda</p>
+            <h3 className='text-3xl font-bold text-white'>Welcome Back!</h3>
+            <p className='text-muted-foreground'>Silakan masuk untuk melanjutkan</p>
           </div>
           
           <Form {...form}>
@@ -139,7 +139,7 @@ export default function LoginPage() {
                       <Input
                         type="email"
                         placeholder="nama@perusahaan.com"
-                        className="bg-gray-100 dark:bg-gray-800 focus:bg-white"
+                        className="bg-gray-700/50 border-white/20 focus:bg-gray-700 focus:ring-primary focus:border-primary"
                         {...field}
                       />
                     </FormControl>
@@ -157,7 +157,7 @@ export default function LoginPage() {
                         <Input
                           type="password"
                           placeholder="******"
-                           className="bg-gray-100 dark:bg-gray-800 focus:bg-white"
+                           className="bg-gray-700/50 border-white/20 focus:bg-gray-700 focus:ring-primary focus:border-primary"
                           {...field}
                         />
                       </FormControl>
@@ -166,23 +166,15 @@ export default function LoginPage() {
                 )}
               />
 
-              <div className="flex flex-col sm:flex-row items-center justify-between text-sm gap-4">
-                <FormField
-                  control={form.control}
-                  name="remember"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center space-x-2 space-y-0">
-                      <FormControl>
-                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                      </FormControl>
-                      <FormLabel className="font-normal text-muted-foreground">Ingat saya</FormLabel>
-                    </FormItem>
-                  )}
-                />
-                <Link href="#" className="text-primary hover:underline">Lupa Password?</Link>
+              <div className="text-right text-sm">
+                <Link href="#" className="text-primary/80 hover:text-primary hover:underline">Lupa Password?</Link>
               </div>
 
-              <Button type="submit" className="w-full font-bold text-base h-12" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                className="w-full font-bold text-base h-12 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105" 
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -192,7 +184,7 @@ export default function LoginPage() {
               
                <div className="text-center text-sm text-muted-foreground">
                   Belum punya akun?{' '}
-                  <Link href="#" className="text-primary hover:underline font-medium">
+                  <Link href="#" className="text-primary/80 hover:text-primary hover:underline font-medium">
                     Hubungi Administrator
                   </Link>
                </div>
