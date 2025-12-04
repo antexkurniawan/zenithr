@@ -47,7 +47,8 @@ export const generatePdfFromComponent = async (
                 logging: false,
             });
 
-            const imgData = canvas.toDataURL('image/png', 1.0);
+            // Change to JPEG format with 90% quality for compression
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
             
             const pdfWidth = 210;
             const pdfHeight = 297;
@@ -70,7 +71,7 @@ export const generatePdfFromComponent = async (
             const x = (pdfWidth - finalImgWidth) / 2;
             const y = (pdfHeight - finalImgHeight) / 2;
 
-            pdf.addImage(imgData, 'PNG', x, y, finalImgWidth, finalImgHeight);
+            pdf.addImage(imgData, 'JPEG', x, y, finalImgWidth, finalImgHeight);
         }
         
         const pdfBlob = pdf.output('blob');
