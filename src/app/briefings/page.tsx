@@ -534,7 +534,7 @@ export default function BriefingsPage() {
 
       {/* Detail Modal */}
       <Dialog open={isDetailModalOpen} onOpenChange={(isOpen) => {
-          setDetailModalOpen(isOpen);
+          setIsDetailModalOpen(isOpen);
           if (!isOpen) setSelectedBriefing(null);
       }}>
         <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
@@ -673,5 +673,7 @@ export default function BriefingsPage() {
     </div>
   );
 }
+
+    
 
     
