@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -201,7 +202,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
               render={({ field }) => (
                 <FormItem className="flex flex-col sm:col-span-2">
                     <FormLabel>Nama Pegawai</FormLabel>
-                    <Popover open={isComboboxOpen} onOpenChange={setComboboxOpen}>
+                    <Popover open={isComboboxOpen} onOpenChange={setComboboxOpen} modal={false}>
                         <PopoverTrigger asChild>
                             <Button
                             variant="outline"
