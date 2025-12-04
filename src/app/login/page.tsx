@@ -109,23 +109,34 @@ export default function LoginPage() {
         
         {/* Left Side - Branding */}
         <div className="hidden md:flex flex-col items-center justify-center p-12 bg-gray-900/40 border-r border-white/10">
-           <div className="flex items-center gap-4">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-16 w-16 text-primary" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5"></path>
-              <path d="M2 12l10 5 10-5"></path>
-            </svg>
-             <h2 className="text-5xl font-bold tracking-wider">ZENITHR</h2>
+          <div className="flex flex-col items-center justify-center">
+            <Image 
+                src="/zenithr-logo.png"
+                alt="ZENITHR Logo"
+                width={250}
+                height={70}
+                className="object-contain"
+                priority
+            />
+            <p className="text-white/60 mt-4 text-center">Sistem Manajemen Sumber Daya Manusia Modern</p>
           </div>
-           <p className="text-white/60 mt-4 text-center">Sistem Manajemen Sumber Daya Manusia Modern</p>
         </div>
 
         {/* Right Side - Form */}
         <div className="p-8 sm:p-12">
-          <div className='mb-8 text-center'>
-            <h3 className='text-3xl font-bold text-white'>Welcome Back!</h3>
-            <p className='text-muted-foreground'>Silakan masuk untuk melanjutkan</p>
-          </div>
+           <div className='mb-8 text-center'>
+                <div className="flex md:hidden items-center justify-center mb-6">
+                     <Image 
+                        src="/zenithr-logo.png"
+                        alt="ZENITHR Logo"
+                        width={180}
+                        height={50}
+                        className="object-contain"
+                    />
+                </div>
+                <h3 className='text-3xl font-bold text-white'>Welcome Back!</h3>
+                <p className='text-muted-foreground'>Silakan masuk untuk melanjutkan</p>
+            </div>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
