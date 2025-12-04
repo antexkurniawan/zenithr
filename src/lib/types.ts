@@ -94,3 +94,10 @@ export type Attendance = {
   notes?: string;
   importedAt: Timestamp;
 };
+
+export type CompanyRule = {
+    id: string;
+    type: WarningType;
+    description: string;
+    text: string;
+};

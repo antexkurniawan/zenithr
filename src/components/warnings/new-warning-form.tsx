@@ -9,7 +9,7 @@ import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { format, parse, addMonths } from "date-fns";
 import { collection, doc, serverTimestamp, writeBatch, query, where, getDocs, Timestamp } from 'firebase/firestore';
 
-import type { Employee, WarningType } from "@/lib/types";
+import type { Employee, WarningType, CompanyRule } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -34,12 +34,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useFirestore } from "@/firebase";
+import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { Input } from "../ui/input";
-import * as companyRulesData from '@/ai/knowledge/company-rules-template.json';
-import { cn } from "@/lib/utils";
-
-const allRules = companyRulesData.companyRules;
 
 const formSchema = z.object({
   employeeId: z.string({ required_error: "Pegawai harus dipilih." }),
@@ -80,6 +76,9 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
+  const rulesCollectionRef = useMemoFirebase(() => collection(firestore, 'company_rules'), [firestore]);
+  const { data: allRules, isLoading: isLoadingRules } = useCollection<CompanyRule>(rulesCollectionRef);
+
   const form = useForm<NewWarningFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -321,11 +320,15 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                         </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                        {(allRules[warningType as keyof typeof allRules] || []).map((rule) => (
-                            <SelectItem key={rule.ruleId} value={rule.text}>
-                                {rule.description}
-                            </SelectItem>
-                        ))}
+                        {isLoadingRules ? (
+                            <div className="flex items-center justify-center p-2"><Loader2 className="h-4 w-4 animate-spin"/></div>
+                        ) : (
+                            (allRules || []).filter(rule => rule.type === warningType).map((rule) => (
+                                <SelectItem key={rule.id} value={rule.text}>
+                                    {rule.description}
+                                </SelectItem>
+                            ))
+                        )}
                     </SelectContent>
                 </Select>
             </div>
