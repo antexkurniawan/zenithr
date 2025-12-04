@@ -174,18 +174,22 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
                             <Popover>
                             <PopoverTrigger asChild>
                                 <FormControl>
-                                <div className="relative">
-                                    <Input
-                                    value={field.value ? format(field.value, 'dd/MM/yyyy HH:mm') : ''}
-                                    readOnly
-                                    placeholder="Pilih tanggal dan waktu"
-                                    className="pr-8"
-                                    />
-                                    <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                                </div>
+                                <Button
+                                    variant={"outline"}
+                                    className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}
+                                >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {field.value ? format(field.value, 'dd/MM/yyyy HH:mm') : <span>Pilih tanggal dan waktu</span>}
+                                </Button>
                                 </FormControl>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 z-[101]" align="start">
+                            <PopoverContent 
+                                className="w-auto p-0" 
+                                align="start"
+                                onInteractOutside={(e) => {
+                                    e.preventDefault();
+                                }}
+                            >
                                 <Calendar
                                 mode="single"
                                 selected={field.value}
@@ -356,3 +360,5 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
     </Form>
   );
 }
+
+    
