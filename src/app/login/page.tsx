@@ -100,26 +100,42 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gray-900 text-white overflow-hidden p-4">
-      {/* Background Gradients */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-blue-500/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-pulse"></div>
-      <div className="absolute bottom-0 right-0 w-96 h-96 bg-indigo-500/30 rounded-full mix-blend-screen filter blur-3xl opacity-50 animate-pulse animation-delay-4000"></div>
+    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 text-gray-900 overflow-hidden p-4">
+      {/* Background Animated Gradients */}
+      <div className="absolute -top-1/4 -left-1/4 w-96 h-96 sm:w-[32rem] sm:h-[32rem] bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob"></div>
+      <div className="absolute -bottom-1/4 -right-1/4 w-96 h-96 sm:w-[32rem] sm:h-[32rem] bg-indigo-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob animation-delay-4000"></div>
 
-      <div className="relative w-full max-w-5xl rounded-2xl shadow-2xl grid md:grid-cols-2 overflow-hidden bg-gray-800/20 backdrop-blur-lg border border-white/10">
+      <style jsx>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 10s infinite;
+        }
+        .animation-delay-4000 {
+          animation-delay: -4s;
+        }
+      `}</style>
+
+
+      <div className="relative w-full max-w-5xl rounded-2xl shadow-2xl grid md:grid-cols-2 overflow-hidden bg-white/60 backdrop-blur-xl border border-gray-200/50">
         
         {/* Left Side - Branding */}
-        <div className="hidden md:flex flex-col items-center justify-center p-12 bg-gray-900/40 border-r border-white/10">
-          <div className="flex flex-col items-center justify-center">
+        <div className="hidden md:flex flex-col items-center justify-center p-12 bg-white/30 border-r border-gray-200/50">
+          <div className="flex flex-col items-center justify-center text-center">
             <Image 
                 src="/zenithr-logo.png"
                 alt="ZENITHR Logo"
-                width={250}
-                height={70}
+                width={200}
+                height={56}
                 className="object-contain"
                 priority
             />
-            <h1 className="text-4xl font-bold text-white mt-4 tracking-wider">ZENITHR</h1>
-            <p className="text-white/60 mt-2 text-center">Sistem Manajemen Sumber Daya Manusia Modern</p>
+            <h1 className="text-5xl font-bold text-gray-800 mt-4 tracking-wider">ZENITHR</h1>
+            <p className="text-gray-500 mt-2">Sistem Manajemen Sumber Daya Manusia Modern</p>
           </div>
         </div>
 
@@ -135,7 +151,7 @@ export default function LoginPage() {
                         className="object-contain"
                     />
                 </div>
-                <h3 className='text-3xl font-bold text-white'>Welcome Back!</h3>
+                <h3 className='text-3xl font-bold text-gray-800'>Selamat Datang!</h3>
                 <p className='text-muted-foreground'>Silakan masuk untuk melanjutkan</p>
             </div>
           
@@ -151,7 +167,7 @@ export default function LoginPage() {
                       <Input
                         type="email"
                         placeholder="nama@perusahaan.com"
-                        className="bg-gray-700/50 border-white/20 focus:bg-gray-700 focus:ring-primary focus:border-primary"
+                        className="bg-gray-100/50 border-gray-300 focus:bg-white"
                         {...field}
                       />
                     </FormControl>
@@ -169,7 +185,7 @@ export default function LoginPage() {
                         <Input
                           type="password"
                           placeholder="******"
-                           className="bg-gray-700/50 border-white/20 focus:bg-gray-700 focus:ring-primary focus:border-primary"
+                           className="bg-gray-100/50 border-gray-300 focus:bg-white"
                           {...field}
                         />
                       </FormControl>
@@ -179,12 +195,12 @@ export default function LoginPage() {
               />
 
               <div className="text-right text-sm">
-                <Link href="#" className="text-primary/80 hover:text-primary hover:underline">Lupa Password?</Link>
+                <Link href="#" className="text-primary/90 hover:text-primary hover:underline">Lupa Password?</Link>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full font-bold text-base h-12 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105" 
+                className="w-full font-bold text-base h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105" 
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -196,7 +212,7 @@ export default function LoginPage() {
               
                <div className="text-center text-sm text-muted-foreground">
                   Belum punya akun?{' '}
-                  <Link href="#" className="text-primary/80 hover:text-primary hover:underline font-medium">
+                  <Link href="#" className="text-primary/90 hover:text-primary hover:underline font-medium">
                     Hubungi Administrator
                   </Link>
                </div>
