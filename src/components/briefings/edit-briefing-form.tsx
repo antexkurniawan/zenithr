@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CalendarIcon, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { CalendarIcon, Loader2, PlusCircle, Trash2, ArrowLeft, ArrowRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { doc, serverTimestamp, updateDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 
@@ -28,7 +28,7 @@ import type { Briefing, Employee, BriefingParticipant, UserProfile } from '@/lib
 import { Textarea } from '../ui/textarea';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
-import { Separator } from '../ui/separator';
+import { StepIndicator } from './step-indicator';
 
 const formSchema = z.object({
     area: z.string().min(1, 'Area tugas harus diisi.'),
@@ -55,6 +55,7 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
   const firestore = useFirestore();
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(1);
 
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
@@ -67,7 +68,7 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
     defaultValues: {
       area: briefing.area,
       briefingDate: new Date(briefing.briefingDate),
-      items: briefing.items || [{ topic: '', content: '' }],
+      items: briefing.items && briefing.items.length > 0 ? briefing.items : [{ topic: '', content: '' }],
       participants: [],
     },
   });
@@ -82,6 +83,22 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
     control: form.control,
     name: "items",
   });
+  
+  const handleNext = async () => {
+    let fieldsToValidate: (keyof EditBriefingFormValues)[] = [];
+    if (step === 1) fieldsToValidate = ['area', 'briefingDate'];
+    if (step === 2) fieldsToValidate = ['items'];
+    
+    const isValid = await form.trigger(fieldsToValidate);
+    if (isValid) {
+      setStep(step + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setStep(step - 1);
+  };
+
 
   async function onSubmit(data: EditBriefingFormValues) {
     if (!userProfile) return;
@@ -97,7 +114,6 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
         content: data.items.map(item => item.content),
         items: data.items,
         updatedAt: serverTimestamp(),
-        // Also update acknowledger info from current profile state in case it changed
         acknowledgerName: userProfile.operationPointCoordinatorName || briefing.acknowledgerName || null,
         acknowledgerSignatureUrl: userProfile.operationPointCoordinatorSignatureUrl || briefing.acknowledgerSignatureUrl || null,
       };
@@ -147,201 +163,199 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
-        <div className="flex-grow overflow-y-auto pr-6 -mr-6 pl-6 pt-4">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Left Column: Material */}
-                <div className="space-y-4">
-                    <FormField
-                        control={form.control}
-                        name="area"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Area Tugas</FormLabel>
+        <div className="px-6 py-4 border-b">
+            <StepIndicator currentStep={step} />
+        </div>
+        <div className="flex-grow overflow-y-auto p-6">
+          {step === 1 && (
+            <div className="space-y-6">
+                <FormField
+                    control={form.control}
+                    name="area"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Area Tugas</FormLabel>
+                        <FormControl>
+                        <Input placeholder="cth. Gorontalo" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="briefingDate"
+                    render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                        <FormLabel>Tanggal & Waktu</FormLabel>
+                        <Popover>
+                        <PopoverTrigger asChild>
                             <FormControl>
-                            <Input placeholder="cth. Gorontalo" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="briefingDate"
-                        render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                            <FormLabel>Tanggal & Waktu</FormLabel>
-                            <Popover>
-                            <PopoverTrigger asChild>
-                                <FormControl>
-                                <Button
-                                    variant={"outline"}
-                                    className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}
-                                >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {field.value ? format(field.value, 'dd/MM/yyyy HH:mm') : <span>Pilih tanggal dan waktu</span>}
-                                </Button>
-                                </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent 
-                                className="w-auto p-0" 
-                                align="start"
-                                onInteractOutside={(e) => {
-                                    e.preventDefault();
-                                }}
+                            <Button
+                                variant={"outline"}
+                                className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"}`}
                             >
-                                <Calendar
-                                mode="single"
-                                selected={field.value}
-                                onSelect={field.onChange}
-                                initialFocus
-                                />
-                                <div className="p-2 border-t">
-                                    <Input type="time"
-                                        defaultValue={format(field.value, 'HH:mm')}
-                                        onChange={(e) => {
-                                            const [hours, minutes] = e.target.value.split(':');
-                                            const newDate = new Date(field.value);
-                                            newDate.setHours(Number(hours), Number(minutes));
-                                            field.onChange(newDate);
-                                        }}
-                                    />
-                                </div>
-                            </PopoverContent>
-                            </Popover>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-
-                    <div>
-                        <FormLabel>Topik & Materi Briefing</FormLabel>
-                        <FormDescription className="mb-2 text-xs">
-                            Masukkan topik dan poin-poin materi yang akan disampaikan.
-                        </FormDescription>
-                        <ScrollArea className="h-60 pr-4">
-                            <div className="space-y-4">
-                                {fields.map((field, index) => (
-                                    <div key={field.id} className="p-3 border rounded-md relative bg-muted/30">
-                                        <div className='space-y-2'>
-                                        <FormField
-                                            control={form.control}
-                                            name={`items.${index}.topic`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Input placeholder={`Topik #${index + 1}`} {...field} className="bg-background"/>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name={`items.${index}.content`}
-                                            render={({ field }) => (
-                                                <FormItem>
-                                                    <FormControl>
-                                                        <Textarea placeholder={`Materi untuk topik #${index + 1}`} {...field} rows={2} className="bg-background"/>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        </div>
-                                        {fields.length > 1 && (
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="icon"
-                                                className="absolute top-1 right-1 h-6 w-6 text-destructive"
-                                                onClick={() => remove(index)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </ScrollArea>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="mt-2"
-                            onClick={() => append({ topic: '', content: '' })}
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? format(field.value, 'dd/MM/yyyy HH:mm') : <span>Pilih tanggal dan waktu</span>}
+                            </Button>
+                            </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                            className="w-auto p-0" 
+                            align="start"
+                            onInteractOutside={(e) => e.preventDefault()}
                         >
-                            <PlusCircle className="mr-2 h-4 w-4" />
-                            Tambah Materi
-                        </Button>
-                        <FormField
-                            control={form.control}
-                            name="items"
-                            render={() => (<FormMessage className="mt-2" />)}
-                        />
-                    </div>
-                </div>
-
-                {/* Right Column: Participants */}
-                <div className="space-y-2">
-                    <FormField
-                        control={form.control}
-                        name="participants"
-                        render={() => (
-                            <FormItem>
-                            <div className="mb-2">
-                                <FormLabel className="text-base">Peserta Briefing</FormLabel>
-                                <FormDescription className="text-xs">
-                                    Pilih karyawan yang menghadiri sesi briefing ini.
-                                </FormDescription>
-                            </div>
-                            <ScrollArea className="h-[28.5rem] border rounded-md p-2">
-                                {employees.map((employee) => (
-                                <FormField
-                                    key={employee.id}
-                                    control={form.control}
-                                    name="participants"
-                                    render={({ field }) => {
-                                    return (
-                                        <FormItem
-                                        key={employee.id}
-                                        className="flex flex-row items-start space-x-3 space-y-0 p-2 hover:bg-muted/50 rounded-md"
-                                        >
-                                        <FormControl>
-                                            <Checkbox
-                                            checked={field.value?.includes(employee.id)}
-                                            onCheckedChange={(checked) => {
-                                                return checked
-                                                ? field.onChange([...(field.value || []), employee.id])
-                                                : field.onChange(
-                                                    (field.value || [])?.filter(
-                                                        (value) => value !== employee.id
-                                                    )
-                                                    );
-                                            }}
-                                            />
-                                        </FormControl>
-                                        <FormLabel className="font-normal w-full text-sm">
-                                            <div className="flex justify-between items-center">
-                                                <span>{employee.name}</span>
-                                                <span className="text-xs text-muted-foreground">{employee.jobTitle}</span>
-                                            </div>
-                                        </FormLabel>
-                                        </FormItem>
-                                    );
+                            <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            initialFocus
+                            />
+                            <div className="p-2 border-t">
+                                <Input type="time"
+                                    defaultValue={format(field.value, 'HH:mm')}
+                                    onChange={(e) => {
+                                        const [hours, minutes] = e.target.value.split(':');
+                                        const newDate = new Date(field.value);
+                                        newDate.setHours(Number(hours), Number(minutes));
+                                        field.onChange(newDate);
                                     }}
                                 />
-                                ))}
-                            </ScrollArea>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                </div>
+                            </div>
+                        </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
             </div>
-          </div>
+          )}
+          {step === 2 && (
+             <div>
+                <FormLabel>Topik & Materi Briefing</FormLabel>
+                <FormDescription className="mb-2 text-xs">
+                    Masukkan topik dan poin-poin materi yang akan disampaikan.
+                </FormDescription>
+                <ScrollArea className="h-80 pr-4">
+                    <div className="space-y-4">
+                        {fields.map((field, index) => (
+                            <div key={field.id} className="p-3 border rounded-md relative bg-muted/30">
+                                <div className='space-y-2'>
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${index}.topic`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Input placeholder={`Topik #${index + 1}`} {...field} className="bg-background"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name={`items.${index}.content`}
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormControl>
+                                                <Textarea placeholder={`Materi untuk topik #${index + 1}`} {...field} rows={2} className="bg-background"/>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                </div>
+                                {fields.length > 1 && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute top-1 right-1 h-6 w-6 text-destructive"
+                                        onClick={() => remove(index)}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => append({ topic: '', content: '' })}
+                >
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Tambah Materi
+                </Button>
+                <FormField
+                    control={form.control}
+                    name="items"
+                    render={() => (<FormMessage className="mt-2" />)}
+                />
+            </div>
+          )}
+          {step === 3 && (
+            <FormField
+                control={form.control}
+                name="participants"
+                render={() => (
+                    <FormItem>
+                    <div className="mb-2">
+                        <FormLabel className="text-base">Peserta Briefing</FormLabel>
+                        <FormDescription className="text-xs">
+                            Pilih karyawan yang menghadiri sesi briefing ini.
+                        </FormDescription>
+                    </div>
+                    <ScrollArea className="h-[24rem] sm:h-96 border rounded-md p-2">
+                        {employees.map((employee) => (
+                        <FormField
+                            key={employee.id}
+                            control={form.control}
+                            name="participants"
+                            render={({ field }) => {
+                            return (
+                                <FormItem
+                                key={employee.id}
+                                className="flex flex-row items-start space-x-3 space-y-0 p-2 hover:bg-muted/50 rounded-md"
+                                >
+                                <FormControl>
+                                    <Checkbox
+                                    checked={field.value?.includes(employee.id)}
+                                    onCheckedChange={(checked) => {
+                                        return checked
+                                        ? field.onChange([...(field.value || []), employee.id])
+                                        : field.onChange(
+                                            (field.value || [])?.filter(
+                                                (value) => value !== employee.id
+                                            )
+                                            );
+                                    }}
+                                    />
+                                </FormControl>
+                                <FormLabel className="font-normal w-full text-sm">
+                                    <div className="flex justify-between items-center">
+                                        <span>{employee.name}</span>
+                                        <span className="text-xs text-muted-foreground">{employee.jobTitle}</span>
+                                    </div>
+                                </FormLabel>
+                                </FormItem>
+                            );
+                            }}
+                        />
+                        ))}
+                    </ScrollArea>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+          )}
         </div>
-        <div className="flex justify-end gap-2 p-6 pt-4 mt-auto border-t bg-background">
+        <div className="flex justify-between gap-2 p-6 border-t">
+          <div>
             <Button
                 type="button"
                 variant="outline"
@@ -350,10 +364,35 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
             >
                 Batal
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Simpan Perubahan
-            </Button>
+          </div>
+          <div className='flex gap-2'>
+            {step > 1 && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={handleBack}
+                    disabled={isSubmitting}
+                >
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Kembali
+                </Button>
+            )}
+            {step < 3 && (
+                 <Button
+                    type="button"
+                    onClick={handleNext}
+                >
+                    Selanjutnya
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            )}
+            {step === 3 && (
+                <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Simpan Perubahan
+                </Button>
+            )}
+          </div>
         </div>
       </form>
     </Form>

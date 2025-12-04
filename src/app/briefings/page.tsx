@@ -71,8 +71,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 // Dynamically import heavy components
-const NewBriefingForm = dynamic(() => import('@/components/briefings/new-briefing-form').then(mod => mod.NewBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
-const EditBriefingForm = dynamic(() => import('@/components/briefings/edit-briefing-form').then(mod => mod.EditBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
+const NewBriefingForm = dynamic(() => import('@/components/briefings/new-briefing-form').then(mod => mod.NewBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8 h-[500px]"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
+const EditBriefingForm = dynamic(() => import('@/components/briefings/edit-briefing-form').then(mod => mod.EditBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8 h-[500px]"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
 const PrintableBriefing = dynamic(() => import('@/components/briefings/printable-briefing').then(mod => mod.PrintableBriefing), { ssr: false });
 
 
@@ -151,7 +151,6 @@ export default function BriefingsPage() {
     });
 
     try {
-        // Fetch participants
         const participantsSnapshot = await getDocs(collection(firestore, 'briefings', briefingToPrint.id, 'participants'));
         const briefingParticipants = participantsSnapshot.docs.map(doc => ({...doc.data(), id: doc.id} as BriefingParticipant));
 
@@ -174,9 +173,7 @@ export default function BriefingsPage() {
 
         const briefingWithSignatures = {
             ...briefingToPrint,
-            // Ensure creator signature is from briefing, but fallback to current profile
             creatorSignatureUrl: briefingToPrint.creatorSignatureUrl || userProfile.signatureUrl,
-            // Ensure acknowledger signature is from briefing, but fallback to current profile's OPC
             acknowledgerName: briefingToPrint.acknowledgerName || userProfile.operationPointCoordinatorName,
             acknowledgerSignatureUrl: briefingToPrint.acknowledgerSignatureUrl || userProfile.operationPointCoordinatorSignatureUrl,
         };
@@ -208,7 +205,7 @@ export default function BriefingsPage() {
             const briefingRef = doc(firestore, 'briefings', selectedBriefing.id);
             const updatedData = {
                 acknowledgedBy: user.uid,
-                acknowledgerName: userProfile.name, // Use current user's name
+                acknowledgerName: userProfile.name,
                 acknowledgerSignatureUrl: userProfile.signatureUrl || null,
                 acknowledgedAt: serverTimestamp(),
             };
@@ -373,12 +370,12 @@ export default function BriefingsPage() {
                 Buat Briefing Baru
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col">
-              <DialogHeader>
+            <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
+              <DialogHeader className="p-6 pb-0">
                 <DialogTitle>Buat Materi Briefing Baru</DialogTitle>
               </DialogHeader>
                {isLoading ? (
-                  <div className="flex justify-center items-center p-8">
+                  <div className="flex justify-center items-center p-8 h-[500px]">
                       <Loader2 className="h-10 w-10 animate-spin text-primary" />
                   </div>
               ) : (
@@ -495,12 +492,12 @@ export default function BriefingsPage() {
             setIsEditModalOpen(isOpen);
             if (!isOpen) setSelectedBriefing(null);
         }}>
-          <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
+            <DialogHeader className="p-6 pb-0">
               <DialogTitle>Edit Materi Briefing</DialogTitle>
             </DialogHeader>
              {isLoading ? (
-                  <div className="flex justify-center items-center p-8">
+                  <div className="flex justify-center items-center p-8 h-[500px]">
                       <Loader2 className="h-10 w-10 animate-spin text-primary" />
                   </div>
               ) : (
@@ -675,5 +672,3 @@ export default function BriefingsPage() {
     </div>
   );
 }
-
-    
