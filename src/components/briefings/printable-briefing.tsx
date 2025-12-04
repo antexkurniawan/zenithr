@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
-import type { Briefing, BriefingParticipant, Employee, UserProfile } from '@/lib/types';
+import type { Briefing, BriefingParticipant, Employee } from '@/lib/types';
 import { blogLogoBase64, setraLogoBase64 } from '@/lib/logo-images';
 
 interface PrintableBriefingProps {
@@ -98,7 +98,7 @@ export function PrintableBriefing({ briefing, participants }: PrintableBriefingP
                 }
 
                 return (
-                    <div key={`page-${pageIndex}`} data-printable-page="true" className="w-[210mm] h-[297mm] p-10 bg-white flex flex-col font-sans text-sm">
+                    <div key={`page-attendance-${pageIndex}`} data-printable-page="true" className="w-[210mm] h-[297mm] p-10 bg-white flex flex-col font-sans text-sm">
                         {pageIndex === 0 && (
                             <>
                             <header className="flex justify-between items-center mb-6 border-b-2 border-black pb-2">

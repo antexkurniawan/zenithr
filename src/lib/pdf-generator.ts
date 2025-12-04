@@ -1,3 +1,4 @@
+
 'use client';
 
 import html2canvas from 'html2canvas';
@@ -11,6 +12,7 @@ export const generatePdfFromComponent = async (
 ): Promise<void> => {
     // We need to render the component to the DOM to capture it, but off-screen.
     const container = document.createElement('div');
+    container.id = 'pdf-render-container';
     container.style.position = 'absolute';
     container.style.left = '-9999px';
     container.style.width = '210mm'; // A4 paper width
@@ -23,8 +25,9 @@ export const generatePdfFromComponent = async (
     // Allow time for component to render fully
     await new Promise(resolve => setTimeout(resolve, 500));
 
-    // Get all pages to print
+    // Get all pages to print from within the rendered container
     const pages = container.querySelectorAll<HTMLElement>('[data-printable-page="true"]');
+    
     if (pages.length === 0) {
         console.error("Could not find any elements with 'data-printable-page' attribute to generate PDF.");
         document.body.removeChild(container);
