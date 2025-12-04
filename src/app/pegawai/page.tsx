@@ -284,11 +284,18 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
             {/* Nested Modals */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                 <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit Data Pegawai</DialogTitle>
+                        <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
+                    </DialogHeader>
                     <EditEmployeeForm employee={employee} setModalOpen={setIsEditModalOpen} />
                 </DialogContent>
             </Dialog>
             <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
                 <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Upload Tanda Tangan</DialogTitle>
+                    </DialogHeader>
                     <SignaturePad 
                         docId={employee.id} 
                         onSignatureUploaded={(newUrl) => handleInternalSignatureUploaded(newUrl)}
@@ -685,19 +692,11 @@ export default function PegawaiPage() {
        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
             <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
                 {selectedEmployee ? (
-                    <>
-                        <DialogHeader>
-                           <DialogTitle>Detail Pegawai</DialogTitle>
-                           <DialogDescription>
-                             Informasi lengkap untuk {selectedEmployee.name}.
-                           </DialogDescription>
-                        </DialogHeader>
-                        <DetailModalContent 
-                            employee={selectedEmployee} 
-                            onSignatureUploaded={handleSignatureUploaded}
-                            closeMainModal={() => setIsDetailModalOpen(false)}
-                        />
-                    </>
+                    <DetailModalContent 
+                        employee={selectedEmployee} 
+                        onSignatureUploaded={handleSignatureUploaded}
+                        closeMainModal={() => setIsDetailModalOpen(false)}
+                    />
                 ) : (
                     <div className="flex items-center justify-center p-8">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
