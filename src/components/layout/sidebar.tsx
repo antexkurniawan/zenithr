@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 import {
   Sidebar,
@@ -43,11 +44,13 @@ export function SiteSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <Link href="/" className="flex items-center gap-2.5 font-semibold text-lg px-2">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-6 w-6 text-sidebar-primary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-              <path d="M2 17l10 5 10-5"></path>
-              <path d="M2 12l10 5 10-5"></path>
-            </svg>
+            <Image
+                src="/zenithr-logo.png"
+                alt="ZENITHR Logo"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+            />
             <span className="group-data-[collapsible=icon]:hidden">ZENITHR</span>
         </Link>
       </SidebarHeader>
