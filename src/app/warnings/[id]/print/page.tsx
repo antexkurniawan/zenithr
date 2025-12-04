@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import React from 'react';
 import Image from 'next/image';
+import { setraLogoBase64 } from '@/lib/logo-images';
 
 // Helper function to get the full title of the warning letter
 const getWarningTitle = (type: WarningType) => {
@@ -104,7 +105,7 @@ export function PrintableWarningLetter({ warning, fieldCoordinator }: { warning:
         <header className="flex justify-end items-start mb-10">
           <div className="w-40 flex-shrink-0 text-right">
              <Image 
-                src="/setra-logo.png" 
+                src={setraLogoBase64} 
                 alt="Setra Logo" 
                 width={140} 
                 height={50} 

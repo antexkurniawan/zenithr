@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 import type { Briefing, BriefingParticipant, Employee, UserProfile } from '@/lib/types';
+import { blogLogoBase64, setraLogoBase64 } from '@/lib/logo-images';
 
 interface PrintableBriefingProps {
     briefing: Briefing;
@@ -103,7 +104,7 @@ export function PrintableBriefing({ briefing, participants }: PrintableBriefingP
                             <header className="flex justify-between items-center mb-6 border-b-2 border-black pb-2">
                                 <div className="w-40 flex-shrink-0">
                                     <Image 
-                                        src="/setra-logo.png" 
+                                        src={setraLogoBase64} 
                                         alt="Setra Logo" 
                                         width={140} 
                                         height={50} 
@@ -114,7 +115,7 @@ export function PrintableBriefing({ briefing, participants }: PrintableBriefingP
                                 <h1 className="text-xl font-bold text-center">DAFTAR HADIR BRIEFING</h1>
                                 <div className="w-40 flex-shrink-0 flex justify-end">
                                     <Image 
-                                        src="/blog-logo.png" 
+                                        src={blogLogoBase64} 
                                         alt="B-LOG Logo" 
                                         width={100} 
                                         height={34} 
@@ -196,7 +197,7 @@ export function PrintableBriefing({ briefing, participants }: PrintableBriefingP
                  <header className="flex justify-between items-center mb-6 border-b-2 border-black pb-2">
                     <div className="w-40 flex-shrink-0">
                          <Image 
-                            src="/setra-logo.png" 
+                            src={setraLogoBase64} 
                             alt="Setra Logo" 
                             width={140} 
                             height={50} 
@@ -207,7 +208,7 @@ export function PrintableBriefing({ briefing, participants }: PrintableBriefingP
                     <h1 className="text-xl font-bold text-center">MATERI BRIEFING</h1>
                     <div className="w-40 flex-shrink-0 flex justify-end">
                         <Image 
-                            src="/blog-logo.png" 
+                            src={blogLogoBase64} 
                             alt="B-LOG Logo" 
                             width={100} 
                             height={34} 
