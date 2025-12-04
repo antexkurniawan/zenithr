@@ -108,204 +108,206 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
 
   return (
     <Form {...form}>
-      <ScrollArea className="flex-grow pr-6 -mr-6">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="nik"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>NIK</FormLabel>
-                <FormControl>
-                  <Input placeholder="cth. 123456789" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Lengkap</FormLabel>
-                <FormControl>
-                  <Input placeholder="cth. Budi Susanto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="jobTitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jabatan</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih jabatan" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Driver">Driver</SelectItem>
-                    <SelectItem value="Dispatcher">Dispatcher</SelectItem>
-                    <SelectItem value="Checker">Checker</SelectItem>
-                    <SelectItem value="Field Coordinator">Field Coordinator</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="areaTugas"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Area Tugas</FormLabel>
-                <FormControl>
-                  <Input placeholder="cth. Gorontalo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Aktif">Aktif</SelectItem>
-                    <SelectItem value="Kontrak">Kontrak</SelectItem>
-                    <SelectItem value="Resign">Resign</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div></div>
-          <FormField
-            control={form.control}
-            name="contractStartDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Awal Kontrak</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+      <div className="flex-grow overflow-hidden">
+        <ScrollArea className="h-full pr-6 -mr-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="nik"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NIK</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
-                          onChange={(e) => {
-                            try {
-                              const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
-                              if (!isNaN(parsedDate.getTime())) {
-                                field.onChange(parsedDate);
-                              }
-                            } catch (error) {
-                              // Handle parsing error if needed
-                            }
-                          }}
-                          placeholder="dd/mm/yyyy"
-                          className="pr-8"
-                        />
-                        <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                      </div>
+                      <Input placeholder="cth. 123456789" {...field} />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[101]" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="contractEndDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Akhir Kontrak</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Lengkap</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
-                          onChange={(e) => {
-                            try {
-                              const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
-                              if (!isNaN(parsedDate.getTime())) {
-                                field.onChange(parsedDate);
-                              }
-                            } catch (error) {
-                              // Handle parsing error if needed
-                            }
-                          }}
-                          placeholder="dd/mm/yyyy"
-                          className="pr-8"
-                        />
-                        <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                      </div>
+                      <Input placeholder="cth. Budi Susanto" {...field} />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[101]" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        
-        <div className="flex justify-end gap-2 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setModalOpen(false)}
-            disabled={isSubmitting}
-          >
-            Batal
-          </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Simpan Perubahan
-          </Button>
-        </div>
-      </form>
-      </ScrollArea>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="jobTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jabatan</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jabatan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Driver">Driver</SelectItem>
+                        <SelectItem value="Dispatcher">Dispatcher</SelectItem>
+                        <SelectItem value="Checker">Checker</SelectItem>
+                        <SelectItem value="Field Coordinator">Field Coordinator</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="areaTugas"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Area Tugas</FormLabel>
+                    <FormControl>
+                      <Input placeholder="cth. Gorontalo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Aktif">Aktif</SelectItem>
+                        <SelectItem value="Kontrak">Kontrak</SelectItem>
+                        <SelectItem value="Resign">Resign</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div></div>
+              <FormField
+                control={form.control}
+                name="contractStartDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Awal Kontrak</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+                              onChange={(e) => {
+                                try {
+                                  const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
+                                  if (!isNaN(parsedDate.getTime())) {
+                                    field.onChange(parsedDate);
+                                  }
+                                } catch (error) {
+                                  // Handle parsing error if needed
+                                }
+                              }}
+                              placeholder="dd/mm/yyyy"
+                              className="pr-8"
+                            />
+                            <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                          </div>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[101]" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contractEndDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Akhir Kontrak</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+                              onChange={(e) => {
+                                try {
+                                  const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
+                                  if (!isNaN(parsedDate.getTime())) {
+                                    field.onChange(parsedDate);
+                                  }
+                                } catch (error) {
+                                  // Handle parsing error if needed
+                                }
+                              }}
+                              placeholder="dd/mm/yyyy"
+                              className="pr-8"
+                            />
+                            <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                          </div>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[101]" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setModalOpen(false)}
+                disabled={isSubmitting}
+              >
+                Batal
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Simpan Perubahan
+              </Button>
+            </div>
+          </form>
+        </ScrollArea>
+      </div>
     </Form>
   );
 }
