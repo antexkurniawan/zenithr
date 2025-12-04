@@ -48,8 +48,8 @@ export function SiteSidebar() {
                 src="/zenithr-logo.png"
                 alt="ZENITHR Logo"
                 width={100}
-                height={28}
-                className="h-7 w-auto object-contain transition-all duration-300 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10"
+                height={50}
+                className="h-10 w-auto object-contain transition-all duration-300 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10"
                 priority
             />
         </Link>
