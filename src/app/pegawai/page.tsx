@@ -289,9 +289,6 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
             </Dialog>
             <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Upload Tanda Tangan</DialogTitle>
-                    </DialogHeader>
                     <SignaturePad 
                         docId={employee.id} 
                         onSignatureUploaded={(newUrl) => handleInternalSignatureUploaded(newUrl)}
@@ -685,14 +682,22 @@ export default function PegawaiPage() {
       </div>
       
       {/* Detail/Edit Modal */}
-      <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
             <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
                 {selectedEmployee ? (
-                    <DetailModalContent 
-                        employee={selectedEmployee} 
-                        onSignatureUploaded={handleSignatureUploaded}
-                        closeMainModal={() => setIsDetailModalOpen(false)}
-                    />
+                    <>
+                        <DialogHeader>
+                           <DialogTitle>Detail Pegawai</DialogTitle>
+                           <DialogDescription>
+                             Informasi lengkap untuk {selectedEmployee.name}.
+                           </DialogDescription>
+                        </DialogHeader>
+                        <DetailModalContent 
+                            employee={selectedEmployee} 
+                            onSignatureUploaded={handleSignatureUploaded}
+                            closeMainModal={() => setIsDetailModalOpen(false)}
+                        />
+                    </>
                 ) : (
                     <div className="flex items-center justify-center p-8">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -722,3 +727,5 @@ export default function PegawaiPage() {
     </div>
   );
 }
+
+    
