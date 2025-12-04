@@ -131,7 +131,7 @@ export default function DashboardPage() {
                         Tambah Pegawai Baru
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>Tambah Pegawai Baru</DialogTitle>
                     </DialogHeader>
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                         Buat Surat Peringatan
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>Buat Surat Peringatan Baru</DialogTitle>
                     </DialogHeader>

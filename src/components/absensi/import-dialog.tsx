@@ -218,7 +218,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   };
 
   return (
-    <DialogContent className="sm:max-w-4xl">
+    <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
       <DialogHeader>
         <DialogTitle>Impor Data Absensi Bulanan</DialogTitle>
         <DialogDescription>
@@ -226,79 +226,81 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
         </DialogDescription>
       </DialogHeader>
 
-      {parsedData.length === 0 ? (
-        <Form {...form}>
-          <form className="space-y-4 py-4" id="import-form">
-            <FormField
-              control={form.control}
-              name="file"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Pilih File Excel (.xlsx, .xls)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept=".xlsx, .xls"
-                      onChange={(e) => {
-                        field.onChange(e.target.files); // Update RHF state
-                        if (e.target.files && e.target.files[0]) {
-                          handleFileParse(e.target.files[0]); // Immediately parse the file
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-      ) : (
-        <div className="space-y-4">
-            <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
-                <AlertCircle className="h-4 w-4 !text-blue-800 dark:!text-blue-300" />
-                <AlertDescription>
-                    {parsedData.length} data absensi valid ditemukan dan siap untuk diimpor. Data dengan NIK yang tidak terdaftar akan diabaikan.
-                </AlertDescription>
-            </Alert>
-            <ScrollArea className="h-64 w-full border rounded-md">
-                <Table>
-                    <TableHeader className="bg-muted/50">
-                        <TableRow>
-                            <TableHead>NIK</TableHead>
-                            <TableHead>Nama</TableHead>
-                            <TableHead>Tanggal</TableHead>
-                            <TableHead>Status</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {parsedData.slice(0, 100).map((row, index) => (
-                            <TableRow key={index}>
-                                <TableCell>{row.employeeNik}</TableCell>
-                                <TableCell>{row.employeeName}</TableCell>
-                                <TableCell>{row.date}</TableCell>
-                                <TableCell>{row.status}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                 {parsedData.length > 100 && (
-                    <div className="p-4 text-center text-sm text-muted-foreground">
-                        Menampilkan 100 dari {parsedData.length} baris...
-                    </div>
+      <div className="flex-grow overflow-y-auto -mx-6 px-6">
+        {parsedData.length === 0 ? (
+          <Form {...form}>
+            <form className="space-y-4 py-4" id="import-form">
+              <FormField
+                control={form.control}
+                name="file"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Pilih File Excel (.xlsx, .xls)</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="file"
+                        accept=".xlsx, .xls"
+                        onChange={(e) => {
+                          field.onChange(e.target.files); // Update RHF state
+                          if (e.target.files && e.target.files[0]) {
+                            handleFileParse(e.target.files[0]); // Immediately parse the file
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-            </ScrollArea>
-        </div>
-      )}
+              />
+            </form>
+          </Form>
+        ) : (
+          <div className="space-y-4">
+              <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
+                  <AlertCircle className="h-4 w-4 !text-blue-800 dark:!text-blue-300" />
+                  <AlertDescription>
+                      {parsedData.length} data absensi valid ditemukan dan siap untuk diimpor. Data dengan NIK yang tidak terdaftar akan diabaikan.
+                  </AlertDescription>
+              </Alert>
+              <div className="border rounded-md">
+                  <Table>
+                      <TableHeader className="bg-muted/50">
+                          <TableRow>
+                              <TableHead>NIK</TableHead>
+                              <TableHead>Nama</TableHead>
+                              <TableHead>Tanggal</TableHead>
+                              <TableHead>Status</TableHead>
+                          </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                          {parsedData.slice(0, 100).map((row, index) => (
+                              <TableRow key={index}>
+                                  <TableCell>{row.employeeNik}</TableCell>
+                                  <TableCell>{row.employeeName}</TableCell>
+                                  <TableCell>{row.date}</TableCell>
+                                  <TableCell>{row.status}</TableCell>
+                              </TableRow>
+                          ))}
+                      </TableBody>
+                  </Table>
+                  {parsedData.length > 100 && (
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                          Menampilkan 100 dari {parsedData.length} baris...
+                      </div>
+                  )}
+              </div>
+          </div>
+        )}
 
-      {isLoading && (
-        <div className="flex items-center justify-center p-8">
-          <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-          <p>Membaca dan memproses file...</p>
-        </div>
-      )}
+        {isLoading && (
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+            <p>Membaca dan memproses file...</p>
+          </div>
+        )}
+      </div>
       
-      <DialogFooter>
+      <DialogFooter className='pt-4 border-t -mx-6 px-6 pb-0'>
         <Button variant="outline" onClick={() => setModalOpen(false)} disabled={isSubmitting}>
           Batal
         </Button>

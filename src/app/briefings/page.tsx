@@ -71,7 +71,6 @@ import { PrintableBriefing } from "@/components/briefings/printable-briefing";
 import { generatePdfFromComponent } from "@/lib/pdf-generator";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 const formatDateForDisplay = (dateString: string) => {
@@ -544,90 +543,88 @@ export default function BriefingsPage() {
                         <DialogTitle>Detail Briefing Area {selectedBriefing.area}</DialogTitle>
                         <DialogDescription>{formattedDate}</DialogDescription>
                     </DialogHeader>
-                    <div className="flex-grow overflow-hidden">
-                        <ScrollArea className="h-full pr-6 -mr-6">
-                            <div className="space-y-6">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Materi Briefing</CardTitle>
-                                        <CardDescription>Topik: {selectedBriefing.topics.join(', ')}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        {(selectedBriefing.items && selectedBriefing.items.length > 0) ? selectedBriefing.items.map((item, index) => (
-                                            <div key={index}>
-                                                <p className="font-semibold">{item.topic}</p>
-                                                <p className="text-muted-foreground whitespace-pre-line pl-4">{item.content}</p>
-                                            </div>
-                                        )) : (
-                                            <ul className="list-disc space-y-2 pl-5">
-                                                {selectedBriefing.content.map((item, index) => (
-                                                    <li key={index}>{item}</li>
-                                                ))}
-                                            </ul>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Peserta Briefing</CardTitle>
-                                        <CardDescription>Jumlah peserta: {participants?.length ?? 0}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        {isLoadingParticipants ? (
-                                            <div className="flex justify-center items-center p-8">
-                                                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                            </div>
-                                        ) : participants && participants.length > 0 ? (
-                                            <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                                {participants.map(p => (
-                                                    <li key={p.id} className="text-sm">
-                                                        <p className="font-medium">{p.employeeName}</p>
-                                                        <p className="text-muted-foreground">{p.employeeJobTitle}</p>
-                                                    </li>
-                                                ))}
-                                            </ul>
-                                        ) : (
-                                            <div className="text-center text-muted-foreground py-8">
-                                                <Users className="mx-auto h-12 w-12" />
-                                                <p className="mt-4">Belum ada peserta yang ditambahkan.</p>
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Validasi & Persetujuan</CardTitle>
-                                        <CardDescription>Status persetujuan untuk dokumen briefing ini.</CardDescription>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-lg border p-4">
-                                            <div>
-                                                <p className="font-semibold">Dibuat Oleh</p>
-                                                <p className="text-muted-foreground text-sm">{selectedBriefing.creatorName || 'N/A'}</p>
-                                            </div>
-                                            {selectedBriefing.acknowledgedBy ? (
-                                                <div className="text-left sm:text-right">
-                                                    <div className="flex items-center gap-2 justify-start sm:justify-end text-green-600">
-                                                        <CheckCircle className="h-4 w-4" />
-                                                        <p className="font-semibold">Telah Disetujui</p>
-                                                    </div>
-                                                    <p className="text-muted-foreground text-sm">
-                                                        oleh {selectedBriefing.acknowledgerName} pada {formattedAcknowledgedDate}
-                                                    </p>
-                                                </div>
-                                            ) : (
-                                                <DialogTrigger asChild>
-                                                    <Button onClick={() => setIsAcknowledgeModalOpen(true)} disabled={isProcessing}>
-                                                        {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                        Tandai "Mengetahui"
-                                                    </Button>
-                                                </DialogTrigger>
-                                            )}
+                    <div className="flex-grow overflow-y-auto -mx-6 px-6">
+                        <div className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Materi Briefing</CardTitle>
+                                    <CardDescription>Topik: {selectedBriefing.topics.join(', ')}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    {(selectedBriefing.items && selectedBriefing.items.length > 0) ? selectedBriefing.items.map((item, index) => (
+                                        <div key={index}>
+                                            <p className="font-semibold">{item.topic}</p>
+                                            <p className="text-muted-foreground whitespace-pre-line pl-4">{item.content}</p>
                                         </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </ScrollArea>
+                                    )) : (
+                                        <ul className="list-disc space-y-2 pl-5">
+                                            {selectedBriefing.content.map((item, index) => (
+                                                <li key={index}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Peserta Briefing</CardTitle>
+                                    <CardDescription>Jumlah peserta: {participants?.length ?? 0}</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    {isLoadingParticipants ? (
+                                        <div className="flex justify-center items-center p-8">
+                                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                        </div>
+                                    ) : participants && participants.length > 0 ? (
+                                        <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                            {participants.map(p => (
+                                                <li key={p.id} className="text-sm">
+                                                    <p className="font-medium">{p.employeeName}</p>
+                                                    <p className="text-muted-foreground">{p.employeeJobTitle}</p>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div className="text-center text-muted-foreground py-8">
+                                            <Users className="mx-auto h-12 w-12" />
+                                            <p className="mt-4">Belum ada peserta yang ditambahkan.</p>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Validasi & Persetujuan</CardTitle>
+                                    <CardDescription>Status persetujuan untuk dokumen briefing ini.</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-lg border p-4">
+                                        <div>
+                                            <p className="font-semibold">Dibuat Oleh</p>
+                                            <p className="text-muted-foreground text-sm">{selectedBriefing.creatorName || 'N/A'}</p>
+                                        </div>
+                                        {selectedBriefing.acknowledgedBy ? (
+                                            <div className="text-left sm:text-right">
+                                                <div className="flex items-center gap-2 justify-start sm:justify-end text-green-600">
+                                                    <CheckCircle className="h-4 w-4" />
+                                                    <p className="font-semibold">Telah Disetujui</p>
+                                                </div>
+                                                <p className="text-muted-foreground text-sm">
+                                                    oleh {selectedBriefing.acknowledgerName} pada {formattedAcknowledgedDate}
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <DialogTrigger asChild>
+                                                <Button onClick={() => setIsAcknowledgeModalOpen(true)} disabled={isProcessing}>
+                                                    {isProcessing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                    Tandai "Mengetahui"
+                                                </Button>
+                                            </DialogTrigger>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </>
             )}
