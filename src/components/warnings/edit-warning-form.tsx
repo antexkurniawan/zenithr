@@ -162,12 +162,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent 
-                      className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0"
-                      onInteractOutside={(e) => {
-                        e.preventDefault();
-                      }}
-                    >
+                    <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
                       <Command>
                         <CommandInput placeholder="Cari nama atau NIK pegawai..." />
                         <CommandList>
@@ -228,7 +223,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                           <SelectValue placeholder="Pilih jenis SP" />
                       </SelectTrigger>
                     </FormControl>
-                      <SelectContent className="z-[101]">
+                      <SelectContent>
                       <SelectItem value="Teguran">Teguran</SelectItem>
                       <SelectItem value="SP1">SP1</SelectItem>
                       <SelectItem value="SP2">SP2</SelectItem>
@@ -269,7 +264,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                         </div>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-[101]" align="start">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={field.value}
@@ -312,7 +307,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                         </div>
                       </FormControl>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 z-[101]" align="start">
+                    <PopoverContent className="w-auto p-0" align="start">
                       <Calendar
                         mode="single"
                         selected={field.value}
@@ -377,5 +372,5 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
         </div>
       </form>
     </Form>
-  );
+  )
 }
