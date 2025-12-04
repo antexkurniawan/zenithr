@@ -10,13 +10,13 @@
     --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71% 4%;
-    --primary: 243 75% 58%; /* Indigo #4F46E5 */
+    --primary: 243 75% 58%; /* Indigo from logo */
     --primary-foreground: 0 0% 100%;
-    --secondary: 213 44% 62%; /* #729CC9 - from previous theme, good accent */
+    --secondary: 213 44% 62%; /* Softer purple/blue as secondary */
     --secondary-foreground: 0 0% 100%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 198 95% 74%; /* Light blue #7DD3FC */
+    --accent: 198 95% 74%; /* Bright Cyan from logo for hover/accent */
     --accent-foreground: 224 71% 4%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -31,7 +31,7 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
 
-    /* Custom Sidebar colors for light mode */
+    /* Custom Sidebar colors for light mode - uses the new primary color */
     --sidebar-background: 243 75% 58%; /* Primary indigo for sidebar */
     --sidebar-foreground: 0 0% 100%; /* White text for sidebar */
     --sidebar-primary: 0 0% 100%;
