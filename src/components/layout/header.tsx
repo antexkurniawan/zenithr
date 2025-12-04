@@ -90,9 +90,11 @@ function UserProfileDisplay() {
               <span>Profil</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Pengaturan</span>
+          <DropdownMenuItem asChild>
+            <Link href="/pengaturan">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Pengaturan</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
