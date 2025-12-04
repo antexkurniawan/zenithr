@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { collection, writeBatch, serverTimestamp, doc, getDocs, query, where, updateDoc } from 'firebase/firestore';
+import { collection, writeBatch, serverTimestamp, doc, getDocs, query, where, updateDoc, orderBy } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -316,8 +316,9 @@ export default function PegawaiPage() {
   const firestore = useFirestore();
   const { user } = useUser();
 
-  const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
-  const { data: employeesData, isLoading, error } = useCollection<Employee>(employeesCollection);
+  const employeesCollectionRef = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
+  const employeesQuery = useMemoFirebase(() => query(employeesCollectionRef, orderBy('name', 'asc')), [employeesCollectionRef]);
+  const { data: employeesData, isLoading, error } = useCollection<Employee>(employeesQuery);
   const [employees, setEmployees] = useState<Employee[]>([]);
 
   useEffect(() => {
