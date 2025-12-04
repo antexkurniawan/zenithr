@@ -37,6 +37,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useFirestore } from "@/firebase";
 import { Input } from "../ui/input";
 import * as companyRulesData from '@/ai/knowledge/company-rules-template.json';
+import { ScrollArea } from "../ui/scroll-area";
 
 const allRules = companyRulesData.companyRules;
 
@@ -183,6 +184,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
 
   return (
     <Form {...form}>
+        <ScrollArea className="flex-grow pr-6 -mr-6">
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -344,6 +346,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
           </Button>
         </div>
       </form>
+      </ScrollArea>
     </Form>
   );
 }

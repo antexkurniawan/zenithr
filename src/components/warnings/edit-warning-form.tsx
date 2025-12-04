@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore } from "@/firebase";
 import { Input } from "../ui/input";
+import { ScrollArea } from "../ui/scroll-area";
 
 const formSchema = z.object({
   employeeId: z.string({ required_error: "Pegawai harus dipilih." }),
@@ -127,6 +128,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
 
   return (
     <Form {...form}>
+        <ScrollArea className="flex-grow pr-6 -mr-6">
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -326,6 +328,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
           </Button>
         </div>
       </form>
+      </ScrollArea>
     </Form>
   );
 }

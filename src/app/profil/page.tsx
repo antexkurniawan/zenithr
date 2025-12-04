@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from "react";
@@ -172,7 +173,7 @@ export default function ProfilPage() {
                                     </Button>
                                 </DialogTrigger>
                                 {effectiveUserProfile && (
-                                    <DialogContent className="sm:max-w-[600px]">
+                                    <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
                                         <DialogHeader>
                                             <DialogTitle>Edit Profil</DialogTitle>
                                             <DialogDescription>

@@ -22,6 +22,7 @@ import {
 import { Input } from '@/components/ui/input';
 import type { UserProfile } from '@/lib/types';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { ScrollArea } from '../ui/scroll-area';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nama lengkap minimal 2 karakter.'),
@@ -83,6 +84,7 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
 
   return (
     <Form {...form}>
+      <ScrollArea className="flex-grow pr-6 -mr-6">
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 gap-4">
             <FormField
@@ -135,6 +137,7 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
           </Button>
         </div>
       </form>
+      </ScrollArea>
     </Form>
   );
 }

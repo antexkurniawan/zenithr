@@ -283,7 +283,7 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
 
             {/* Nested Modals */}
             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>Edit Data Pegawai</DialogTitle>
                         <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
