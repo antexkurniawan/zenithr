@@ -320,7 +320,7 @@ export default function WarningsPage() {
                         Buat Surat
                     </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl">
+                <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>Buat Surat Peringatan Baru</DialogTitle>
                     </DialogHeader>
@@ -338,7 +338,7 @@ export default function WarningsPage() {
       
       {selectedWarning && (
         <Dialog open={isEditModalOpen} onOpenChange={setEditModalOpen}>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Edit Surat Peringatan</DialogTitle>
                 </DialogHeader>
@@ -378,7 +378,7 @@ export default function WarningsPage() {
 
         {/* Detail Modal */}
         <Dialog open={isDetailModalOpen} onOpenChange={setDetailModalOpen}>
-            <DialogContent className="sm:max-w-2xl">
+            <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                 {selectedWarning ? (
                     <>
                         <DialogHeader>
@@ -390,67 +390,69 @@ export default function WarningsPage() {
                                 No: {selectedWarning.nomorSurat}
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="grid gap-6 py-4">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <User className="h-5 w-5" />
-                                        Informasi Pegawai
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                    <div className="font-semibold text-muted-foreground">Nama</div>
-                                    <div>{selectedWarning.employeeName}</div>
-                                    <div className="font-semibold text-muted-foreground">NIK</div>
-                                    <div>{selectedWarning.employeeNik}</div>
-                                    <div className="font-semibold text-muted-foreground">Jabatan</div>
-                                    <div>{selectedWarning.employeeJobTitle}</div>
-                                    <div className="font-semibold text-muted-foreground">Area Tugas</div>
-                                    <div>{selectedWarning.employeeAreaTugas}</div>
-                                </CardContent>
-                            </Card>
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <FileText className="h-5 w-5" />
-                                        Detail Pelanggaran
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4 text-sm">
-                                    <div>
-                                        <p className="font-semibold text-muted-foreground">Jenis Surat</p>
-                                        <p>{selectedWarning.type}</p>
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold text-muted-foreground">Deskripsi Pelanggaran</p>
-                                        <p>{selectedWarning.description}</p>
-                                    </div>
-                                    <div>
-                                        <p className="font-semibold text-muted-foreground">Peraturan yang Dilanggar</p>
-                                        <p>{selectedWarning.peraturanDilanggar}</p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                             <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Calendar className="h-5 w-5" />
-                                        Masa Berlaku
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                    <div className="font-semibold text-muted-foreground">Tanggal Terbit</div>
-                                    <div>{formatDate(selectedWarning.issueDate)}</div>
-                                    <div className="font-semibold text-muted-foreground">Tanggal Kedaluwarsa</div>
-                                    <div>{formatDate(selectedWarning.expiryDate)}</div>
-                                    <div className="font-semibold text-muted-foreground">Status</div>
-                                    <div>
-                                        <Badge variant={statusVariant[getWarningStatus(selectedWarning.expiryDate)]}>
-                                            {getWarningStatus(selectedWarning.expiryDate)}
-                                        </Badge>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                        <div className="flex-grow overflow-y-auto pr-6 -mr-6">
+                            <div className="grid gap-6 py-4">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <User className="h-5 w-5" />
+                                            Informasi Pegawai
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                        <div className="font-semibold text-muted-foreground">Nama</div>
+                                        <div>{selectedWarning.employeeName}</div>
+                                        <div className="font-semibold text-muted-foreground">NIK</div>
+                                        <div>{selectedWarning.employeeNik}</div>
+                                        <div className="font-semibold text-muted-foreground">Jabatan</div>
+                                        <div>{selectedWarning.employeeJobTitle}</div>
+                                        <div className="font-semibold text-muted-foreground">Area Tugas</div>
+                                        <div>{selectedWarning.employeeAreaTugas}</div>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <FileText className="h-5 w-5" />
+                                            Detail Pelanggaran
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4 text-sm">
+                                        <div>
+                                            <p className="font-semibold text-muted-foreground">Jenis Surat</p>
+                                            <p>{selectedWarning.type}</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-muted-foreground">Deskripsi Pelanggaran</p>
+                                            <p>{selectedWarning.description}</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-muted-foreground">Peraturan yang Dilanggar</p>
+                                            <p>{selectedWarning.peraturanDilanggar}</p>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                 <Card>
+                                    <CardHeader>
+                                        <CardTitle className="text-lg flex items-center gap-2">
+                                            <Calendar className="h-5 w-5" />
+                                            Masa Berlaku
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                        <div className="font-semibold text-muted-foreground">Tanggal Terbit</div>
+                                        <div>{formatDate(selectedWarning.issueDate)}</div>
+                                        <div className="font-semibold text-muted-foreground">Tanggal Kedaluwarsa</div>
+                                        <div>{formatDate(selectedWarning.expiryDate)}</div>
+                                        <div className="font-semibold text-muted-foreground">Status</div>
+                                        <div>
+                                            <Badge variant={statusVariant[getWarningStatus(selectedWarning.expiryDate)]}>
+                                                {getWarningStatus(selectedWarning.expiryDate)}
+                                            </Badge>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </div>
                     </>
                 ) : (
@@ -593,5 +595,3 @@ export default function WarningsPage() {
     </div>
   );
 }
-
-    
