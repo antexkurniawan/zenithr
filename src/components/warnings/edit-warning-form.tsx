@@ -162,7 +162,12 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                    <PopoverContent 
+                      className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0"
+                      onInteractOutside={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
                       <Command>
                         <CommandInput placeholder="Cari nama atau NIK pegawai..." />
                         <CommandList>

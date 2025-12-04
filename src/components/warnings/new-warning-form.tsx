@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -220,36 +219,41 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command>
-                            <CommandInput placeholder="Cari nama atau NIK pegawai..." />
-                            <CommandList>
-                              <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
-                              <CommandGroup>
-                              {employees.map((employee) => (
-                                  <CommandItem
-                                      value={employee.name}
-                                      key={employee.id}
-                                      onSelect={() => {
-                                        form.setValue("employeeId", employee.id);
-                                        form.trigger("employeeId");
-                                        setComboboxOpen(false);
-                                      }}
-                                  >
-                                  <Check
-                                      className={cn(
-                                      "mr-2 h-4 w-4",
-                                      employee.id === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                  />
-                                  {employee.name} ({employee.nik})
-                                  </CommandItem>
-                              ))}
-                              </CommandGroup>
-                            </CommandList>
-                        </Command>
+                        <PopoverContent 
+                          className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0"
+                          onInteractOutside={(e) => {
+                            e.preventDefault();
+                          }}
+                        >
+                          <Command>
+                              <CommandInput placeholder="Cari nama atau NIK pegawai..." />
+                              <CommandList>
+                                <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
+                                <CommandGroup>
+                                {employees.map((employee) => (
+                                    <CommandItem
+                                        value={employee.name}
+                                        key={employee.id}
+                                        onSelect={() => {
+                                          form.setValue("employeeId", employee.id);
+                                          form.trigger("employeeId");
+                                          setComboboxOpen(false);
+                                        }}
+                                    >
+                                    <Check
+                                        className={cn(
+                                        "mr-2 h-4 w-4",
+                                        employee.id === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                    />
+                                    {employee.name} ({employee.nik})
+                                    </CommandItem>
+                                ))}
+                                </CommandGroup>
+                              </CommandList>
+                          </Command>
                         </PopoverContent>
                     </Popover>
                     <FormMessage />
