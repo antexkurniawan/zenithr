@@ -102,8 +102,8 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gray-50 text-gray-900 overflow-hidden p-4">
       {/* Background Animated Gradients */}
-      <div className="absolute -top-1/4 -left-1/4 w-96 h-96 sm:w-[32rem] sm:h-[32rem] bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob"></div>
-      <div className="absolute -bottom-1/4 -right-1/4 w-96 h-96 sm:w-[32rem] sm:h-[32rem] bg-indigo-200 rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob animation-delay-4000"></div>
+      <div className="absolute -top-1/4 -left-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob" style={{backgroundColor: '#17c9ec'}}></div>
+      <div className="absolute -bottom-1/4 -right-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob animation-delay-4000" style={{backgroundColor: '#b21593'}}></div>
 
       <style jsx>{`
         @keyframes blob {
@@ -164,12 +164,14 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="nama@perusahaan.com"
-                        className="bg-gray-100/50 border-gray-300 focus:bg-white"
-                        {...field}
-                      />
+                        <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
+                            <Input
+                                type="email"
+                                placeholder="nama@perusahaan.com"
+                                className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                                {...field}
+                            />
+                        </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -182,12 +184,14 @@ export default function LoginPage() {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="******"
-                           className="bg-gray-100/50 border-gray-300 focus:bg-white"
-                          {...field}
-                        />
+                        <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
+                            <Input
+                            type="password"
+                            placeholder="******"
+                            className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                            {...field}
+                            />
+                        </div>
                       </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -195,12 +199,15 @@ export default function LoginPage() {
               />
 
               <div className="text-right text-sm">
-                <Link href="#" className="text-primary/90 hover:text-primary hover:underline">Lupa Password?</Link>
+                <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">Lupa Password?</Link>
               </div>
 
               <Button 
                 type="submit" 
-                className="w-full font-bold text-base h-12 bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105" 
+                className="w-full font-bold text-base h-12 text-white transition-all duration-300 transform hover:scale-105"
+                style={{
+                  background: 'linear-gradient(to right, #17c9ec, #b21593)',
+                }}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -212,7 +219,7 @@ export default function LoginPage() {
               
                <div className="text-center text-sm text-muted-foreground">
                   Belum punya akun?{' '}
-                  <Link href="#" className="text-primary/90 hover:text-primary hover:underline font-medium">
+                  <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">
                     Hubungi Administrator
                   </Link>
                </div>
