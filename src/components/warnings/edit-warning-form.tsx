@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -147,56 +146,52 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                 <FormItem className="flex flex-col sm:col-span-2">
                   <FormLabel>Nama Pegawai</FormLabel>
                    <Popover open={isComboboxOpen} onOpenChange={setComboboxOpen}>
-                        <PopoverTrigger asChild>
-                        <FormControl>
-                            <Button
-                            variant="outline"
-                            role="combobox"
-                            className={cn(
-                                "w-full justify-between",
-                                !field.value && "text-muted-foreground"
-                            )}
-                            >
-                            {field.value
-                                ? employees.find(
-                                    (employee) => employee.id === field.value
-                                )?.name
-                                : "Pilih pegawai"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                            </Button>
-                        </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command>
-                            <CommandInput placeholder="Cari nama atau NIK pegawai..." />
-                            <CommandList>
-                                <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
-                                <CommandGroup>
-                                {employees.map((employee) => (
-                                    <CommandItem
-                                        value={employee.name}
-                                        key={employee.id}
-                                        onSelect={() => {
-                                            form.setValue("employeeId", employee.id);
-                                            setComboboxOpen(false);
-                                        }}
-                                    >
-                                    <Check
-                                        className={cn(
-                                        "mr-2 h-4 w-4",
-                                        employee.id === field.value
-                                            ? "opacity-100"
-                                            : "opacity-0"
-                                        )}
-                                    />
-                                    {employee.name} ({employee.nik})
-                                    </CommandItem>
-                                ))}
-                                </CommandGroup>
-                            </CommandList>
-                        </Command>
-                        </PopoverContent>
-                    </Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={isComboboxOpen}
+                        className={cn(
+                          "w-full justify-between",
+                          !field.value && "text-muted-foreground"
+                        )}
+                      >
+                        {field.value
+                          ? employees.find((employee) => employee.id === field.value)?.name
+                          : "Pilih pegawai"}
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                      <Command>
+                        <CommandInput placeholder="Cari nama atau NIK pegawai..." />
+                        <CommandList>
+                          <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
+                          <CommandGroup>
+                            {employees.map((employee) => (
+                              <CommandItem
+                                value={employee.name}
+                                key={employee.id}
+                                onSelect={() => {
+                                  form.setValue("employeeId", employee.id);
+                                  form.trigger("employeeId");
+                                  setComboboxOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    employee.id === field.value ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {employee.name} ({employee.nik})
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
@@ -223,11 +218,11 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                   <FormItem>
                   <FormLabel>Jenis Surat</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                    <FormControl>
                       <SelectTrigger>
                           <SelectValue placeholder="Pilih jenis SP" />
                       </SelectTrigger>
-                      </FormControl>
+                    </FormControl>
                       <SelectContent className="z-[101]">
                       <SelectItem value="Teguran">Teguran</SelectItem>
                       <SelectItem value="SP1">SP1</SelectItem>

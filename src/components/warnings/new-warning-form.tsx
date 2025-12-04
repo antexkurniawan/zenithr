@@ -204,7 +204,6 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                     <FormLabel>Nama Pegawai</FormLabel>
                     <Popover open={isComboboxOpen} onOpenChange={setComboboxOpen}>
                         <PopoverTrigger asChild>
-                        <FormControl>
                             <Button
                             variant="outline"
                             role="combobox"
@@ -220,7 +219,6 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                                 : "Pilih pegawai"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                             </Button>
-                        </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
                         <Command>
@@ -234,6 +232,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                                       key={employee.id}
                                       onSelect={() => {
                                         form.setValue("employeeId", employee.id);
+                                        form.trigger("employeeId");
                                         setComboboxOpen(false);
                                       }}
                                   >
@@ -265,11 +264,11 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                   <FormItem>
                   <FormLabel>Jenis Surat</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
+                    <FormControl>
                       <SelectTrigger>
                           <SelectValue placeholder="Pilih jenis SP" />
                       </SelectTrigger>
-                      </FormControl>
+                    </FormControl>
                       <SelectContent className="z-[101]">
                       <SelectItem value="Teguran">Teguran</SelectItem>
                       <SelectItem value="SP1">SP1</SelectItem>
