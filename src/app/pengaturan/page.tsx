@@ -226,22 +226,7 @@ export default function PengaturanPage() {
       <PageHeader
         title="Pengaturan Aplikasi"
         description="Kelola data master, integrasi, dan preferensi aplikasi Anda."
-      >
-        <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Tambah Aturan Baru
-                </Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Buat Aturan Peraturan Baru</DialogTitle>
-                </DialogHeader>
-                <EditRuleForm setModalOpen={setIsNewModalOpen} />
-            </DialogContent>
-        </Dialog>
-      </PageHeader>
+      />
 
       <Tabs defaultValue="master-data" className="space-y-4">
         <TabsList>
@@ -255,11 +240,27 @@ export default function PengaturanPage() {
         </TabsList>
         <TabsContent value="master-data" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>Panduan Peraturan</CardTitle>
-              <CardDescription>
-                Kelola daftar peraturan perusahaan yang digunakan untuk membuat Surat Peringatan.
-              </CardDescription>
+            <CardHeader className="flex flex-row justify-between items-start">
+              <div>
+                <CardTitle>Panduan Peraturan</CardTitle>
+                <CardDescription>
+                  Kelola daftar peraturan perusahaan yang digunakan untuk membuat Surat Peringatan.
+                </CardDescription>
+              </div>
+              <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
+                  <DialogTrigger asChild>
+                      <Button>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Tambah Aturan Baru
+                      </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                      <DialogHeader>
+                          <DialogTitle>Buat Aturan Peraturan Baru</DialogTitle>
+                      </DialogHeader>
+                      <EditRuleForm setModalOpen={setIsNewModalOpen} />
+                  </DialogContent>
+              </Dialog>
             </CardHeader>
             <CardContent className="space-y-4">
                {(isLoading && !rules) || isSeeding ? (
