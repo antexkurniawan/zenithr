@@ -92,7 +92,7 @@ export default function BriefingsPage() {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
-  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isAcknowledgeModalOpen, setIsAcknowledgeModalOpen] = useState(false);
   
   const [selectedBriefing, setSelectedBriefing] = useState<Briefing | null>(null);
@@ -127,7 +127,7 @@ export default function BriefingsPage() {
 
   const openDetailModal = (briefing: Briefing) => {
     setSelectedBriefing(briefing);
-    setDetailModalOpen(true);
+    setIsDetailModalOpen(true);
   };
 
   const openEditModal = (briefing: Briefing) => {
