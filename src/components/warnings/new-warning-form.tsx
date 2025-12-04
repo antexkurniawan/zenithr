@@ -36,6 +36,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { Input } from "../ui/input";
+import { ScrollArea } from "../ui/scroll-area";
 
 const formSchema = z.object({
   employeeId: z.string({ required_error: "Pegawai harus dipilih." }),
@@ -216,11 +217,13 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                                     className="w-full"
                                 />
                             </div>
-                            {filteredEmployees.length > 0 ? filteredEmployees.map((employee) => (
-                                <SelectItem key={employee.id} value={employee.id}>
-                                    {employee.name} ({employee.nik})
-                                </SelectItem>
-                            )) : <p className="p-2 text-sm text-muted-foreground">Pegawai tidak ditemukan.</p>}
+                            <ScrollArea className="h-[200px]">
+                              {filteredEmployees.length > 0 ? filteredEmployees.map((employee) => (
+                                  <SelectItem key={employee.id} value={employee.id}>
+                                      {employee.name} ({employee.nik})
+                                  </SelectItem>
+                              )) : <p className="p-2 text-sm text-muted-foreground">Pegawai tidak ditemukan.</p>}
+                            </ScrollArea>
                         </SelectContent>
                     </Select>
                   <FormMessage />
@@ -304,6 +307,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                         </SelectTrigger>
                     </FormControl>
                     <SelectContent position="popper" className="w-[var(--radix-select-trigger-width)]">
+                      <ScrollArea className="h-[200px]">
                         {isLoadingRules ? (
                             <div className="flex items-center justify-center p-2"><Loader2 className="h-4 w-4 animate-spin"/></div>
                         ) : (
@@ -313,6 +317,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                                 </SelectItem>
                             ))
                         )}
+                      </ScrollArea>
                     </SelectContent>
                 </Select>
             </div>
