@@ -144,9 +144,9 @@ export function NewBriefingForm({ setModalOpen, employees }: NewBriefingFormProp
   }
 
   return (
-    <ScrollArea className="flex-grow pr-6 -mr-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
+        <div className="flex-grow overflow-y-auto pr-6 -mr-6 pl-6 pt-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Left Column: Material */}
               <div className="space-y-4">
@@ -337,25 +337,22 @@ export function NewBriefingForm({ setModalOpen, employees }: NewBriefingFormProp
                       />
               </div>
           </div>
-          <Separator />
-          <div className="flex justify-end gap-2 pt-2 sticky bottom-0 bg-background py-4 -mx-6 px-6">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setModalOpen(false)}
-              disabled={isSubmitting}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Simpan & Buat Briefing
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </ScrollArea>
+        </div>
+        <div className="flex justify-end gap-2 p-6 pt-4 mt-auto border-t bg-background">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setModalOpen(false)}
+            disabled={isSubmitting}
+          >
+            Batal
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Simpan & Buat Briefing
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 }
-
-    

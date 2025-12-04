@@ -147,7 +147,7 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
-        <div className="flex-grow overflow-auto pr-6 -mr-6">
+        <div className="flex-grow overflow-y-auto pr-6 -mr-6 pl-6 pt-4">
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Left Column: Material */}
@@ -341,8 +341,7 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
             </div>
           </div>
         </div>
-        <Separator className="mt-auto"/>
-        <div className="flex justify-end gap-2 pt-4">
+        <div className="flex justify-end gap-2 p-6 pt-4 mt-auto border-t bg-background">
             <Button
                 type="button"
                 variant="outline"
@@ -360,5 +359,3 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
     </Form>
   );
 }
-
-    
