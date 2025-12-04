@@ -92,8 +92,10 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
   const warningType = form.watch("type");
 
   const handleRuleSelection = (ruleText: string) => {
-    if (ruleText) {
-      form.setValue("peraturanDilanggar", ruleText, { shouldValidate: true });
+    const selectedRule = (allRules || []).find(r => r.text === ruleText);
+    if (selectedRule) {
+      form.setValue("peraturanDilanggar", selectedRule.text, { shouldValidate: true });
+      form.setValue("description", selectedRule.description, { shouldValidate: true });
     }
   };
 
@@ -293,24 +295,6 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
               )}
             />
             
-            <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                    <FormLabel>Deskripsi Pelanggaran</FormLabel>
-                    <FormControl>
-                    <Textarea
-                        placeholder="Jelaskan secara rinci pelanggaran yang terjadi..."
-                        rows={4}
-                        {...field}
-                    />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            
             <div className="sm:col-span-2 space-y-2">
                 <FormLabel>Panduan Peraturan</FormLabel>
                 <Select onValueChange={handleRuleSelection}>
@@ -333,6 +317,23 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                 </Select>
             </div>
 
+            <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                    <FormLabel>Deskripsi Pelanggaran</FormLabel>
+                    <FormControl>
+                    <Textarea
+                        placeholder="Jelaskan secara rinci pelanggaran yang terjadi..."
+                        rows={4}
+                        {...field}
+                    />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
 
             <FormField
               control={form.control}
