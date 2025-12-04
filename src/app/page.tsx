@@ -106,17 +106,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-        <div className="flex items-center gap-4">
-            <Image
-                src="/zenithr-logo.png"
-                alt="ZENITHR Logo"
-                width={50}
-                height={50}
-                className="h-12 w-auto object-contain"
-                priority
-            />
-            <h1 className="text-3xl font-bold tracking-tight">ZENITHR Dashboard</h1>
-        </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Hero Card */}

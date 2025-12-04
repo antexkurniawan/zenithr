@@ -124,7 +124,12 @@ export function Header() {
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       <SidebarTrigger className="hidden max-md:flex" />
       <div className="flex-1">
-        {/* Greeting removed as per request */}
+        <div className="relative inline-block">
+          <h1 className="text-xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+            ZENITHR Dashboard
+          </h1>
+           <div className="absolute -bottom-1 left-0 w-3/5 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+        </div>
       </div>
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
