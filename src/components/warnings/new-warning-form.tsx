@@ -223,19 +223,20 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
                         </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command>
-                            <CommandInput placeholder="Cari nama pegawai..." />
+                        <Command
+                            onValueChange={(value) => {
+                                form.setValue("employeeId", value);
+                                setComboboxOpen(false);
+                            }}
+                        >
+                            <CommandInput placeholder="Cari nama atau NIK pegawai..." />
                             <CommandList>
                               <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
                               <CommandGroup>
                               {employees.map((employee) => (
                                   <CommandItem
-                                  value={employee.name}
-                                  key={employee.id}
-                                  onSelect={() => {
-                                      form.setValue("employeeId", employee.id);
-                                      setComboboxOpen(false);
-                                    }}
+                                      value={employee.id}
+                                      key={employee.id}
                                   >
                                   <Check
                                       className={cn(
@@ -397,5 +398,7 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
     </Form>
   );
 }
+
+    
 
     
