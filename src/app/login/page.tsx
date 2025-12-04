@@ -118,7 +118,8 @@ export default function LoginPage() {
                 className="object-contain"
                 priority
             />
-            <p className="text-white/60 mt-4 text-center">Sistem Manajemen Sumber Daya Manusia Modern</p>
+            <h1 className="text-4xl font-bold text-white mt-4 tracking-wider">ZENITHR</h1>
+            <p className="text-white/60 mt-2 text-center">Sistem Manajemen Sumber Daya Manusia Modern</p>
           </div>
         </div>
 
