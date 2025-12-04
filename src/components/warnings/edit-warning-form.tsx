@@ -5,7 +5,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2, Check, ChevronsUpDown } from "lucide-react";
 import { format, parse } from "date-fns";
 import { doc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
@@ -25,6 +25,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -36,6 +43,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore } from "@/firebase";
 import { Input } from "../ui/input";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   employeeId: z.string({ required_error: "Pegawai harus dipilih." }),
@@ -59,6 +67,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
   const { toast } = useToast();
   const firestore = useFirestore();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isComboboxOpen, setComboboxOpen] = useState(false);
   
   const form = useForm<EditWarningFormValues>({
     resolver: zodResolver(formSchema),
@@ -134,22 +143,57 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
               control={form.control}
               name="employeeId"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2">
+                <FormItem className="flex flex-col sm:col-span-2">
                   <FormLabel>Nama Pegawai</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Pilih pegawai" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent className="z-[101]">
-                      {employees.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          {emp.name} ({emp.nik})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                   <Popover open={isComboboxOpen} onOpenChange={setComboboxOpen}>
+                        <PopoverTrigger asChild>
+                        <FormControl>
+                            <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                                "w-full justify-between",
+                                !field.value && "text-muted-foreground"
+                            )}
+                            >
+                            {field.value
+                                ? employees.find(
+                                    (employee) => employee.id === field.value
+                                )?.name
+                                : "Pilih pegawai"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
+                        <Command>
+                            <CommandInput placeholder="Cari nama pegawai..." />
+                            <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
+                            <CommandGroup>
+                            {employees.map((employee) => (
+                                <CommandItem
+                                value={employee.name}
+                                key={employee.id}
+                                onSelect={() => {
+                                    form.setValue("employeeId", employee.id);
+                                    setComboboxOpen(false);
+                                }}
+                                >
+                                <Check
+                                    className={cn(
+                                    "mr-2 h-4 w-4",
+                                    employee.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                />
+                                {employee.name} ({employee.nik})
+                                </CommandItem>
+                            ))}
+                            </CommandGroup>
+                        </Command>
+                        </PopoverContent>
+                    </Popover>
                   <FormMessage />
                 </FormItem>
               )}
