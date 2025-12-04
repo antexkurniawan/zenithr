@@ -138,7 +138,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
-        <div className="flex-grow overflow-y-auto pr-4 -mr-6 pl-6">
+        <div className="flex-grow overflow-y-auto pr-6 -mr-6 pl-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -167,20 +167,19 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                         </FormControl>
                         </PopoverTrigger>
                         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                        <Command
-                           onValueChange={(value) => {
-                                form.setValue("employeeId", value);
-                                setComboboxOpen(false);
-                            }}
-                        >
+                        <Command>
                             <CommandInput placeholder="Cari nama atau NIK pegawai..." />
                             <CommandList>
                                 <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
                                 <CommandGroup>
                                 {employees.map((employee) => (
                                     <CommandItem
-                                        value={employee.id}
+                                        value={employee.name}
                                         key={employee.id}
+                                        onSelect={() => {
+                                            form.setValue("employeeId", employee.id);
+                                            setComboboxOpen(false);
+                                        }}
                                     >
                                     <Check
                                         className={cn(
@@ -380,7 +379,3 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
     </Form>
   );
 }
-
-    
-
-    
