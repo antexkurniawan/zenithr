@@ -28,6 +28,7 @@ import { Skeleton } from "../ui/skeleton";
 function UserProfileDisplay() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  const auth = useAuth(); // Call useAuth at the top level
   
   const userProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -106,7 +107,7 @@ function UserProfileDisplay() {
           API
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => signOut(useAuth()).then(() => window.location.href = '/login')}>
+        <DropdownMenuItem onClick={() => signOut(auth).then(() => window.location.href = '/login')}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
@@ -117,8 +118,6 @@ function UserProfileDisplay() {
 
 
 export function Header() {
-  const auth = useAuth();
-  const router = useRouter();
   const { setTheme, theme } = useTheme();
 
   return (
