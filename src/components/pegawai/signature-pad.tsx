@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import Image from 'next/image';
+import { DialogHeader, DialogTitle } from '../ui/dialog';
 
 const formSchema = z.object({
   signatureFile: z
@@ -95,6 +96,10 @@ export function SignaturePad({ docId, collectionPath, fieldToUpdate = 'signature
   }
 
   return (
+    <>
+    <DialogHeader>
+        <DialogTitle>Upload Tanda Tangan</DialogTitle>
+    </DialogHeader>
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
@@ -139,5 +144,6 @@ export function SignaturePad({ docId, collectionPath, fieldToUpdate = 'signature
         </div>
       </form>
     </Form>
+    </>
   );
 }
