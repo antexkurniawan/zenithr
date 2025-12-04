@@ -30,6 +30,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Select,
@@ -137,7 +138,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
-        <div className="flex-grow overflow-y-auto pr-6 -mr-6">
+        <div className="flex-grow overflow-y-auto pr-4 -mr-6 pl-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -168,32 +169,31 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
                         <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
                         <Command>
                             <CommandInput placeholder="Cari nama pegawai..." />
-                            <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
-                            <CommandGroup>
-                            {employees.map((employee) => (
-                                <CommandItem
-                                value={employee.name}
-                                key={employee.id}
-                                onSelect={(currentValue) => {
-                                    const selectedEmployee = employees.find(e => e.name.toLowerCase() === currentValue.toLowerCase());
-                                    if (selectedEmployee) {
-                                      form.setValue("employeeId", selectedEmployee.id);
-                                    }
-                                    setComboboxOpen(false);
-                                  }}
-                                >
-                                <Check
-                                    className={cn(
-                                    "mr-2 h-4 w-4",
-                                    employee.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                />
-                                {employee.name} ({employee.nik})
-                                </CommandItem>
-                            ))}
-                            </CommandGroup>
+                            <CommandList>
+                                <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
+                                <CommandGroup>
+                                {employees.map((employee) => (
+                                    <CommandItem
+                                        value={employee.name}
+                                        key={employee.id}
+                                        onSelect={() => {
+                                            form.setValue("employeeId", employee.id);
+                                            setComboboxOpen(false);
+                                        }}
+                                    >
+                                    <Check
+                                        className={cn(
+                                        "mr-2 h-4 w-4",
+                                        employee.id === field.value
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        )}
+                                    />
+                                    {employee.name} ({employee.nik})
+                                    </CommandItem>
+                                ))}
+                                </CommandGroup>
+                            </CommandList>
                         </Command>
                         </PopoverContent>
                     </Popover>
@@ -359,7 +359,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
             />
           </div>
         </div>
-        <div className="flex justify-end gap-2 pt-4 mt-auto sm:col-span-2">
+        <div className="flex justify-end gap-2 pt-4 mt-auto sm:col-span-2 px-6 pb-6 -mx-6 border-t bg-background">
           <Button
             type="button"
             variant="outline"
@@ -379,3 +379,5 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
     </Form>
   );
 }
+
+    
