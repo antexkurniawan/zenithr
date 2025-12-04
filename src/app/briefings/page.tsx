@@ -69,11 +69,11 @@ import { useToast } from '@/hooks/use-toast';
 import { generatePdfFromComponent } from "@/lib/pdf-generator";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PrintableBriefing } from '@/components/briefings/printable-briefing';
 
 // Dynamically import heavy components
 const NewBriefingForm = dynamic(() => import('@/components/briefings/new-briefing-form').then(mod => mod.NewBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8 h-[500px]"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
 const EditBriefingForm = dynamic(() => import('@/components/briefings/edit-briefing-form').then(mod => mod.EditBriefingForm), { ssr: false, loading: () => <div className="flex justify-center items-center p-8 h-[500px]"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div> });
-const PrintableBriefing = dynamic(() => import('@/components/briefings/printable-briefing').then(mod => mod.PrintableBriefing), { ssr: false });
 
 
 const formatDateForDisplay = (dateString: string) => {
