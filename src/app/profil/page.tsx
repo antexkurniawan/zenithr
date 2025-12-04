@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { collection, doc, query, where, updateDoc } from "firebase/firestore";
 import { Edit, User, Briefcase, MapPin, Loader2, KeyRound, PenSquare, UploadCloud } from "lucide-react";
 import Image from 'next/image';
