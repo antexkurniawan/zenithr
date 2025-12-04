@@ -115,7 +115,8 @@ export default function BriefingsPage() {
   const { data: briefings, isLoading: isLoadingBriefings } = useCollection<Briefing>(briefingsQuery);
 
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
-  const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesCollection);
+  const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
+  const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
   
   const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
@@ -672,3 +673,5 @@ export default function BriefingsPage() {
     </div>
   );
 }
+
+    

@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { collection, doc, deleteDoc, writeBatch } from 'firebase/firestore';
+import { collection, doc, deleteDoc, writeBatch, query, orderBy } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -110,7 +110,8 @@ export default function WarningsPage() {
   const { data: warnings, isLoading: isLoadingWarnings } = useCollection<Warning>(warningsCollection);
 
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
-  const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesCollection);
+  const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
+  const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
   const fieldCoordinatorProfileRef = useMemoFirebase(() => {
     if (!user) return null;
@@ -592,3 +593,5 @@ export default function WarningsPage() {
     </div>
   );
 }
+
+    

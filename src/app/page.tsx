@@ -10,7 +10,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { collection, where, query } from 'firebase/firestore';
+import { collection, where, query, orderBy } from 'firebase/firestore';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -62,7 +62,7 @@ export default function DashboardPage() {
   const firestore = useFirestore();
 
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
-  const activeEmployeesQuery = useMemoFirebase(() => query(employeesCollection), [employeesCollection]);
+  const activeEmployeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   
   const warningsCollection = useMemoFirebase(() => collection(firestore, 'warnings'), [firestore]);
   const { data: allWarnings, isLoading: isLoadingWarnings } = useCollection<Warning>(warningsCollection);
@@ -165,5 +165,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     
