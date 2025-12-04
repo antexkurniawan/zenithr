@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Calendar as CalendarIcon, Loader2, Check, ChevronsUpDown } from "lucide-react";
+import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { format, parse } from "date-fns";
 import { doc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
@@ -24,14 +24,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Select,
   SelectContent,
@@ -68,7 +60,7 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
   const { toast } = useToast();
   const firestore = useFirestore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isComboboxOpen, setComboboxOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const form = useForm<EditWarningFormValues>({
     resolver: zodResolver(formSchema),
@@ -82,6 +74,11 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
         peraturanDilanggar: warning.peraturanDilanggar,
     },
   });
+
+  const filteredEmployees = employees.filter(employee =>
+    employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    employee.nik.includes(searchQuery)
+  );
 
   async function onSubmit(data: EditWarningFormValues) {
     const selectedEmployee = employees.find(e => e.id === data.employeeId);
@@ -146,53 +143,30 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
               render={({ field }) => (
                 <FormItem className="flex flex-col sm:col-span-2">
                   <FormLabel>Nama Pegawai</FormLabel>
-                   <Popover open={isComboboxOpen} onOpenChange={setComboboxOpen} modal={false}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        aria-expanded={isComboboxOpen}
-                        className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? employees.find((employee) => employee.id === field.value)?.name
-                          : "Pilih pegawai"}
-                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] max-h-[--radix-popover-content-available-height] p-0">
-                      <Command>
-                        <CommandInput placeholder="Cari nama atau NIK pegawai..." />
-                        <CommandList>
-                          <CommandEmpty>Pegawai tidak ditemukan.</CommandEmpty>
-                          <CommandGroup>
-                            {employees.map((employee) => (
-                              <CommandItem
-                                value={employee.name}
-                                key={employee.id}
-                                onSelect={() => {
-                                  form.setValue("employeeId", employee.id);
-                                  form.trigger("employeeId");
-                                  setComboboxOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={cn(
-                                    "mr-2 h-4 w-4",
-                                    employee.id === field.value ? "opacity-100" : "opacity-0"
-                                  )}
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Pilih pegawai...">
+                                    {field.value ? employees.find(e => e.id === field.value)?.name : "Pilih pegawai..."}
+                                </SelectValue>
+                            </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                            <div className="p-2">
+                                <Input
+                                    placeholder="Cari nama atau NIK..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full"
                                 />
-                                {employee.name} ({employee.nik})
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
+                            </div>
+                            {filteredEmployees.length > 0 ? filteredEmployees.map((employee) => (
+                                <SelectItem key={employee.id} value={employee.id}>
+                                    {employee.name} ({employee.nik})
+                                </SelectItem>
+                            )) : <p className="p-2 text-sm text-muted-foreground">Pegawai tidak ditemukan.</p>}
+                        </SelectContent>
+                    </Select>
                   <FormMessage />
                 </FormItem>
               )}
