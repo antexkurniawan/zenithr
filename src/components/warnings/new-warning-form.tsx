@@ -184,152 +184,154 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
 
   return (
     <Form {...form}>
-        <ScrollArea className="flex-grow pr-6 -mr-6">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="employeeId"
-          render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>Nama Pegawai</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih pegawai" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="z-[101]">
-                  {employees.map((emp) => (
-                    <SelectItem key={emp.id} value={emp.id}>
-                      {emp.name} ({emp.nik})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-              <FormItem>
-              <FormLabel>Jenis Surat</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                  <SelectTrigger>
-                      <SelectValue placeholder="Pilih jenis SP" />
-                  </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="z-[101]">
-                  <SelectItem value="Teguran">Teguran</SelectItem>
-                  <SelectItem value="SP1">SP1</SelectItem>
-                  <SelectItem value="SP2">SP2</SelectItem>
-                  <SelectItem value="SP3">SP3</SelectItem>
-                  </SelectContent>
-              </Select>
-              <FormMessage />
-              </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="issueDate"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Tanggal Terbit</FormLabel>
-              <Popover>
-                  <PopoverTrigger asChild>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
-                        onChange={(e) => {
-                          try {
-                            const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
-                            if (!isNaN(parsedDate.getTime())) {
-                              field.onChange(parsedDate);
-                            }
-                          } catch (error) {
-                            // Handle parsing error if needed
-                          }
-                        }}
-                        placeholder="dd/mm/yyyy"
-                        className="pr-8"
-                      />
-                      <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                    </div>
-                  </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[101]" align="start">
-                  <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                  />
-                  </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-                <FormLabel>Deskripsi Pelanggaran</FormLabel>
-                <FormControl>
-                <Textarea
-                    placeholder="Jelaskan secara rinci pelanggaran yang terjadi..."
-                    rows={4}
-                    {...field}
-                />
-                </FormControl>
-                <FormMessage />
-            </FormItem>
-            )}
-        />
-        
-        <div className="sm:col-span-2 space-y-2">
-            <FormLabel>Panduan Peraturan</FormLabel>
-            <Select onValueChange={handleRuleSelection}>
-                <FormControl>
-                    <SelectTrigger>
-                        <SelectValue placeholder="Pilih deskripsi pelanggaran untuk mengisi otomatis..." />
-                    </SelectTrigger>
-                </FormControl>
-                <SelectContent className="z-[101]">
-                    {(allRules[warningType as keyof typeof allRules] || []).map((rule) => (
-                        <SelectItem key={rule.ruleId} value={rule.text}>
-                            {rule.description}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
+        <div className="flex-grow overflow-auto pr-6 -mr-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="employeeId"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Nama Pegawai</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Pilih pegawai" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="z-[101]">
+                      {employees.map((emp) => (
+                        <SelectItem key={emp.id} value={emp.id}>
+                          {emp.name} ({emp.nik})
                         </SelectItem>
-                    ))}
-                </SelectContent>
-            </Select>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Jenis Surat</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                      <SelectTrigger>
+                          <SelectValue placeholder="Pilih jenis SP" />
+                      </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="z-[101]">
+                      <SelectItem value="Teguran">Teguran</SelectItem>
+                      <SelectItem value="SP1">SP1</SelectItem>
+                      <SelectItem value="SP2">SP2</SelectItem>
+                      <SelectItem value="SP3">SP3</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="issueDate"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Tanggal Terbit</FormLabel>
+                  <Popover>
+                      <PopoverTrigger asChild>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+                            onChange={(e) => {
+                              try {
+                                const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
+                                if (!isNaN(parsedDate.getTime())) {
+                                  field.onChange(parsedDate);
+                                }
+                              } catch (error) {
+                                // Handle parsing error if needed
+                              }
+                            }}
+                            placeholder="dd/mm/yyyy"
+                            className="pr-8"
+                          />
+                          <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                        </div>
+                      </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[101]" align="start">
+                      <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                      />
+                      </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                    <FormLabel>Deskripsi Pelanggaran</FormLabel>
+                    <FormControl>
+                    <Textarea
+                        placeholder="Jelaskan secara rinci pelanggaran yang terjadi..."
+                        rows={4}
+                        {...field}
+                    />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            
+            <div className="sm:col-span-2 space-y-2">
+                <FormLabel>Panduan Peraturan</FormLabel>
+                <Select onValueChange={handleRuleSelection}>
+                    <FormControl>
+                        <SelectTrigger>
+                            <SelectValue placeholder="Pilih deskripsi pelanggaran untuk mengisi otomatis..." />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent className="z-[101]">
+                        {(allRules[warningType as keyof typeof allRules] || []).map((rule) => (
+                            <SelectItem key={rule.ruleId} value={rule.text}>
+                                {rule.description}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+
+            <FormField
+              control={form.control}
+              name="peraturanDilanggar"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Peraturan yang Dilanggar</FormLabel>
+                  <FormControl>
+                    <Input placeholder="cth. Peraturan Perusahaan Pasal 23..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
         </div>
-
-
-        <FormField
-          control={form.control}
-          name="peraturanDilanggar"
-          render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>Peraturan yang Dilanggar</FormLabel>
-              <FormControl>
-                <Input placeholder="cth. Peraturan Perusahaan Pasal 23..." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        
-        <div className="flex justify-end gap-2 pt-4 sm:col-span-2">
+        <div className="flex justify-end gap-2 pt-4 mt-auto sm:col-span-2">
           <Button
             type="button"
             variant="outline"
@@ -346,7 +348,6 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
           </Button>
         </div>
       </form>
-      </ScrollArea>
     </Form>
   );
 }

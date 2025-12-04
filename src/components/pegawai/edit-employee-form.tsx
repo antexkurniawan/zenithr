@@ -108,9 +108,9 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
 
   return (
     <Form {...form}>
-      <div className="flex-grow overflow-hidden">
-        <ScrollArea className="h-full pr-6 -mr-6">
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
+        <div className="flex-grow overflow-auto pr-6 -mr-6">
+          <div className="space-y-4 pt-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -288,26 +288,25 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
                 )}
               />
             </div>
-            
-            <div className="flex justify-end gap-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setModalOpen(false)}
-                disabled={isSubmitting}
-              >
-                Batal
-              </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Simpan Perubahan
-              </Button>
-            </div>
-          </form>
-        </ScrollArea>
-      </div>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 pt-4 mt-auto">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setModalOpen(false)}
+            disabled={isSubmitting}
+          >
+            Batal
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Simpan Perubahan
+          </Button>
+        </div>
+      </form>
     </Form>
   );
 }

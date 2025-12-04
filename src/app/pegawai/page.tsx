@@ -126,23 +126,13 @@ const getWarningStatus = (expiryDate: string): WarningStatus => {
     return isAfter(new Date(expiryDate), new Date()) ? 'Aktif' : 'Arsip';
 }
 
-function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: { employee: Employee, onSignatureUploaded: (updatedEmployee: Employee) => void, closeMainModal: () => void }) {
+function DetailModalContent({ employee, onSignatureUploaded, closeMainModal, openEditModal, openSignatureModal }: { employee: Employee, onSignatureUploaded: (updatedEmployee: Employee) => void, closeMainModal: () => void, openEditModal: () => void, openSignatureModal: () => void }) {
     const firestore = useFirestore();
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     
     const warningsCollectionRef = useMemoFirebase(() => collection(firestore, 'employees', employee.id, 'warningLetters'), [firestore, employee.id]);
     const { data: employeeWarnings, isLoading: isLoadingWarnings } = useCollection<Warning>(warningsCollectionRef);
 
     const { imageUrl, imageHint } = getAvatarImage(employee.name || '');
-
-    const handleInternalSignatureUploaded = async (newSignatureUrl: string) => {
-        const updatedEmployee: Employee = { ...employee, signatureUrl: newSignatureUrl };
-        const employeeRef = doc(firestore, 'employees', employee.id);
-        await updateDoc(employeeRef, { signatureUrl: newSignatureUrl });
-        onSignatureUploaded(updatedEmployee); // Pass updated employee data up
-        setIsSignatureModalOpen(false);
-    };
 
     return (
         <>
@@ -160,8 +150,8 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
             </DialogHeader>
 
             <div className="flex-grow overflow-hidden">
-                <ScrollArea className="h-full">
-                    <div className="pr-6">
+                <ScrollArea className="h-full pr-6 -mr-6">
+                    <div className="space-y-4">
                         <Tabs defaultValue="profil" className="w-full mt-4">
                             <TabsList className="grid w-full grid-cols-3">
                                 <TabsTrigger value="profil"><User className="mr-2 h-4 w-4" /> Profil</TabsTrigger>
@@ -195,10 +185,10 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
                                                 <div className="border rounded-md p-2 bg-muted/50 flex justify-center items-center">
                                                     <Image src={employee.signatureUrl} alt="Tanda tangan" width={200} height={100} className="object-contain" />
                                                 </div>
-                                                <Button variant="outline" className="w-full" onClick={() => setIsSignatureModalOpen(true)}>Ganti Tanda Tangan</Button>
+                                                <Button variant="outline" className="w-full" onClick={openSignatureModal}>Ganti Tanda Tangan</Button>
                                             </div>
                                         ) : (
-                                            <Button className="w-full" onClick={() => setIsSignatureModalOpen(true)}>
+                                            <Button className="w-full" onClick={openSignatureModal}>
                                                 <PenSquare className="mr-2 h-4 w-4"/>
                                                 Upload Tanda Tangan
                                             </Button>
@@ -275,33 +265,13 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal }: {
                 </ScrollArea>
             </div>
             
-            <div className="flex justify-end gap-2 pt-4 border-t mt-4">
+            <div className="flex justify-end gap-2 pt-4 border-t mt-auto">
                 <Button variant="outline" onClick={closeMainModal}>Tutup</Button>
-                <Button onClick={() => setIsEditModalOpen(true)}>
+                <Button onClick={openEditModal}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Profil
                 </Button>
             </div>
-
-            {/* Nested Modals */}
-            <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-                <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
-                    <DialogHeader>
-                        <DialogTitle>Edit Data Pegawai</DialogTitle>
-                        <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
-                    </DialogHeader>
-                    <EditEmployeeForm employee={employee} setModalOpen={setIsEditModalOpen} />
-                </DialogContent>
-            </Dialog>
-            <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
-                <DialogContent>
-                    <SignaturePad 
-                        docId={employee.id} 
-                        onSignatureUploaded={(newUrl) => handleInternalSignatureUploaded(newUrl)}
-                        collectionPath="employees"
-                    />
-                </DialogContent>
-            </Dialog>
         </>
     )
 }
@@ -311,6 +281,8 @@ export default function PegawaiPage() {
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -555,7 +527,7 @@ export default function PegawaiPage() {
                     Tambah
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px]">
+                <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
                   <DialogHeader>
                     <DialogTitle>Tambah Pegawai Baru</DialogTitle>
                   </DialogHeader>
@@ -687,7 +659,7 @@ export default function PegawaiPage() {
         )}
       </div>
       
-      {/* Detail/Edit Modal */}
+      {/* Detail Modal */}
        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
             <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
                 {selectedEmployee ? (
@@ -695,6 +667,8 @@ export default function PegawaiPage() {
                         employee={selectedEmployee} 
                         onSignatureUploaded={handleSignatureUploaded}
                         closeMainModal={() => setIsDetailModalOpen(false)}
+                        openEditModal={() => setIsEditModalOpen(true)}
+                        openSignatureModal={() => setIsSignatureModalOpen(true)}
                     />
                 ) : (
                     <div className="flex items-center justify-center p-8">
@@ -703,6 +677,33 @@ export default function PegawaiPage() {
                 )}
             </DialogContent>
         </Dialog>
+        
+      {/* Nested Modals from Detail */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
+              <DialogHeader>
+                  <DialogTitle>Edit Data Pegawai</DialogTitle>
+                  <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
+              </DialogHeader>
+              {selectedEmployee && <EditEmployeeForm employee={selectedEmployee} setModalOpen={setIsEditModalOpen} />}
+          </DialogContent>
+      </Dialog>
+      <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
+          <DialogContent>
+              {selectedEmployee && (
+                  <SignaturePad 
+                      docId={selectedEmployee.id} 
+                      onSignatureUploaded={(newUrl) => {
+                          const updatedEmployee = { ...selectedEmployee, signatureUrl: newUrl };
+                          handleSignatureUploaded(updatedEmployee);
+                          setIsSignatureModalOpen(false);
+                      }}
+                      collectionPath="employees"
+                  />
+              )}
+          </DialogContent>
+      </Dialog>
+
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
@@ -725,5 +726,3 @@ export default function PegawaiPage() {
     </div>
   );
 }
-
-    

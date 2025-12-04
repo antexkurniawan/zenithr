@@ -84,9 +84,9 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
 
   return (
     <Form {...form}>
-      <ScrollArea className="flex-grow pr-6 -mr-6">
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 gap-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
+        <div className="flex-grow overflow-auto pr-6 -mr-6">
+          <div className="space-y-6">
             <FormField
             control={form.control}
             name="name"
@@ -126,8 +126,9 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
                 </FormItem>
             )}
             />
+          </div>
         </div>
-        <div className="flex justify-end pt-2 gap-2">
+        <div className="flex justify-end pt-4 gap-2 mt-auto">
            <Button type="button" variant="outline" onClick={() => setModalOpen(false)} disabled={isSubmitting}>
                 Batal
            </Button>
@@ -137,7 +138,6 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
           </Button>
         </div>
       </form>
-      </ScrollArea>
     </Form>
   );
 }

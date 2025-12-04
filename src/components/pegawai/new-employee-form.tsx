@@ -36,6 +36,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, addDocumentNonBlocking, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
+import { ScrollArea } from '../ui/scroll-area';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Nama lengkap minimal 2 karakter.'),
@@ -116,160 +117,163 @@ export function NewEmployeeForm({ setModalOpen }: NewEmployeeFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="nik"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>NIK</FormLabel>
-                <FormControl>
-                  <Input placeholder="cth. 123456789" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nama Lengkap</FormLabel>
-                <FormControl>
-                  <Input placeholder="cth. Budi Susanto" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="jobTitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Jabatan</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih jabatan" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Driver">Driver</SelectItem>
-                    <SelectItem value="Dispatcher">Dispatcher</SelectItem>
-                    <SelectItem value="Checker">Checker</SelectItem>
-                    <SelectItem value="Field Coordinator">Field Coordinator</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="areaTugas"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Area Tugas</FormLabel>
-                <FormControl>
-                  <Input placeholder="cth. Gorontalo" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="contractStartDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Awal Kontrak</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex-grow flex flex-col overflow-hidden">
+        <div className="flex-grow overflow-auto pr-6 -mr-6">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="nik"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>NIK</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Input
-                          value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
-                          onChange={(e) => {
-                            try {
-                              const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
-                              if (!isNaN(parsedDate.getTime())) {
-                                field.onChange(parsedDate);
-                              }
-                            } catch (error) {
-                              // Handle parsing error if needed
-                            }
-                          }}
-                          placeholder="dd/mm/yyyy"
-                          className="pr-8"
-                        />
-                        <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                      </div>
+                      <Input placeholder="cth. 123456789" {...field} />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[100]" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="contractEndDate"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Akhir Kontrak</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nama Lengkap</FormLabel>
                     <FormControl>
-                     <div className="relative">
-                        <Input
-                          value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
-                          onChange={(e) => {
-                            try {
-                              const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
-                              if (!isNaN(parsedDate.getTime())) {
-                                field.onChange(parsedDate);
-                              }
-                            } catch (error) {
-                              // Handle parsing error if needed
-                            }
-                          }}
-                          placeholder="dd/mm/yyyy"
-                          className="pr-8"
-                        />
-                        <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
-                      </div>
+                      <Input placeholder="cth. Budi Susanto" {...field} />
                     </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[100]" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="jobTitle"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Jabatan</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Pilih jabatan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Driver">Driver</SelectItem>
+                        <SelectItem value="Dispatcher">Dispatcher</SelectItem>
+                        <SelectItem value="Checker">Checker</SelectItem>
+                        <SelectItem value="Field Coordinator">Field Coordinator</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="areaTugas"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Area Tugas</FormLabel>
+                    <FormControl>
+                      <Input placeholder="cth. Gorontalo" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contractStartDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Awal Kontrak</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+                              onChange={(e) => {
+                                try {
+                                  const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
+                                  if (!isNaN(parsedDate.getTime())) {
+                                    field.onChange(parsedDate);
+                                  }
+                                } catch (error) {
+                                  // Handle parsing error if needed
+                                }
+                              }}
+                              placeholder="dd/mm/yyyy"
+                              className="pr-8"
+                            />
+                            <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                          </div>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="contractEndDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Akhir Kontrak</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                         <div className="relative">
+                            <Input
+                              value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+                              onChange={(e) => {
+                                try {
+                                  const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
+                                  if (!isNaN(parsedDate.getTime())) {
+                                    field.onChange(parsedDate);
+                                  }
+                                } catch (error) {
+                                  // Handle parsing error if needed
+                                }
+                              }}
+                              placeholder="dd/mm/yyyy"
+                              className="pr-8"
+                            />
+                            <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                          </div>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[100]" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
         </div>
-        
-        <div className="flex justify-end gap-2 pt-4">
+        <div className="flex justify-end gap-2 pt-4 mt-auto">
           <Button
             type="button"
             variant="outline"
