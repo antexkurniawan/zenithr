@@ -10,6 +10,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -98,12 +99,44 @@ export default function LoginPage() {
       setIsSubmitting(false);
     }
   }
+  
+  const containerVariants = {
+    hidden: { opacity: 0, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: [0.4, 0, 0.2, 1],
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+  };
+  
+  const sideVariants = {
+    leftHidden: { opacity: 0, x: -50 },
+    rightHidden: { opacity: 0, x: 50 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } },
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center bg-gray-50 text-gray-900 overflow-hidden p-4">
       {/* Background Animated Gradients */}
-      <div className="absolute -top-1/4 -left-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob" style={{backgroundColor: '#17c9ec'}}></div>
-      <div className="absolute -bottom-1/4 -right-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl opacity-50 animate-blob animation-delay-4000" style={{backgroundColor: '#b21593'}}></div>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.5 }}
+        transition={{ duration: 1.5 }}
+        className="absolute -top-1/4 -left-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl animate-blob" style={{backgroundColor: '#17c9ec'}}></motion.div>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 0.5 }}
+        transition={{ duration: 1.5, delay: 0.5 }}
+        className="absolute -bottom-1/4 -right-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl animate-blob animation-delay-4000" style={{backgroundColor: '#b21593'}}></motion.div>
 
       <style jsx>{`
         @keyframes blob {
@@ -121,10 +154,20 @@ export default function LoginPage() {
       `}</style>
 
 
-      <div className="relative w-full max-w-5xl rounded-2xl shadow-2xl grid md:grid-cols-2 overflow-hidden bg-white/60 backdrop-blur-xl border border-gray-200/50">
+      <motion.div 
+        className="relative w-full max-w-5xl rounded-2xl shadow-2xl grid md:grid-cols-2 overflow-hidden bg-white/60 backdrop-blur-xl border border-gray-200/50"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         
         {/* Left Side - Branding */}
-        <div className="hidden md:flex flex-col items-center justify-center p-12 bg-white/30 border-r border-gray-200/50">
+        <motion.div 
+          className="hidden md:flex flex-col items-center justify-center p-12 bg-white/30 border-r border-gray-200/50"
+          variants={sideVariants}
+          initial="leftHidden"
+          animate="visible"
+        >
           <div className="flex flex-col items-center justify-center text-center">
             <Image 
                 src="/zenithr-logo.png"
@@ -137,11 +180,16 @@ export default function LoginPage() {
             <h1 className="text-5xl font-bold text-gray-800 mt-4 tracking-wider">ZENITHR</h1>
             <p className="text-gray-500 mt-2">Sistem Manajemen Sumber Daya Manusia Modern</p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Right Side - Form */}
-        <div className="p-8 sm:p-12">
-           <div className='mb-8 text-center'>
+        <motion.div 
+          className="p-8 sm:p-12"
+          variants={sideVariants}
+          initial="rightHidden"
+          animate="visible"
+        >
+           <motion.div className='mb-8 text-center' variants={itemVariants}>
                 <div className="flex md:hidden items-center justify-center mb-6">
                      <Image 
                         src="/zenithr-logo.png"
@@ -153,80 +201,86 @@ export default function LoginPage() {
                 </div>
                 <h3 className='text-3xl font-bold text-gray-800'>Selamat Datang!</h3>
                 <p className='text-muted-foreground'>Silakan masuk untuk melanjutkan</p>
-            </div>
+            </motion.div>
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                        <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
-                            <Input
-                                type="email"
-                                placeholder="nama@perusahaan.com"
-                                className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
-                                {...field}
-                            />
-                        </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                     <FormControl>
-                        <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
-                            <Input
-                            type="password"
-                            placeholder="******"
-                            className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
-                            {...field}
-                            />
-                        </div>
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                          <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
+                              <Input
+                                  type="email"
+                                  placeholder="nama@perusahaan.com"
+                                  className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                                  {...field}
+                              />
+                          </div>
                       </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="text-right text-sm">
-                <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">Lupa Password?</Link>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full font-bold text-base h-12 text-white transition-all duration-300 transform hover:scale-105"
-                style={{
-                  background: 'linear-gradient(to right, #17c9ec, #b21593)',
-                }}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  'Masuk'
-                )}
-              </Button>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
+              <motion.div variants={itemVariants}>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                          <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
+                              <Input
+                              type="password"
+                              placeholder="******"
+                              className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
+                              {...field}
+                              />
+                          </div>
+                        </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </motion.div>
               
-               <div className="text-center text-sm text-muted-foreground">
+              <motion.div className="text-right text-sm" variants={itemVariants}>
+                <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">Lupa Password?</Link>
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
+                <Button 
+                  type="submit" 
+                  className="w-full font-bold text-base h-12 text-white transition-all duration-300 transform hover:scale-105"
+                  style={{
+                    background: 'linear-gradient(to right, #17c9ec, #b21593)',
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    'Masuk'
+                  )}
+                </Button>
+              </motion.div>
+              
+               <motion.div className="text-center text-sm text-muted-foreground" variants={itemVariants}>
                   Belum punya akun?{' '}
                   <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">
                     Hubungi Administrator
                   </Link>
-               </div>
+               </motion.div>
             </form>
           </Form>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
