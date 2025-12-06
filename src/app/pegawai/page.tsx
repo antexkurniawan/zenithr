@@ -18,6 +18,7 @@ import { MoreHorizontal, PlusCircle, Download, Upload, ArrowUpDown, Loader2, Edi
 import * as XLSX from 'xlsx';
 import { differenceInDays, differenceInMonths, isPast, isAfter } from 'date-fns';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import type { Employee, UserProfile, Warning, WarningStatus } from '@/lib/types';
@@ -65,6 +66,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SignaturePad } from '@/components/pegawai/signature-pad';
 
+const MotionCard = motion(Card);
 
 const formatDateForDisplay = (dateString: string) => {
   if (!dateString) return '-';
@@ -486,8 +488,35 @@ export default function PegawaiPage() {
     }
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       <PageHeader title="Database Pegawai">
         <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
@@ -535,67 +564,71 @@ export default function PegawaiPage() {
       </PageHeader>
       
       {/* Desktop Table */}
-      <div className="hidden md:block">
-        <Card>
-          <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <TableHead key={header.id}>
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {isLoading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell colSpan={columns.length}>
-                          <Skeleton className="h-16 w-full" />
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
-                        Tidak ada data.
+      <MotionCard 
+        className="hidden md:block"
+        variants={itemVariants}
+      >
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => {
+                      return (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell colSpan={columns.length}>
+                        <Skeleton className="h-16 w-full" />
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+                  ))
+                ) : table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow
+                      key={row.id}
+                      data-state={row.getIsSelected() && "selected"}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                      Tidak ada data.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </MotionCard>
 
       {/* Mobile Card View */}
-      <div className="grid gap-4 md:hidden">
+      <motion.div 
+        className="grid gap-4 md:hidden"
+        variants={containerVariants}
+      >
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
              <Card key={i}>
@@ -610,7 +643,12 @@ export default function PegawaiPage() {
               const { imageUrl, imageHint } = getAvatarImage(employee.name);
               const { text: remainingText, color: remainingColor } = getRemainingContract(employee.contractEndDate);
               return (
-                <Card key={row.id} className="w-full">
+                <MotionCard 
+                  key={row.id} 
+                  className="w-full"
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.02 }}
+                >
                   <CardContent className="p-4 flex gap-4">
                      <Avatar>
                         <AvatarImage src={imageUrl} alt={employee.name} data-ai-hint={imageHint} />
@@ -643,7 +681,7 @@ export default function PegawaiPage() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </MotionCard>
               )
             })
         ) : (
@@ -653,7 +691,7 @@ export default function PegawaiPage() {
             </CardContent>
           </Card>
         )}
-      </div>
+      </motion.div>
       
       {/* Detail Modal */}
        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
@@ -719,6 +757,8 @@ export default function PegawaiPage() {
           Selanjutnya
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+    
