@@ -36,11 +36,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -282,12 +282,12 @@ export default function PengaturanPage() {
                       </Button>
                     </motion.div>
                   </DialogTrigger>
-                  <DialogContent>
+                  <AnimatedDialogContent open={isNewModalOpen}>
                       <DialogHeader>
                           <DialogTitle>Buat Aturan Peraturan Baru</DialogTitle>
                       </DialogHeader>
                       <EditRuleForm setModalOpen={setIsNewModalOpen} />
-                  </DialogContent>
+                  </AnimatedDialogContent>
               </Dialog>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -321,12 +321,12 @@ export default function PengaturanPage() {
 
       {/* Edit Modal */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent>
+        <AnimatedDialogContent open={isEditModalOpen}>
             <DialogHeader>
                 <DialogTitle>Edit Aturan Peraturan</DialogTitle>
             </DialogHeader>
             {selectedRule && <EditRuleForm rule={selectedRule} setModalOpen={setIsEditModalOpen} />}
-        </DialogContent>
+        </AnimatedDialogContent>
       </Dialog>
       
       {/* Delete Alert */}
@@ -351,5 +351,3 @@ export default function PengaturanPage() {
     </motion.div>
   );
 }
-
-    

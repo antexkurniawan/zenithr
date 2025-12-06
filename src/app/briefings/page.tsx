@@ -59,13 +59,13 @@ import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
-  DialogContent,
   DialogDescription as DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { toast } from 'sonner';
 import { generatePdfFromComponent } from "@/lib/pdf-generator";
 import { Input } from '@/components/ui/input';
@@ -392,7 +392,7 @@ export default function BriefingsPage() {
                 </Button>
               </motion.div>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
+            <AnimatedDialogContent open={isNewModalOpen} className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
               <DialogHeader className="p-6 pb-0">
                 <DialogTitle>Buat Materi Briefing Baru</DialogTitle>
               </DialogHeader>
@@ -403,7 +403,7 @@ export default function BriefingsPage() {
               ) : (
                   <NewBriefingForm setModalOpen={setIsNewModalOpen} employees={employees || []} />
               )}
-            </DialogContent>
+            </AnimatedDialogContent>
           </Dialog>
         </div>
       </PageHeader>
@@ -523,7 +523,7 @@ export default function BriefingsPage() {
             setIsEditModalOpen(isOpen);
             if (!isOpen) setSelectedBriefing(null);
         }}>
-          <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
+          <AnimatedDialogContent open={isEditModalOpen} className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
             <DialogHeader className="p-6 pb-0">
               <DialogTitle>Edit Materi Briefing</DialogTitle>
             </DialogHeader>
@@ -538,7 +538,7 @@ export default function BriefingsPage() {
                     setModalOpen={setIsEditModalOpen} 
                 />
               )}
-          </DialogContent>
+          </AnimatedDialogContent>
         </Dialog>
       )}
 
@@ -567,7 +567,7 @@ export default function BriefingsPage() {
           setIsDetailModalOpen(isOpen);
           if (!isOpen) setSelectedBriefing(null);
       }}>
-        <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
+        <AnimatedDialogContent open={isDetailModalOpen} className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
             {selectedBriefing && (
                 <>
                     <DialogHeader>
@@ -659,12 +659,12 @@ export default function BriefingsPage() {
                     </div>
                 </>
             )}
-        </DialogContent>
+        </AnimatedDialogContent>
       </Dialog>
 
       {/* Acknowledge Modal */}
       <Dialog open={isAcknowledgeModalOpen} onOpenChange={setIsAcknowledgeModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <AnimatedDialogContent open={isAcknowledgeModalOpen} className="sm:max-w-[425px]">
             <DialogHeader>
                 <DialogTitle>Tandai "Mengetahui"</DialogTitle>
                 <DialogDescription>
@@ -678,7 +678,7 @@ export default function BriefingsPage() {
                     Ya, Setujui
                 </Button>
             </DialogFooter>
-        </DialogContent>
+        </AnimatedDialogContent>
       </Dialog>
 
 
@@ -707,5 +707,3 @@ export default function BriefingsPage() {
     </motion.div>
   );
 }
-
-    

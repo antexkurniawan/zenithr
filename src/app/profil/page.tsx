@@ -16,13 +16,13 @@ import type { UserProfile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarImage } from "@/lib/utils";
 import { ChangePasswordForm } from "@/components/profil/change-password-form";
@@ -201,7 +201,7 @@ export default function ProfilPage() {
                                   </motion.div>
                                 </DialogTrigger>
                                 {effectiveUserProfile && (
-                                    <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
+                                    <AnimatedDialogContent open={isEditModalOpen} className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
                                         <DialogHeader>
                                             <DialogTitle>Edit Profil</DialogTitle>
                                             <DialogDescription>
@@ -213,7 +213,7 @@ export default function ProfilPage() {
                                             userId={user!.uid} 
                                             setModalOpen={setIsEditModalOpen} 
                                         />
-                                    </DialogContent>
+                                    </AnimatedDialogContent>
                                 )}
                             </Dialog>
                         </CardHeader>
@@ -237,7 +237,7 @@ export default function ProfilPage() {
                                     </Button>
                                   </motion.div>
                                 </DialogTrigger>
-                                <DialogContent className="sm:max-w-[450px]">
+                                <AnimatedDialogContent open={isChangePasswordModalOpen} className="sm:max-w-[450px]">
                                     <DialogHeader>
                                         <DialogTitle>Ubah Password</DialogTitle>
                                         <DialogDescription>
@@ -245,7 +245,7 @@ export default function ProfilPage() {
                                         </DialogDescription>
                                     </DialogHeader>
                                     <ChangePasswordForm setModalOpen={setChangePasswordModalOpen} />
-                                </DialogContent>
+                                </AnimatedDialogContent>
                             </Dialog>
                         </CardContent>
                     </MotionCard>
@@ -323,10 +323,7 @@ export default function ProfilPage() {
             )}
              {/* Signature Modal (Self) */}
             <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Upload Tanda Tangan Anda</DialogTitle>
-                    </DialogHeader>
+                <AnimatedDialogContent open={isSignatureModalOpen}>
                     {user && (
                         <SignaturePad 
                             docId={user.uid}
@@ -338,15 +335,12 @@ export default function ProfilPage() {
                             }} 
                         />
                     )}
-                </DialogContent>
+                </AnimatedDialogContent>
             </Dialog>
             
             {/* Signature Modal (Coordinator) */}
             <Dialog open={isCoordinatorSignatureModalOpen} onOpenChange={setIsCoordinatorSignatureModalOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Upload Tanda Tangan Koordinator</DialogTitle>
-                    </DialogHeader>
+                <AnimatedDialogContent open={isCoordinatorSignatureModalOpen}>
                     {user && (
                         <SignaturePad 
                             docId={user.uid}
@@ -358,12 +352,12 @@ export default function ProfilPage() {
                             }} 
                         />
                     )}
-                </DialogContent>
+                </AnimatedDialogContent>
             </Dialog>
 
              {/* Coordinator Name Modal */}
             <Dialog open={isCoordinatorModalOpen} onOpenChange={setIsCoordinatorModalOpen}>
-                <DialogContent className="sm:max-w-md">
+                <AnimatedDialogContent open={isCoordinatorModalOpen} className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>Ganti Nama Atasan Langsung</DialogTitle>
                         <DialogDescription>Ketik nama Operation Point Coordinator Anda.</DialogDescription>
@@ -389,10 +383,8 @@ export default function ProfilPage() {
                             Simpan
                         </Button>
                     </DialogFooter>
-                </DialogContent>
+                </AnimatedDialogContent>
             </Dialog>
         </motion.div>
     );
 }
-
-    

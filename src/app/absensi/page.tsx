@@ -42,6 +42,7 @@ import {
   Dialog,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { ImportAbsensiDialog } from '@/components/absensi/import-dialog';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { toast } from 'sonner';
@@ -369,7 +370,9 @@ export default function AbsensiPage() {
                     </Button>
                   </motion.div>
                 </DialogTrigger>
-                <ImportAbsensiDialog setModalOpen={setImportModalOpen} />
+                <AnimatedDialogContent open={isImportModalOpen}>
+                  <ImportAbsensiDialog setModalOpen={setImportModalOpen} />
+                </AnimatedDialogContent>
               </Dialog>
             </div>
         </div>
@@ -525,5 +528,3 @@ export default function AbsensiPage() {
     </motion.div>
   );
 }
-
-    

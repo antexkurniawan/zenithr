@@ -43,12 +43,12 @@ import {
 } from "@/components/ui/select";
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -347,7 +347,7 @@ export default function WarningsPage() {
                     </Button>
                   </motion.div>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
+                <AnimatedDialogContent open={isNewModalOpen} className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>Buat Surat Peringatan Baru</DialogTitle>
                     </DialogHeader>
@@ -358,14 +358,14 @@ export default function WarningsPage() {
                     ) : (
                         <NewWarningForm employees={employees ?? []} setModalOpen={setNewModalOpen} />
                     )}
-                </DialogContent>
+                </AnimatedDialogContent>
             </Dialog>
         </div>
       </PageHeader>
       
       {selectedWarning && (
         <Dialog open={isEditModalOpen} onOpenChange={setEditModalOpen}>
-            <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
+            <AnimatedDialogContent open={isEditModalOpen} className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Edit Surat Peringatan</DialogTitle>
                 </DialogHeader>
@@ -380,7 +380,7 @@ export default function WarningsPage() {
                         setModalOpen={setEditModalOpen} 
                     />
                 )}
-            </DialogContent>
+            </AnimatedDialogContent>
         </Dialog>
       )}
 
@@ -405,7 +405,7 @@ export default function WarningsPage() {
 
         {/* Detail Modal */}
         <Dialog open={isDetailModalOpen} onOpenChange={setDetailModalOpen}>
-            <DialogContent className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
+            <AnimatedDialogContent open={isDetailModalOpen} className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
                 {selectedWarning ? (
                     <>
                         <DialogHeader>
@@ -487,7 +487,7 @@ export default function WarningsPage() {
                         <Loader2 className="h-10 w-10 animate-spin text-primary" />
                     </div>
                 )}
-            </DialogContent>
+            </AnimatedDialogContent>
         </Dialog>
 
 
@@ -634,5 +634,3 @@ export default function WarningsPage() {
     </motion.div>
   );
 }
-
-    
