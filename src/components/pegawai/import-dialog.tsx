@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -26,7 +27,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { ScrollArea } from '../ui/scroll-area';
 import { Employee, UserProfile } from '@/lib/types';
@@ -62,7 +63,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = useFirestore();
-  const { toast } = useToast();
+  
   const { user } = useUser();
 
   const userProfileRef = useMemoFirebase(() => {
@@ -100,10 +101,8 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
         setData(normalizedData);
       } catch (error) {
         console.error("Error parsing file:", error);
-        toast({
-          title: 'Gagal Membaca File',
+        toast.error('Gagal Membaca File', {
           description: 'Pastikan format file benar sesuai template.',
-          variant: 'destructive',
         });
         setData([]);
       } finally {
@@ -169,18 +168,15 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
         await batch.commit();
       }
 
-      toast({
-        title: 'Impor Selesai!',
+      toast.success('Impor Selesai!', {
         description: `${newEntriesCount} data baru ditambahkan, ${updatedEntriesCount} data diperbarui.`,
       });
       setModalOpen(false);
 
     } catch (error) {
       console.error("Error importing employees: ", error);
-      toast({
-        title: 'Impor Gagal',
+      toast.error('Impor Gagal', {
         description: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

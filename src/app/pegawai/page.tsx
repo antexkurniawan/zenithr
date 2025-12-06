@@ -60,7 +60,7 @@ import { NewEmployeeForm } from '@/components/pegawai/new-employee-form';
 import { ImportDialog } from '@/components/pegawai/import-dialog';
 import { EditEmployeeForm } from '@/components/pegawai/edit-employee-form';
 import { getAvatarImage } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SignaturePad } from '@/components/pegawai/signature-pad';
@@ -284,7 +284,7 @@ export default function PegawaiPage() {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const { toast } = useToast();
+  
 
   const firestore = useFirestore();
   const { user } = useUser();
@@ -435,10 +435,8 @@ export default function PegawaiPage() {
 
   const handleDownloadData = () => {
     if (!employees || employees.length === 0) {
-      toast({
-        title: "Tidak ada data",
+      toast.error("Tidak ada data", {
         description: "Tidak ada data pegawai untuk diunduh.",
-        variant: "destructive",
       });
       return;
     }

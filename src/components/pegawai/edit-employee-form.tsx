@@ -33,7 +33,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useFirestore } from '@/firebase';
 import type { Employee } from '@/lib/types';
 import { ScrollArea } from '../ui/scroll-area';
@@ -58,7 +58,7 @@ interface EditEmployeeFormProps {
 }
 
 export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormProps) {
-  const { toast } = useToast();
+  
   const firestore = useFirestore();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -89,17 +89,14 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
 
       await updateDoc(employeeDocRef, updatedEmployeeData);
 
-      toast({
-        title: 'Pegawai Berhasil Diperbarui!',
+      toast.success('Pegawai Berhasil Diperbarui!', {
         description: `Data ${data.name} telah diperbarui.`,
       });
       setModalOpen(false);
     } catch (error) {
       console.error('Error updating employee:', error);
-      toast({
-        title: 'Terjadi Kesalahan',
+      toast.error('Terjadi Kesalahan', {
         description: 'Gagal memperbarui data pegawai. Silakan coba lagi.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

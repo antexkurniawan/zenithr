@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/dialog";
 import { ImportAbsensiDialog } from '@/components/absensi/import-dialog';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { generatePdfFromComponent } from '@/lib/pdf-generator';
 import { PrintableAbsensi } from '@/components/absensi/printable-absensi';
 
@@ -64,7 +64,7 @@ export default function AbsensiPage() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isImportModalOpen, setImportModalOpen] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
-  const { toast } = useToast();
+  
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -30),
     to: new Date(),
@@ -207,15 +207,11 @@ export default function AbsensiPage() {
 
   const handleExportPdf = async () => {
     if (!attendanceSummary || attendanceSummary.length === 0) {
-      toast({
-        title: "Tidak ada data untuk diekspor",
-        variant: "destructive"
-      });
+      toast.error("Tidak ada data untuk diekspor");
       return;
     }
     setIsExporting(true);
-    const { dismiss } = toast({
-      title: "Mempersiapkan PDF...",
+    const toastId = toast.loading("Mempersiapkan PDF...", {
       description: "Mohon tunggu sebentar.",
     });
 
@@ -225,15 +221,12 @@ export default function AbsensiPage() {
             ComponentToPrint,
             `Rekap Absensi - ${dateRange?.from ? format(dateRange.from, 'dd-MM-yy') : ''} - ${dateRange?.to ? format(dateRange.to, 'dd-MM-yy') : ''}.pdf`
         );
-        dismiss();
+        toast.dismiss(toastId);
     } catch (error) {
         console.error("Failed to generate PDF", error);
-        dismiss();
-        toast({
+        toast.error("Gagal Membuat PDF", {
             id: 'pdf-error',
-            title: "Gagal Membuat PDF",
             description: "Terjadi kesalahan saat mencoba membuat file PDF.",
-            variant: "destructive",
         });
     } finally {
         setIsExporting(false);

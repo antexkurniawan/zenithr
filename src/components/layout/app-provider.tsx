@@ -1,6 +1,6 @@
 'use client';
 
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from '@/components/ui/sonner';
 import { FirebaseClientProvider, useUser } from '@/firebase';
 import { ThemeProvider } from '@/components/theme-provider';
 import { usePathname, useRouter } from 'next/navigation';

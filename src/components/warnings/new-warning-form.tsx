@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
@@ -72,7 +72,7 @@ const getTypeCode = (type: string) => {
 }
 
 export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps) {
-  const { toast } = useToast();
+  
   const firestore = useFirestore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,10 +109,8 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
   async function onSubmit(data: NewWarningFormValues) {
     const selectedEmployee = employees.find(e => e.id === data.employeeId);
     if (!selectedEmployee) {
-      toast({
-        title: "Pegawai tidak valid",
+      toast.error("Pegawai tidak valid", {
         description: "Silakan pilih pegawai yang valid.",
-        variant: "destructive",
       });
       return;
     }
@@ -171,18 +169,15 @@ export function NewWarningForm({ employees, setModalOpen }: NewWarningFormProps)
         
         await batch.commit();
 
-        toast({
-            title: "Surat Peringatan Berhasil Dibuat!",
+        toast.success("Surat Peringatan Berhasil Dibuat!", {
             description: `${data.type} untuk ${selectedEmployee.name} telah dibuat dengan nomor ${nomorSurat}.`,
         });
         setModalOpen(false);
 
     } catch (error) {
         console.error("Error creating warning letter:", error);
-        toast({
-            title: "Terjadi Kesalahan",
+        toast.error("Terjadi Kesalahan", {
             description: "Gagal menyimpan surat peringatan. Silakan coba lagi.",
-            variant: "destructive",
         });
     } finally {
         setIsSubmitting(false);

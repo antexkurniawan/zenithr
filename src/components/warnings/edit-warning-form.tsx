@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 import { useFirestore } from "@/firebase";
 import { Input } from "../ui/input";
 import { cn } from "@/lib/utils";
@@ -57,7 +57,7 @@ interface EditWarningFormProps {
 }
 
 export function EditWarningForm({ warning, employees, setModalOpen }: EditWarningFormProps) {
-  const { toast } = useToast();
+  
   const firestore = useFirestore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -83,10 +83,8 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
   async function onSubmit(data: EditWarningFormValues) {
     const selectedEmployee = employees.find(e => e.id === data.employeeId);
     if (!selectedEmployee) {
-      toast({
-        title: "Pegawai tidak valid",
+      toast.error("Pegawai tidak valid", {
         description: "Silakan pilih pegawai yang valid.",
-        variant: "destructive",
       });
       return;
     }
@@ -114,18 +112,15 @@ export function EditWarningForm({ warning, employees, setModalOpen }: EditWarnin
         
         await batch.commit();
 
-        toast({
-            title: "Surat Peringatan Berhasil Diperbarui!",
+        toast.success("Surat Peringatan Berhasil Diperbarui!", {
             description: `Perubahan pada surat untuk ${selectedEmployee.name} telah disimpan.`,
         });
         setModalOpen(false);
 
     } catch (error) {
         console.error("Error updating warning letter:", error);
-        toast({
-            title: "Terjadi Kesalahan",
+        toast.error("Terjadi Kesalahan", {
             description: "Gagal memperbarui surat peringatan. Silakan coba lagi.",
-            variant: "destructive",
         });
     } finally {
         setIsSubmitting(false);

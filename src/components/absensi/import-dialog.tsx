@@ -27,7 +27,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Attendance, AttendanceStatus, Employee } from '@/lib/types';
 import { Alert, AlertDescription } from '../ui/alert';
@@ -73,7 +73,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = useFirestore();
-  const { toast } = useToast();
+  
 
   const form = useForm<ImportFormValues>({
     resolver: zodResolver(formSchema),
@@ -141,10 +141,8 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
 
       } catch (error) {
         console.error("Error parsing file:", error);
-        toast({
-          title: 'Gagal Membaca File',
+        toast.error('Gagal Membaca File', {
           description: 'Terjadi kesalahan saat memproses file Excel Anda. Pastikan formatnya benar.',
-          variant: 'destructive',
         });
         setParsedData([]);
       } finally {
@@ -199,18 +197,15 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
         await batch.commit();
       }
 
-      toast({
-        title: 'Impor Selesai!',
+      toast.success('Impor Selesai!', {
         description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan atau status tidak relevan.`,
       });
       setModalOpen(false);
 
     } catch (error) {
       console.error("Error importing attendance: ", error);
-      toast({
-        title: 'Impor Gagal',
+      toast.error('Impor Gagal', {
         description: 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

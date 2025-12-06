@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 
 import { useFirestore } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -40,7 +40,7 @@ interface EditProfileFormProps {
 
 export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfileFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  
   const firestore = useFirestore();
 
   const form = useForm<ProfileFormValues>({
@@ -65,16 +65,13 @@ export function EditProfileForm({ userProfile, userId, setModalOpen }: EditProfi
       // Use setDoc with merge to create or update the document
       await setDoc(userProfileRef, updatedProfileData, { merge: true });
 
-      toast({
-        title: 'Profil Berhasil Diperbarui!',
+      toast.success('Profil Berhasil Diperbarui!', {
         description: 'Informasi profil Anda telah berhasil disimpan.',
       });
       setModalOpen(false);
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Gagal Memperbarui Profil',
+      toast.error('Gagal Memperbarui Profil', {
         description: error.message || 'Terjadi kesalahan. Silakan coba lagi.',
       });
     } finally {

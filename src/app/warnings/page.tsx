@@ -63,7 +63,7 @@ import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NewWarningForm } from '@/components/warnings/new-warning-form';
 import { EditWarningForm } from '@/components/warnings/edit-warning-form';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isAfter } from 'date-fns';
 
@@ -101,7 +101,7 @@ export default function WarningsPage() {
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
-  const { toast } = useToast();
+  
 
   const firestore = useFirestore();
   const { user } = useUser();
@@ -121,8 +121,7 @@ export default function WarningsPage() {
 
   const handlePrint = async (warning: Warning) => {
     setIsProcessing(warning.id);
-    const { dismiss } = toast({
-      title: "Mempersiapkan PDF...",
+    const toastId = toast.loading("Mempersiapkan PDF...", {
       description: "Mohon tunggu sebentar.",
     });
 
@@ -136,15 +135,12 @@ export default function WarningsPage() {
             ComponentToPrint,
             `Surat Peringatan - ${warning.employeeName}.pdf`
         );
-        dismiss();
+        toast.dismiss(toastId);
     } catch (error) {
         console.error("Failed to generate PDF", error);
-        dismiss();
-        toast({
+        toast.error("Gagal Membuat PDF", {
             id: 'pdf-error',
-            title: "Gagal Membuat PDF",
             description: "Terjadi kesalahan saat mencoba membuat file PDF.",
-            variant: "destructive",
         });
     } finally {
         setIsProcessing(null);
@@ -179,16 +175,13 @@ export default function WarningsPage() {
         
         await batch.commit();
 
-        toast({
-            title: "Berhasil Dihapus",
+        toast.success("Berhasil Dihapus", {
             description: `Surat peringatan untuk ${selectedWarning.employeeName} telah dihapus.`,
         });
     } catch (error) {
         console.error("Error deleting warning:", error);
-        toast({
-            title: "Gagal Menghapus",
+        toast.error("Gagal Menghapus", {
             description: "Terjadi kesalahan saat menghapus data.",
-            variant: "destructive",
         });
     } finally {
         setIsProcessing(null);

@@ -53,7 +53,7 @@ import PageHeader from "@/components/shared/page-header";
 import { MoreHorizontal, PlusCircle, Loader2, Edit, Trash2 } from "lucide-react";
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import type { CompanyRule, WarningType } from '@/lib/types';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EditRuleForm } from '@/components/pengaturan/edit-rule-form';
 
@@ -122,7 +122,7 @@ function RulesTable({ rules, category, isLoading, onEdit, onDelete }: { rules: C
 
 export default function PengaturanPage() {
   const firestore = useFirestore();
-  const { toast } = useToast();
+  
   const [isSeeding, setIsSeeding] = useState(false);
   const [selectedRule, setSelectedRule] = useState<CompanyRule | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -137,8 +137,7 @@ export default function PengaturanPage() {
     const seedData = async () => {
       if (!isLoading && rules && rules.length === 0 && !isSeeding) {
         setIsSeeding(true);
-        toast({
-          title: "Inisialisasi Data Master",
+        toast.info("Inisialisasi Data Master", {
           description: "Menyiapkan data peraturan awal. Mohon tunggu...",
         });
 
@@ -158,16 +157,13 @@ export default function PengaturanPage() {
             });
           });
           await batch.commit();
-          toast({
-            title: "Data Master Berhasil Disiapkan",
+          toast.success("Data Master Berhasil Disiapkan", {
             description: "Panduan peraturan telah berhasil dimuat ke database.",
           });
         } catch (err) {
           console.error("Failed to seed company rules:", err);
-          toast({
-            title: "Gagal Menyiapkan Data",
+          toast.error("Gagal Menyiapkan Data", {
             description: "Terjadi kesalahan saat menyimpan data peraturan awal.",
-            variant: "destructive",
           });
         } finally {
           setIsSeeding(false);
@@ -176,7 +172,7 @@ export default function PengaturanPage() {
     };
 
     seedData();
-  }, [isLoading, rules, firestore, toast, isSeeding]);
+  }, [isLoading, rules, firestore, isSeeding]);
 
   const groupedRules = useMemo(() => {
     const groups: Record<string, CompanyRule[]> = {
@@ -207,14 +203,13 @@ export default function PengaturanPage() {
     setIsProcessingDelete(true);
     try {
         await deleteDoc(doc(firestore, 'company_rules', selectedRule.id));
-        toast({
-            title: "Aturan Dihapus",
+        toast.success("Aturan Dihapus", {
             description: "Aturan peraturan telah berhasil dihapus."
         });
         setIsDeleteAlertOpen(false);
         setSelectedRule(null);
     } catch(err) {
-        toast({ title: "Gagal Menghapus", variant: "destructive" });
+        toast.error("Gagal Menghapus");
     } finally {
         setIsProcessingDelete(false);
     }

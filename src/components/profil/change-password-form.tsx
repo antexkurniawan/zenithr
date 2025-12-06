@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
 
 import { useAuth, useUser } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -39,7 +40,7 @@ interface ChangePasswordFormProps {
 
 export function ChangePasswordForm({ setModalOpen }: ChangePasswordFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  
   const auth = useAuth();
   const { user } = useUser();
 
@@ -54,9 +55,7 @@ export function ChangePasswordForm({ setModalOpen }: ChangePasswordFormProps) {
 
   async function onSubmit(data: ChangePasswordFormValues) {
     if (!user || !user.email) {
-      toast({
-        variant: 'destructive',
-        title: 'Gagal Mengubah Password',
+      toast.error('Gagal Mengubah Password', {
         description: 'Pengguna tidak terautentikasi dengan benar.',
       });
       return;
@@ -71,8 +70,7 @@ export function ChangePasswordForm({ setModalOpen }: ChangePasswordFormProps) {
       // 2. Update password
       await updatePassword(user, data.newPassword);
 
-      toast({
-        title: 'Password Berhasil Diperbarui!',
+      toast.success('Password Berhasil Diperbarui!', {
         description: 'Silakan gunakan password baru Anda saat login berikutnya.',
       });
       setModalOpen(false);
@@ -84,9 +82,7 @@ export function ChangePasswordForm({ setModalOpen }: ChangePasswordFormProps) {
         form.setError('currentPassword', { type: 'manual', message: description });
       }
       console.error('Error updating password:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Gagal Memperbarui Password',
+      toast.error('Gagal Memperbarui Password', {
         description,
       });
     } finally {

@@ -28,7 +28,7 @@ import { ChangePasswordForm } from "@/components/profil/change-password-form";
 import { SignaturePad } from "@/components/pegawai/signature-pad";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 
 
 function ProfilePageSkeleton() {
@@ -85,7 +85,7 @@ function InfoRow({ icon: Icon, label, value }: { icon: React.ElementType, label:
 export default function ProfilPage() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
-    const { toast } = useToast();
+    
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
@@ -120,18 +120,15 @@ export default function ProfilPage() {
             await updateDoc(userRef, {
                 operationPointCoordinatorName: coordinatorName,
             });
-            toast({
-                title: "Koordinator Diperbarui",
+            toast.success("Koordinator Diperbarui", {
                 description: "Nama atasan langsung telah berhasil disimpan.",
             });
             refetchUserProfile();
             setIsCoordinatorModalOpen(false);
         } catch (error) {
             console.error("Failed to update coordinator name:", error);
-            toast({
-                title: "Gagal Menyimpan",
+            toast.error("Gagal Menyimpan", {
                 description: "Terjadi kesalahan saat memperbarui nama koordinator.",
-                variant: "destructive",
             });
         } finally {
             setIsSubmittingCoordinator(false);

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -8,7 +9,7 @@ import { Loader2, UploadCloud } from 'lucide-react';
 import { doc, updateDoc } from 'firebase/firestore';
 
 import { useFirestore } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -41,7 +42,7 @@ interface SignaturePadProps {
 export function SignaturePad({ docId, collectionPath, fieldToUpdate = 'signatureUrl', onSignatureUploaded }: SignaturePadProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
-  const { toast } = useToast();
+  
   const firestore = useFirestore();
 
   const form = useForm<SignatureFormValues>({
@@ -62,10 +63,8 @@ export function SignaturePad({ docId, collectionPath, fieldToUpdate = 'signature
   async function onSubmit(data: SignatureFormValues) {
     setIsSubmitting(true);
     if (!preview) {
-      toast({
-        title: 'Tidak ada gambar',
+      toast.error('Tidak ada gambar', {
         description: 'Silakan pilih file gambar untuk diunggah.',
-        variant: 'destructive',
       });
       setIsSubmitting(false);
       return;
@@ -77,18 +76,15 @@ export function SignaturePad({ docId, collectionPath, fieldToUpdate = 'signature
         [fieldToUpdate]: preview,
       });
       
-      toast({
-        title: 'Tanda Tangan Berhasil Disimpan!',
+      toast.success('Tanda Tangan Berhasil Disimpan!', {
         description: `Tanda tangan telah diperbarui.`,
       });
       onSignatureUploaded(preview);
 
     } catch (error) {
       console.error('Error handling signature:', error);
-      toast({
-        title: 'Gagal Memproses Tanda Tangan',
+      toast.error('Gagal Memproses Tanda Tangan', {
         description: 'Terjadi kesalahan saat memproses tanda tangan.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

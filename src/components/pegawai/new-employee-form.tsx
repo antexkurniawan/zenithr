@@ -33,7 +33,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useFirestore, addDocumentNonBlocking, useUser, useDoc, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 import { ScrollArea } from '../ui/scroll-area';
@@ -56,7 +56,7 @@ interface NewEmployeeFormProps {
 }
 
 export function NewEmployeeForm({ setModalOpen }: NewEmployeeFormProps) {
-  const { toast } = useToast();
+  
   const firestore = useFirestore();
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,18 +97,15 @@ export function NewEmployeeForm({ setModalOpen }: NewEmployeeFormProps) {
 
       await addDocumentNonBlocking(employeesCollectionRef, newEmployeeData);
 
-      toast({
-        title: 'Pegawai Berhasil Ditambahkan!',
+      toast.success('Pegawai Berhasil Ditambahkan!', {
         description: `${data.name} telah ditambahkan ke database.`,
       });
       setModalOpen(false);
       form.reset();
     } catch (error) {
       console.error('Error adding employee:', error);
-      toast({
-        title: 'Terjadi Kesalahan',
+      toast.error('Terjadi Kesalahan', {
         description: 'Gagal menambahkan pegawai. Silakan coba lagi.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

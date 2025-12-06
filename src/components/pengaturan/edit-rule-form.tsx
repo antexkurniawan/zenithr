@@ -9,7 +9,7 @@ import { doc, serverTimestamp, setDoc, addDoc, collection } from 'firebase/fires
 
 import type { CompanyRule, WarningType } from '@/lib/types';
 import { useFirestore } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -46,7 +46,7 @@ interface EditRuleFormProps {
 export function EditRuleForm({ rule, setModalOpen }: EditRuleFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const firestore = useFirestore();
-  const { toast } = useToast();
+  
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -68,20 +68,18 @@ export function EditRuleForm({ rule, setModalOpen }: EditRuleFormProps) {
         // Update existing rule
         const docRef = doc(firestore, 'company_rules', rule.id);
         await setDoc(docRef, { ...data, updatedAt: serverTimestamp() }, { merge: true });
-        toast({ title: "Aturan Diperbarui", description: "Perubahan pada aturan telah disimpan." });
+        toast.success("Aturan Diperbarui", { description: "Perubahan pada aturan telah disimpan." });
       } else {
         // Create new rule
         const collectionRef = collection(firestore, 'company_rules');
         await addDoc(collectionRef, { ...data, createdAt: serverTimestamp() });
-        toast({ title: "Aturan Dibuat", description: "Aturan baru telah berhasil ditambahkan." });
+        toast.success("Aturan Dibuat", { description: "Aturan baru telah berhasil ditambahkan." });
       }
       setModalOpen(false);
     } catch (err) {
       console.error(err);
-      toast({
-        title: "Terjadi Kesalahan",
+      toast.error("Terjadi Kesalahan", {
         description: "Gagal menyimpan aturan. Silakan coba lagi.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

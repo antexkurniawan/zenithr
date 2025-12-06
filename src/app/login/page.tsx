@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -21,7 +22,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useAuth, useFirestore } from '@/firebase';
 
 const formSchema = z.object({
@@ -61,7 +62,7 @@ export default function LoginPage() {
   const router = useRouter();
   const auth = useAuth();
   const firestore = useFirestore();
-  const { toast } = useToast();
+  
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
@@ -78,8 +79,7 @@ export default function LoginPage() {
       
       await ensureUserProfileExists(firestore, userCredential.user);
 
-      toast({
-        title: 'Login Berhasil!',
+      toast.success('Login Berhasil!', {
         description: 'Selamat datang kembali.',
       });
       router.push('/');
@@ -89,9 +89,7 @@ export default function LoginPage() {
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         description = 'Email atau password yang Anda masukkan salah.';
       }
-      toast({
-        variant: 'destructive',
-        title: 'Login Gagal',
+      toast.error('Login Gagal', {
         description,
       });
     } finally {

@@ -65,7 +65,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { generatePdfFromComponent } from "@/lib/pdf-generator";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -108,7 +108,7 @@ export default function BriefingsPage() {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const firestore = useFirestore();
-  const { toast } = useToast();
+  
   const { user } = useUser();
 
   const briefingsCollection = useMemoFirebase(() => collection(firestore, 'briefings'), [firestore]);
@@ -145,8 +145,7 @@ export default function BriefingsPage() {
   const handlePrint = async (briefingToPrint: Briefing) => {
     if (!briefingToPrint || !userProfile) return;
     setProcessingId(briefingToPrint.id);
-    const { dismiss } = toast({
-      title: "Mempersiapkan PDF...",
+    const toastId = toast.loading("Mempersiapkan PDF...", {
       description: "Mengambil data tanda tangan dan membuat file.",
     });
 
@@ -183,15 +182,12 @@ export default function BriefingsPage() {
             ComponentToPrint,
             `Briefing - ${briefingToPrint.area} - ${format(new Date(briefingToPrint.briefingDate), 'yyyy-MM-dd')}.pdf`
         );
-        dismiss();
+        toast.dismiss(toastId);
     } catch (error) {
         console.error("Failed to generate PDF", error);
-        dismiss();
-        toast({
+        toast.error("Gagal Membuat PDF", {
             id: 'pdf-error',
-            title: "Gagal Membuat PDF",
             description: "Terjadi kesalahan saat mencoba membuat file PDF.",
-            variant: "destructive",
         });
     } finally {
         setProcessingId(null);
@@ -212,8 +208,7 @@ export default function BriefingsPage() {
 
             await updateDoc(briefingRef, updatedData);
 
-            toast({
-                title: "Briefing Disetujui",
+            toast.success("Briefing Disetujui", {
                 description: `Briefing telah disetujui oleh ${userProfile.name}.`,
             });
             
@@ -228,10 +223,8 @@ export default function BriefingsPage() {
 
         } catch (error) {
             console.error("Failed to acknowledge briefing:", error);
-            toast({
-                title: "Gagal Menyetujui",
+            toast.error("Gagal Menyetujui", {
                 description: "Terjadi kesalahan. Silakan coba lagi.",
-                variant: "destructive",
             });
         } finally {
             setIsProcessing(false);
@@ -255,16 +248,13 @@ export default function BriefingsPage() {
 
         await batch.commit();
 
-        toast({
-            title: "Berhasil Dihapus",
+        toast.success("Berhasil Dihapus", {
             description: `Briefing untuk area ${selectedBriefing.area} telah dihapus.`,
         });
     } catch (error) {
         console.error("Error deleting briefing:", error);
-        toast({
-            title: "Gagal Menghapus",
+        toast.error("Gagal Menghapus", {
             description: "Terjadi kesalahan saat menghapus data.",
-            variant: "destructive",
         });
     } finally {
         setIsProcessing(false);
