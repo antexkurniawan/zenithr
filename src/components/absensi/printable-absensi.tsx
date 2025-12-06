@@ -74,7 +74,7 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                                 <th className="border border-black p-1 text-xs w-[20%]">JABATAN</th>
                                 <th className="border border-black p-1 text-xs w-[6.8%]">HADIR</th>
                                 <th className="border border-black p-1 text-xs w-[6.8%]">SAKIT</th>
-                                <th className="border border-black p-1 text_xs w-[6.8%]">IZIN</th>
+                                <th className="border border-black p-1 text-xs w-[6.8%]">IZIN</th>
                                 <th className="border border-black p-1 text-xs w-[6.8%]">ALPHA</th>
                                 <th className="border border-black p-1 text-xs w-[6.8%]">CUTI</th>
                             </tr>
