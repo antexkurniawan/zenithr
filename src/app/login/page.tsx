@@ -262,20 +262,22 @@ export default function LoginPage() {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Button 
-                  type="submit" 
-                  className="w-full font-bold text-base h-12 text-white transition-all duration-300 transform hover:scale-105"
-                  style={{
-                    background: 'linear-gradient(to right, #17c9ec, #b21593)',
-                  }}
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    'Masuk'
-                  )}
-                </Button>
+                <motion.div whileHover={{ scale: 1.05 }} transition={{ type: 'spring', stiffness: 400, damping: 10 }}>
+                  <Button 
+                    type="submit" 
+                    className="w-full font-bold text-base h-12 text-white"
+                    style={{
+                      background: 'linear-gradient(to right, #17c9ec, #b21593)',
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      'Masuk'
+                    )}
+                  </Button>
+                </motion.div>
               </motion.div>
             </form>
           </Form>

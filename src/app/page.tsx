@@ -144,6 +144,7 @@ export default function DashboardPage() {
         {/* Main Hero Card */}
         <MotionCard 
           variants={itemVariants}
+          whileHover={{ scale: 1.02 }}
           className="lg:col-span-3 relative flex flex-col justify-between overflow-hidden p-6 bg-gradient-to-br from-primary via-primary to-secondary text-primary-foreground"
         >
            <div className="space-y-2">
@@ -159,7 +160,7 @@ export default function DashboardPage() {
         </MotionCard>
 
         {/* Other Stat Cards */}
-        <motion.div variants={itemVariants}>
+        <MotionCard variants={itemVariants} whileHover={{ scale: 1.02 }}>
             <StatCard 
                 title="SP Aktif" 
                 value={activeWarningsCount} 
@@ -167,8 +168,8 @@ export default function DashboardPage() {
                 isLoading={isLoadingWarnings}
                 description="Surat peringatan yang masih berlaku"
             />
-        </motion.div>
-        <motion.div variants={itemVariants}>
+        </MotionCard>
+        <MotionCard variants={itemVariants} whileHover={{ scale: 1.02 }}>
             <StatCard 
                 title="Kontrak Segera Berakhir" 
                 value={expiringContracts} 
@@ -176,8 +177,8 @@ export default function DashboardPage() {
                 isLoading={isLoadingEmployees}
                 description="Dalam 30 hari ke depan"
             />
-        </motion.div>
-        <motion.div variants={itemVariants}>
+        </MotionCard>
+        <MotionCard variants={itemVariants} whileHover={{ scale: 1.02 }}>
             <StatCard 
                 title="Keterlambatan Check-in" 
                 value={8} // Placeholder
@@ -185,8 +186,8 @@ export default function DashboardPage() {
                 isLoading={false}
                 description="Bulan ini"
             />
-        </motion.div>
-         <motion.div variants={itemVariants}>
+        </MotionCard>
+         <MotionCard variants={itemVariants} whileHover={{ scale: 1.02 }}>
             <StatCard 
                 title="Jam Lembur" 
                 value={1200} // Placeholder
@@ -194,7 +195,7 @@ export default function DashboardPage() {
                 isLoading={false}
                 description="Bulan ini"
             />
-        </motion.div>
+        </MotionCard>
       </motion.div>
     </motion.div>
   );

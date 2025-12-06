@@ -5,6 +5,7 @@ import { Bell, LifeBuoy, LogOut, Moon, Settings, Sun, User } from "lucide-react"
 import Link from "next/link";
 import { doc } from "firebase/firestore";
 import Image from 'next/image';
+import { motion } from "framer-motion";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -59,20 +60,22 @@ function UserProfileDisplay() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="flex items-center gap-2 h-auto p-1 rounded-full focus-visible:ring-0">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium leading-none text-foreground">{userName}</p>
-              <p className="text-xs leading-none text-muted-foreground">
-                {userRole}
-              </p>
-            </div>
-            <Avatar className="h-9 w-9">
-              <AvatarImage src={avatarImage.imageUrl} alt={userName} data-ai-hint={avatarImage.imageHint} />
-              <AvatarFallback>
-                {userInitial}
-              </AvatarFallback>
-            </Avatar>
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }}>
+          <Button variant="ghost" className="flex items-center gap-2 h-auto p-1 rounded-full focus-visible:ring-0">
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium leading-none text-foreground">{userName}</p>
+                <p className="text-xs leading-none text-muted-foreground">
+                  {userRole}
+                </p>
+              </div>
+              <Avatar className="h-9 w-9">
+                <AvatarImage src={avatarImage.imageUrl} alt={userName} data-ai-hint={avatarImage.imageHint} />
+                <AvatarFallback>
+                  {userInitial}
+                </AvatarFallback>
+              </Avatar>
+          </Button>
+        </motion.div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
