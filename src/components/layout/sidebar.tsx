@@ -48,9 +48,9 @@ export function SiteSidebar() {
             <Image
                 src="/zenithr-logo.png"
                 alt="ZENITHR Logo"
-                width={100}
-                height={150}
-                className="h-10 w-auto object-contain transition-all duration-300 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10"
+                width={200}
+                height={300}
+                className="h-20 w-auto object-contain transition-all duration-300 group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10"
                 priority
             />
         </Link>
