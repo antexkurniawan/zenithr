@@ -110,7 +110,6 @@ export default function AbsensiPage() {
 
   const handleDownloadTemplate = () => {
     const header = ["LAPORAN ABSENSI"];
-    const subHeader = ["PERIODE ABSENSI", "", "Tanggal", new Date().toLocaleDateString('id-ID'), "Hari", new Date().toLocaleDateString('id-ID', { weekday: 'long' })];
     
     const tableHeader = ["NO", "NIK", "NAMA", "KETERANGAN", "TANGGAL", "JAM"];
     
@@ -136,8 +135,6 @@ export default function AbsensiPage() {
     const ws_data = [
       header,
       [], // Empty row for spacing
-      subHeader,
-      [], // Empty row for spacing
       [], // Empty row for spacing
       tableHeader,
       ...exampleData.map(d => [d.NO, d.NIK, d.NAMA, d.KETERANGAN, d.TANGGAL, d.JAM])
@@ -153,15 +150,10 @@ export default function AbsensiPage() {
       font: { bold: true, sz: 16 },
       alignment: { horizontal: 'center' }
     };
-    
-    // Style sub header
-    ws['A3'].s = { font: { bold: true } };
-    ws['C3'].s = { font: { bold: true } };
-    ws['E3'].s = { font: { bold: true } };
 
     // Style table header
     tableHeader.forEach((h, i) => {
-        const cellRef = XLSX.utils.encode_cell({c: i, r: 5});
+        const cellRef = XLSX.utils.encode_cell({c: i, r: 3});
         if (ws[cellRef]) {
             ws[cellRef].s = {
                 font: { bold: true, color: { rgb: "FFFFFF" } },
