@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 import { collection, where, query, orderBy } from 'firebase/firestore';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,8 @@ import { useState } from 'react';
 import { NewWarningForm } from '@/components/warnings/new-warning-form';
 import { isAfter } from 'date-fns';
 import { cn } from '@/lib/utils';
+
+const MotionCard = motion(Card);
 
 function StatCard({ 
     title, 
@@ -104,12 +107,45 @@ export default function DashboardPage() {
 
   const isLoading = isLoadingEmployees || isLoadingWarnings;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
+
   return (
-    <div className="space-y-8">
+    <motion.div 
+      className="space-y-8"
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+    >
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <motion.div 
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+        variants={containerVariants}
+      >
         {/* Main Hero Card */}
-        <Card className="lg:col-span-3 relative flex flex-col justify-between overflow-hidden p-6 bg-gradient-to-br from-primary via-primary to-secondary text-primary-foreground">
+        <MotionCard 
+          variants={itemVariants}
+          className="lg:col-span-3 relative flex flex-col justify-between overflow-hidden p-6 bg-gradient-to-br from-primary via-primary to-secondary text-primary-foreground"
+        >
            <div className="space-y-2">
                 <h2 className="text-lg font-semibold">Total Active Workforce</h2>
                 {isLoading ? (
@@ -120,38 +156,46 @@ export default function DashboardPage() {
                 {/* Placeholder for now */}
                 <p className="text-sm opacity-80">Shift Compliance: 92%</p>
            </div>
-        </Card>
+        </MotionCard>
 
         {/* Other Stat Cards */}
-        <StatCard 
-            title="SP Aktif" 
-            value={activeWarningsCount} 
-            icon={FileWarning} 
-            isLoading={isLoadingWarnings}
-            description="Surat peringatan yang masih berlaku"
-        />
-        <StatCard 
-            title="Kontrak Segera Berakhir" 
-            value={expiringContracts} 
-            icon={CalendarClock} 
-            isLoading={isLoadingEmployees}
-            description="Dalam 30 hari ke depan"
-        />
-        <StatCard 
-            title="Keterlambatan Check-in" 
-            value={8} // Placeholder
-            icon={AlertTriangle} 
-            isLoading={false}
-            description="Bulan ini"
-        />
-         <StatCard 
-            title="Jam Lembur" 
-            value={1200} // Placeholder
-            icon={Clock} 
-            isLoading={false}
-            description="Bulan ini"
-        />
-      </div>
-    </div>
+        <motion.div variants={itemVariants}>
+            <StatCard 
+                title="SP Aktif" 
+                value={activeWarningsCount} 
+                icon={FileWarning} 
+                isLoading={isLoadingWarnings}
+                description="Surat peringatan yang masih berlaku"
+            />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+            <StatCard 
+                title="Kontrak Segera Berakhir" 
+                value={expiringContracts} 
+                icon={CalendarClock} 
+                isLoading={isLoadingEmployees}
+                description="Dalam 30 hari ke depan"
+            />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+            <StatCard 
+                title="Keterlambatan Check-in" 
+                value={8} // Placeholder
+                icon={AlertTriangle} 
+                isLoading={false}
+                description="Bulan ini"
+            />
+        </motion.div>
+         <motion.div variants={itemVariants}>
+            <StatCard 
+                title="Jam Lembur" 
+                value={1200} // Placeholder
+                icon={Clock} 
+                isLoading={false}
+                description="Bulan ini"
+            />
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }
