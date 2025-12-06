@@ -8,6 +8,7 @@ import { id } from 'date-fns/locale';
 import { DateRange } from 'react-day-picker';
 
 import { blogLogoBase64, setraLogoBase64 } from '@/lib/logo-images';
+import { UserProfile } from '@/lib/types';
 
 type AttendanceSummary = {
   employeeId: string;
@@ -24,13 +25,15 @@ type AttendanceSummary = {
 interface PrintableAbsensiProps {
     data: AttendanceSummary[];
     period?: DateRange;
+    userProfile?: UserProfile | null;
 }
 
-export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
+export function PrintableAbsensi({ data, period, userProfile }: PrintableAbsensiProps) {
     const formatDate = (date: Date) => format(date, "d MMMM yyyy", { locale: id });
     const periodString = period?.from 
         ? `${formatDate(period.from)}${period.to ? ` - ${formatDate(period.to)}` : ''}`
         : 'Semua Waktu';
+    const areaString = userProfile?.workArea || 'Semua Area';
     
     return (
         <div id="printable-container" className="bg-white text-black font-body">
@@ -59,8 +62,9 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                             />
                         </div>
                     </div>
-                    <div className="text-center font-semibold">
-                        PERIODE: {periodString}
+                    <div className="text-center font-semibold text-xs">
+                        <div>AREA: {areaString.toUpperCase()}</div>
+                        <div>PERIODE: {periodString}</div>
                     </div>
                 </header>
                 
@@ -70,8 +74,8 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                             <tr>
                                 <th className="border border-black p-1 align-middle text-center w-[4%]">NO</th>
                                 <th className="border border-black p-1 align-middle text-center w-[12%]">NIK</th>
-                                <th className="border border-black p-1 align-middle text-center w-[30%]">NAMA LENGKAP</th>
-                                <th className="border border-black p-1 align-middle text-center w-[20%]">JABATAN</th>
+                                <th className="border border-black p-1 align-middle text-left w-[30%]">NAMA LENGKAP</th>
+                                <th className="border border-black p-1 align-middle text-left w-[20%]">JABATAN</th>
                                 <th className="border border-black p-1 align-middle text-center w-[6.8%]">HADIR</th>
                                 <th className="border border-black p-1 align-middle text-center w-[6.8%]">SAKIT</th>
                                 <th className="border border-black p-1 align-middle text-center w-[6.8%]">IZIN</th>
@@ -102,9 +106,11 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                         <div className="w-1/3">
                             <p>Gorontalo, {format(new Date(), 'd MMMM yyyy', { locale: id })}</p>
                             <p className="font-semibold">Dibuat Oleh,</p>
-                            <div className="h-20"></div>
-                            <p className="font-semibold underline uppercase">____________________</p>
-                            <p>(HRD)</p>
+                            <div className="h-20 flex justify-center items-center">
+                                {userProfile?.signatureUrl && <Image src={userProfile.signatureUrl} alt="Tanda tangan" width={120} height={60} className="object-contain" />}
+                            </div>
+                            <p className="font-semibold underline uppercase">{userProfile?.name || '____________________'}</p>
+                            <p>(Koordinator)</p>
                         </div>
                     </div>
                 </footer>

@@ -14,13 +14,13 @@ import {
   ColumnFiltersState,
 } from "@tanstack/react-table";
 import { Upload, MoreHorizontal, Download, FileDown, Loader2 } from 'lucide-react';
-import { collection, query, orderBy, where } from 'firebase/firestore';
+import { collection, query, orderBy, where, doc } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DateRange } from 'react-day-picker';
 import { addDays, format } from 'date-fns';
 
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import type { Attendance, Employee } from '@/lib/types';
+import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
+import type { Attendance, Employee, UserProfile } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -71,10 +71,14 @@ export default function AbsensiPage() {
   });
 
   const firestore = useFirestore();
+  const { user } = useUser();
   
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
+  
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   const attendanceQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -216,7 +220,7 @@ export default function AbsensiPage() {
     });
 
     try {
-        const ComponentToPrint = <PrintableAbsensi data={attendanceSummary} period={dateRange} />;
+        const ComponentToPrint = <PrintableAbsensi data={attendanceSummary} period={dateRange} userProfile={userProfile} />;
         await generatePdfFromComponent(
             ComponentToPrint,
             `Rekap Absensi - ${dateRange?.from ? format(dateRange.from, 'dd-MM-yy') : ''} - ${dateRange?.to ? format(dateRange.to, 'dd-MM-yy') : ''}.pdf`
