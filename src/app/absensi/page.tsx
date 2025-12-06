@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -14,7 +13,7 @@ import {
   ColumnFiltersState,
 } from "@tanstack/react-table";
 import { Upload, CalendarDays, MoreHorizontal } from 'lucide-react';
-import { collection } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Attendance, Employee } from '@/lib/types';
@@ -67,7 +66,8 @@ export default function AbsensiPage() {
   const { data: attendances, isLoading: isLoadingAttendances } = useCollection<Attendance>(attendanceCollection);
 
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
-  const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesCollection);
+  const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
+  const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
   const attendanceSummary = useMemo(() => {
     if (!attendances || !employees) return [];
