@@ -127,30 +127,34 @@ export default function LoginPage() {
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-gray-50 text-gray-900 overflow-hidden p-4">
       {/* Background Animated Gradients */}
       <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        transition={{ duration: 1.5 }}
-        className="absolute -top-1/4 -left-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl animate-blob" style={{backgroundColor: '#17c9ec'}}></motion.div>
+        animate={{
+            x: ['-20%', '15%', '-20%'],
+            y: ['-20%', '10%', '-20%'],
+            scale: [1, 1.2, 1],
+            rotate: [0, 15, 0],
+        }}
+        transition={{
+            duration: 20,
+            ease: 'easeInOut',
+            repeat: Infinity,
+            repeatType: 'reverse',
+        }}
+        className="absolute -top-1/4 -left-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl opacity-50" style={{backgroundColor: '#17c9ec'}}></motion.div>
       <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        transition={{ duration: 1.5, delay: 0.5 }}
-        className="absolute -bottom-1/4 -right-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl animate-blob animation-delay-4000" style={{backgroundColor: '#b21593'}}></motion.div>
-
-      <style jsx>{`
-        @keyframes blob {
-          0% { transform: translate(0px, 0px) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-          100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob {
-          animation: blob 10s infinite;
-        }
-        .animation-delay-4000 {
-          animation-delay: -4s;
-        }
-      `}</style>
+        animate={{
+            x: ['20%', '-15%', '20%'],
+            y: ['20%', '-10%', '20%'],
+            scale: [1, 1.1, 1],
+            rotate: [0, -15, 0],
+        }}
+        transition={{
+            duration: 25,
+            ease: 'easeInOut',
+            repeat: Infinity,
+            repeatType: 'reverse',
+            delay: 5,
+        }}
+        className="absolute -bottom-1/4 -right-1/4 w-[32rem] h-[32rem] sm:w-[48rem] sm:h-[48rem] rounded-full mix-blend-multiply filter blur-2xl opacity-50" style={{backgroundColor: '#b21593'}}></motion.div>
 
 
       <motion.div 
