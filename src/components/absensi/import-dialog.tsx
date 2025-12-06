@@ -29,7 +29,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { ScrollArea } from '../ui/scroll-area';
 import { Attendance, AttendanceStatus, Employee } from '@/lib/types';
 import { Alert, AlertDescription } from '../ui/alert';
 
@@ -43,6 +42,7 @@ type ParsedRow = {
   employeeName: string;
   date: string;
   status: AttendanceStatus;
+  checkIn?: string;
 };
 
 interface ImportDialogProps {
@@ -50,19 +50,23 @@ interface ImportDialogProps {
 }
 
 const statusMap: { [key: string]: AttendanceStatus | null } = {
-  'H': 'Hadir', 'Hadir': 'Hadir', 'HADIR': 'Hadir',
-  'S': 'Sakit', 'Sakit': 'Sakit', 'SAKIT': 'Sakit',
-  'I': 'Izin', 'Izin': 'Izin', 'IZIN': 'Izin',
-  'A': 'Alpha', 'Alpha': 'Alpha', 'ALPHA': 'Alpha',
-  'C': 'Cuti', 'Cuti': 'Cuti', 'CUTI': 'Cuti',
+  'MASUK': 'Hadir',
+  'SAKIT': 'Sakit', 'S': 'Sakit',
+  'IZIN': 'Izin', 'I': 'Izin',
+  'ALPHA': 'Alpha', 'A': 'Alpha',
+  'CUTI': 'Cuti', 'C': 'Cuti',
   // Map other statuses to null to ignore them
-  'OFF': null, 'L': null, 'C(B)': null,
+  'OFF': null, 'LIBUR': null,
 };
 
-const monthMap: { [key: string]: number } = {
-  'januari': 1, 'februari': 2, 'maret': 3, 'april': 4, 'mei': 5, 'juni': 6,
-  'juli': 7, 'agustus': 8, 'september': 9, 'oktober': 10, 'november': 11, 'desember': 12,
+// Helper to convert Excel serial date to JS Date
+const excelDateToJSDate = (serial: number) => {
+    const utc_days  = Math.floor(serial - 25569);
+    const utc_value = utc_days * 86400;
+    const date_info = new Date(utc_value * 1000);
+    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
 };
+
 
 export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
@@ -80,61 +84,56 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const wb = XLSX.read(event.target?.result, { type: 'binary' });
+        const wb = XLSX.read(event.target?.result, { type: 'binary', cellDates: true });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
 
-        const match = wsname.match(/Laporan Bulan (\w+) (\d{4})/i);
-        if (!match) {
-            toast({
-                title: 'Format Nama Sheet Salah',
-                description: 'Nama sheet harus dalam format "Laporan Bulan [NamaBulan] [Tahun]", contoh: "Laporan Bulan Juli 2024".',
-                variant: 'destructive',
-            });
-            setIsLoading(false);
-            return;
-        }
-        const monthName = match[1].toLowerCase();
-        const year = parseInt(match[2], 10);
-        const month = monthMap[monthName];
-
-        if (!month) {
-            toast({ title: 'Nama Bulan Tidak Valid', variant: 'destructive' });
-            setIsLoading(false);
-            return;
-        }
-
-        const jsonData: any[] = XLSX.utils.sheet_to_json(ws);
+        // Convert sheet to JSON, starting from row 6 (header at row 6)
+        const jsonData: any[] = XLSX.utils.sheet_to_json(ws, { range: 5, header: 'A' });
         const records: ParsedRow[] = [];
 
-        jsonData.forEach(row => {
-          const nik = row['NIK'];
-          const name = row['Nama Pegawai'];
+        jsonData.forEach((row, index) => {
+          // Assuming column order: NO, NIK, NAMA, KETERANGAN, TANGGAL, JAM
+          const nik = row['B'];
+          const name = row['C'];
+          const keterangan = row['D'];
+          const tanggal = row['E'];
+          const jam = row['F'];
 
-          if (!nik || !name) return;
+          if (!nik || !name || !keterangan || !tanggal) {
+              return; // Skip rows that don't have essential data
+          }
+          
+          const mappedStatus = statusMap[String(keterangan).trim().toUpperCase()];
 
-          for (let day = 1; day <= 31; day++) {
-            const statusKey = String(day);
-            const rawStatus = row[statusKey];
-
-            if (rawStatus) {
-                const mappedStatus = statusMap[String(rawStatus).trim()];
-                if (mappedStatus) {
-                    try {
-                        const date = new Date(year, month - 1, day);
-                        if (date.getMonth() + 1 === month) {
-                             records.push({
-                                employeeNik: String(nik),
-                                employeeName: String(name),
-                                date: date.toISOString().split('T')[0],
-                                status: mappedStatus,
-                            });
-                        }
-                    } catch(e) {
-                        // ignore invalid dates
-                    }
-                }
+          if (mappedStatus) {
+            let recordDate: Date;
+            if (typeof tanggal === 'number') { // Excel serial date
+                recordDate = excelDateToJSDate(tanggal);
+            } else if (tanggal instanceof Date) {
+                recordDate = tanggal;
+            } else {
+                 try {
+                    recordDate = new Date(tanggal);
+                 } catch(e) {
+                     console.warn(`Invalid date format for row ${index + 7}:`, tanggal);
+                     return;
+                 }
             }
+             if (isNaN(recordDate.getTime())) {
+                console.warn(`Could not parse date for row ${index + 7}:`, tanggal);
+                return;
+            }
+
+            const checkInDateTime = `${recordDate.toISOString().split('T')[0]}T${jam || '00:00:00'}`;
+
+            records.push({
+                employeeNik: String(nik).trim(),
+                employeeName: String(name).trim(),
+                date: recordDate.toISOString().split('T')[0],
+                status: mappedStatus,
+                checkIn: jam ? checkInDateTime : undefined,
+            });
           }
         });
         
@@ -144,7 +143,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
         console.error("Error parsing file:", error);
         toast({
           title: 'Gagal Membaca File',
-          description: 'Terjadi kesalahan saat memproses file Excel Anda.',
+          description: 'Terjadi kesalahan saat memproses file Excel Anda. Pastikan formatnya benar.',
           variant: 'destructive',
         });
         setParsedData([]);
@@ -187,6 +186,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
                 employeeNik: record.employeeNik,
                 date: record.date,
                 status: record.status,
+                checkIn: record.checkIn,
                 importedAt: serverTimestamp() as any,
             };
             const docRef = doc(collection(firestore, 'attendances'));
@@ -201,7 +201,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
 
       toast({
         title: 'Impor Selesai!',
-        description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan.`,
+        description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan atau status tidak relevan.`,
       });
       setModalOpen(false);
 
@@ -220,9 +220,9 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
       <DialogHeader>
-        <DialogTitle>Impor Data Absensi Bulanan</DialogTitle>
+        <DialogTitle>Impor Data Absensi</DialogTitle>
         <DialogDescription>
-          Unggah file laporan Excel bulanan. Sistem akan secara otomatis membaca dan memproses data untuk rekapitulasi.
+          Unggah file laporan Excel absensi. Sistem akan membaca setiap baris sebagai data kehadiran.
         </DialogDescription>
       </DialogHeader>
 
