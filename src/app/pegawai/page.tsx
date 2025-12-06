@@ -14,9 +14,10 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { MoreHorizontal, PlusCircle, Download, Upload, ArrowUpDown, Loader2, Edit, FileText, User, ShieldAlert, PenSquare, CalendarDays } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Upload, ArrowUpDown, Loader2, Edit, FileText, User, ShieldAlert, PenSquare, CalendarDays, RefreshCw } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { differenceInDays, differenceInMonths, isPast, isAfter } from 'date-fns';
+import { differenceInDays, differenceInMonths, isPast, isAfter, addMonths } from 'date-fns';
+import { id as localeID } from 'date-fns/locale';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -65,6 +66,8 @@ import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SignaturePad } from '@/components/pegawai/signature-pad';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 
 const MotionCard = motion(Card);
 
@@ -128,7 +131,23 @@ const getWarningStatus = (expiryDate: string): WarningStatus => {
     return isAfter(new Date(expiryDate), new Date()) ? 'Aktif' : 'Arsip';
 }
 
-function DetailModalContent({ employee, onSignatureUploaded, closeMainModal, openEditModal, openSignatureModal }: { employee: Employee, onSignatureUploaded: (updatedEmployee: Employee) => void, closeMainModal: () => void, openEditModal: () => void, openSignatureModal: () => void }) {
+function DetailModalContent({ 
+    employee, 
+    onSignatureUploaded, 
+    onContractRenewed,
+    closeMainModal, 
+    openEditModal, 
+    openSignatureModal, 
+    openRenewContractModal 
+}: { 
+    employee: Employee, 
+    onSignatureUploaded: (updatedEmployee: Employee) => void, 
+    onContractRenewed: (updatedEmployee: Employee) => void,
+    closeMainModal: () => void, 
+    openEditModal: () => void, 
+    openSignatureModal: () => void,
+    openRenewContractModal: () => void
+}) {
     const firestore = useFirestore();
     
     const warningsCollectionRef = useMemoFirebase(() => collection(firestore, 'employees', employee.id, 'warningLetters'), [firestore, employee.id]);
@@ -173,6 +192,10 @@ function DetailModalContent({ employee, onSignatureUploaded, closeMainModal, ope
                                         <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
                                         <span className="text-sm">Akhir Kontrak: {formatDateForDisplay(employee.contractEndDate)}</span>
                                     </div>
+                                    <Button variant="outline" className="w-full" onClick={openRenewContractModal}>
+                                        <RefreshCw className="mr-2 h-4 w-4"/>
+                                        Perbarui Kontrak
+                                    </Button>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -283,6 +306,9 @@ export default function PegawaiPage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
+  const [isRenewContractModalOpen, setIsRenewContractModalOpen] = useState(false);
+  const [renewalMonths, setRenewalMonths] = useState([6]);
+  const [isProcessingRenewal, setIsProcessingRenewal] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -476,19 +502,45 @@ export default function PegawaiPage() {
     XLSX.writeFile(wb, 'template_pegawai.xlsx');
   };
 
-  const handleSignatureUploaded = (updatedEmployee: Employee) => {
-    // Update the state of the main employee list
-    setEmployees(prevEmployees =>
-        prevEmployees.map(emp =>
-            emp.id === updatedEmployee.id ? updatedEmployee : emp
-        )
-    );
-
-    // Also update the selected employee if it's the one being edited
+  const updateEmployeeState = (updatedEmployee: Employee) => {
+    setEmployees(prev => prev.map(emp => emp.id === updatedEmployee.id ? updatedEmployee : emp));
     if (selectedEmployee && selectedEmployee.id === updatedEmployee.id) {
         setSelectedEmployee(updatedEmployee);
     }
   }
+
+  const handleRenewContract = async () => {
+      if (!selectedEmployee) return;
+      setIsProcessingRenewal(true);
+      try {
+          const employeeRef = doc(firestore, 'employees', selectedEmployee.id);
+          const currentEndDate = new Date(selectedEmployee.contractEndDate);
+          const newEndDate = addMonths(currentEndDate, renewalMonths[0]);
+          
+          await updateDoc(employeeRef, {
+              contractEndDate: newEndDate.toISOString()
+          });
+
+          const updatedEmployee = { ...selectedEmployee, contractEndDate: newEndDate.toISOString() };
+          updateEmployeeState(updatedEmployee);
+          
+          toast.success("Kontrak Diperpanjang", {
+              description: `Kontrak ${selectedEmployee.name} telah diperpanjang hingga ${formatDateForDisplay(newEndDate.toISOString())}`
+          });
+          setIsRenewContractModalOpen(false);
+
+      } catch (error) {
+          console.error("Error renewing contract:", error);
+          toast.error("Gagal Memperbarui Kontrak");
+      } finally {
+          setIsProcessingRenewal(false);
+      }
+  };
+
+  const newContractEndDate = selectedEmployee
+    ? addMonths(new Date(selectedEmployee.contractEndDate), renewalMonths[0])
+    : new Date();
+
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -706,48 +758,108 @@ export default function PegawaiPage() {
       </motion.div>
       
       {/* Detail Modal */}
-       <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-            <AnimatedDialogContent open={isDetailModalOpen} className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
-                {selectedEmployee ? (
-                    <DetailModalContent 
-                        employee={selectedEmployee} 
-                        onSignatureUploaded={handleSignatureUploaded}
-                        closeMainModal={() => setIsDetailModalOpen(false)}
-                        openEditModal={() => setIsEditModalOpen(true)}
-                        openSignatureModal={() => setIsSignatureModalOpen(true)}
-                    />
-                ) : (
-                    <div className="flex items-center justify-center p-8">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                )}
-            </AnimatedDialogContent>
-        </Dialog>
+      <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
+          <AnimatePresence>
+            {isDetailModalOpen && (
+              <AnimatedDialogContent open={isDetailModalOpen} className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
+                  {selectedEmployee ? (
+                      <DetailModalContent 
+                          employee={selectedEmployee} 
+                          onSignatureUploaded={updateEmployeeState}
+                          onContractRenewed={updateEmployeeState}
+                          closeMainModal={() => setIsDetailModalOpen(false)}
+                          openEditModal={() => setIsEditModalOpen(true)}
+                          openSignatureModal={() => setIsSignatureModalOpen(true)}
+                          openRenewContractModal={() => setIsRenewContractModalOpen(true)}
+                      />
+                  ) : (
+                      <div className="flex items-center justify-center p-8">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                      </div>
+                  )}
+              </AnimatedDialogContent>
+            )}
+          </AnimatePresence>
+      </Dialog>
         
       {/* Nested Modals from Detail */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <AnimatedDialogContent open={isEditModalOpen} className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
-            <DialogHeader>
-                <DialogTitle>Edit Data Pegawai</DialogTitle>
-                <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
-            </DialogHeader>
-            {selectedEmployee && <EditEmployeeForm employee={selectedEmployee} setModalOpen={setIsEditModalOpen} />}
-        </AnimatedDialogContent>
+        <AnimatePresence>
+          {isEditModalOpen && (
+            <AnimatedDialogContent open={isEditModalOpen} className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
+                <DialogHeader>
+                    <DialogTitle>Edit Data Pegawai</DialogTitle>
+                    <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
+                </DialogHeader>
+                {selectedEmployee && <EditEmployeeForm employee={selectedEmployee} setModalOpen={setIsEditModalOpen} />}
+            </AnimatedDialogContent>
+          )}
+        </AnimatePresence>
       </Dialog>
+
       <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
-        <AnimatedDialogContent open={isSignatureModalOpen}>
-            {selectedEmployee && (
-                <SignaturePad 
-                    docId={selectedEmployee.id} 
-                    onSignatureUploaded={(newUrl) => {
-                        const updatedEmployee = { ...selectedEmployee, signatureUrl: newUrl };
-                        handleSignatureUploaded(updatedEmployee);
-                        setIsSignatureModalOpen(false);
-                    }}
-                    collectionPath="employees"
-                />
-            )}
-        </AnimatedDialogContent>
+        <AnimatePresence>
+          {isSignatureModalOpen && (
+            <AnimatedDialogContent open={isSignatureModalOpen}>
+                {selectedEmployee && (
+                    <SignaturePad 
+                        docId={selectedEmployee.id} 
+                        onSignatureUploaded={(newUrl) => {
+                            const updatedEmployee = { ...selectedEmployee, signatureUrl: newUrl };
+                            updateEmployeeState(updatedEmployee);
+                            setIsSignatureModalOpen(false);
+                        }}
+                        collectionPath="employees"
+                    />
+                )}
+            </AnimatedDialogContent>
+          )}
+        </AnimatePresence>
+      </Dialog>
+      
+      <Dialog open={isRenewContractModalOpen} onOpenChange={setIsRenewContractModalOpen}>
+        <AnimatePresence>
+          {isRenewContractModalOpen && (
+             <AnimatedDialogContent open={isRenewContractModalOpen} className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Perbarui Kontrak</DialogTitle>
+                    <DialogDescription>Perpanjang masa kontrak untuk {selectedEmployee?.name}.</DialogDescription>
+                </DialogHeader>
+                {selectedEmployee && (
+                  <div className="space-y-6 pt-4">
+                    <div className="space-y-1 text-sm">
+                      <p className="text-muted-foreground">Kontrak saat ini berakhir pada:</p>
+                      <p className="font-semibold">{formatDateForDisplay(selectedEmployee.contractEndDate)}</p>
+                    </div>
+                    <div className="space-y-4">
+                      <Label htmlFor="renewal-slider">Durasi Perpanjangan: <span className="font-bold text-primary">{renewalMonths[0]} bulan</span></Label>
+                      <Slider
+                        id="renewal-slider"
+                        min={1}
+                        max={12}
+                        step={1}
+                        value={renewalMonths}
+                        onValueChange={setRenewalMonths}
+                      />
+                    </div>
+                    <div className="space-y-1 text-sm p-4 border rounded-lg bg-muted/50">
+                      <p className="text-muted-foreground">Kontrak baru akan berakhir pada:</p>
+                      <p className="font-bold text-lg text-primary">
+                        {newContractEndDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', locale: localeID })}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                <DialogFooter className="pt-4">
+                    <Button variant="outline" onClick={() => setIsRenewContractModalOpen(false)} disabled={isProcessingRenewal}>Batal</Button>
+                    <Button onClick={handleRenewContract} disabled={isProcessingRenewal}>
+                        {isProcessingRenewal && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Simpan Perpanjangan
+                    </Button>
+                </DialogFooter>
+            </AnimatedDialogContent>
+          )}
+        </AnimatePresence>
       </Dialog>
 
 
