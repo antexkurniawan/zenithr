@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -12,8 +13,9 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Upload, CalendarDays, MoreHorizontal } from 'lucide-react';
+import { Upload, CalendarDays, MoreHorizontal, Download } from 'lucide-react';
 import { collection, query, orderBy } from 'firebase/firestore';
+import * as XLSX from 'xlsx';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Attendance, Employee } from '@/lib/types';
@@ -106,6 +108,80 @@ export default function AbsensiPage() {
     return Array.from(summaryMap.values());
   }, [attendances, employees]);
 
+  const handleDownloadTemplate = () => {
+    const header = ["LAPORAN ABSENSI"];
+    const subHeader = ["PERIODE ABSENSI", "", "Tanggal", new Date().toLocaleDateString('id-ID'), "Hari", new Date().toLocaleDateString('id-ID', { weekday: 'long' })];
+    
+    const tableHeader = ["NO", "NIK", "NAMA", "KETERANGAN", "TANGGAL", "JAM"];
+    
+    const exampleData = [
+      {
+        NO: 1,
+        NIK: "12345",
+        NAMA: "BUDI SANTOSO",
+        KETERANGAN: "MASUK",
+        TANGGAL: "2024-07-01",
+        JAM: "08:00:00"
+      },
+       {
+        NO: 2,
+        NIK: "67890",
+        NAMA: "RINA AMELIA",
+        KETERANGAN: "SAKIT",
+        TANGGAL: "2024-07-01",
+        JAM: ""
+      }
+    ];
+
+    const ws_data = [
+      header,
+      [], // Empty row for spacing
+      subHeader,
+      [], // Empty row for spacing
+      [], // Empty row for spacing
+      tableHeader,
+      ...exampleData.map(d => [d.NO, d.NIK, d.NAMA, d.KETERANGAN, d.TANGGAL, d.JAM])
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    // Merge cells for the main header
+    ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }]; // Merge A1 to F1
+
+    // Style the main header
+    ws['A1'].s = {
+      font: { bold: true, sz: 16 },
+      alignment: { horizontal: 'center' }
+    };
+    
+    // Style sub header
+    ws['A3'].s = { font: { bold: true } };
+    ws['C3'].s = { font: { bold: true } };
+    ws['E3'].s = { font: { bold: true } };
+
+    // Style table header
+    tableHeader.forEach((h, i) => {
+        const cellRef = XLSX.utils.encode_cell({c: i, r: 5});
+        if (ws[cellRef]) {
+            ws[cellRef].s = {
+                font: { bold: true, color: { rgb: "FFFFFF" } },
+                fill: { fgColor: { rgb: "4F81BD" } },
+                alignment: { horizontal: 'center' },
+                border: {
+                  top: { style: "thin" },
+                  bottom: { style: "thin" },
+                  left: { style: "thin" },
+                  right: { style: "thin" }
+                }
+            };
+        }
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Template Absensi');
+    XLSX.writeFile(wb, 'template_absensi.xlsx');
+  }
+
 
   const columns: ColumnDef<AttendanceSummary>[] = [
     {
@@ -192,15 +268,21 @@ export default function AbsensiPage() {
                 <CalendarDays className="mr-2 h-4 w-4" />
                 Filter Periode
             </Button>
-            <Dialog open={isImportModalOpen} onOpenChange={setImportModalOpen}>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import Data
-                </Button>
-              </DialogTrigger>
-              <ImportAbsensiDialog setModalOpen={setImportModalOpen} />
-            </Dialog>
+            <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+              <Button variant="outline" onClick={handleDownloadTemplate} className="w-full sm:w-auto">
+                  <Download className="mr-2 h-4 w-4" />
+                  Template
+              </Button>
+              <Dialog open={isImportModalOpen} onOpenChange={setImportModalOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full sm:w-auto">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import Data
+                  </Button>
+                </DialogTrigger>
+                <ImportAbsensiDialog setModalOpen={setImportModalOpen} />
+              </Dialog>
+            </div>
         </div>
       </PageHeader>
       
