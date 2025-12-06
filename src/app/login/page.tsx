@@ -212,9 +212,10 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                          <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
+                          <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593] focus-within:animate-gradient-border group">
                               <Input
                                   type="email"
+                                  placeholder="Masukkan email Anda"
                                   className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
                                   {...field}
                               />
@@ -233,9 +234,10 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                          <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
+                           <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593] focus-within:animate-gradient-border group">
                               <Input
                               type="password"
+                              placeholder="Masukkan password Anda"
                               className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
                               {...field}
                               />
