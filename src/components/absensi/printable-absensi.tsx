@@ -109,8 +109,8 @@ export function PrintableAbsensi({ data, period, userProfile }: PrintableAbsensi
                             <div className="h-20 flex justify-center items-center">
                                 {userProfile?.signatureUrl && <Image src={userProfile.signatureUrl} alt="Tanda tangan" width={120} height={60} className="object-contain" />}
                             </div>
-                            <p className="font-semibold underline uppercase">{userProfile?.name || '____________________'}</p>
-                            <p>(Koordinator)</p>
+                            <p className="font-semibold underline uppercase mb-1">{userProfile?.name || '____________________'}</p>
+                            <p>({userProfile?.jobTitle || 'Koordinator'})</p>
                         </div>
                     </div>
                 </footer>
