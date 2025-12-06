@@ -125,10 +125,10 @@ export function Header() {
       <SidebarTrigger className="hidden max-md:flex" />
       <div className="flex-1">
         <div className="relative inline-block">
-          <h1 className="text-xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
+          <h1 className="text-xl font-bold tracking-tight text-sidebar-background">
             ZENITHR Dashboard
           </h1>
-           <div className="absolute -bottom-1 left-0 w-3/5 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
+           <div className="absolute -bottom-1 left-0 w-3/5 h-1 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
         </div>
       </div>
       <div className="flex items-center gap-2">
