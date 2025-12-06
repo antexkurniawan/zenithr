@@ -13,11 +13,11 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Upload, MoreHorizontal, Download, FileDown } from 'lucide-react';
+import { Upload, MoreHorizontal, Download, FileDown, Loader2 } from 'lucide-react';
 import { collection, query, orderBy, where } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DateRange } from 'react-day-picker';
-import { addDays } from 'date-fns';
+import { addDays, format } from 'date-fns';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Attendance, Employee } from '@/lib/types';
@@ -43,6 +43,9 @@ import {
 } from "@/components/ui/dialog";
 import { ImportAbsensiDialog } from '@/components/absensi/import-dialog';
 import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { useToast } from '@/hooks/use-toast';
+import { generatePdfFromComponent } from '@/lib/pdf-generator';
+import { PrintableAbsensi } from '@/components/absensi/printable-absensi';
 
 type AttendanceSummary = {
   employeeId: string;
@@ -60,6 +63,8 @@ export default function AbsensiPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isImportModalOpen, setImportModalOpen] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: addDays(new Date(), -30),
     to: new Date(),
@@ -196,6 +201,41 @@ export default function AbsensiPage() {
     XLSX.writeFile(wb, 'template_absensi.xlsx');
   }
 
+  const handleExportPdf = async () => {
+    if (!attendanceSummary || attendanceSummary.length === 0) {
+      toast({
+        title: "Tidak ada data untuk diekspor",
+        variant: "destructive"
+      });
+      return;
+    }
+    setIsExporting(true);
+    const { dismiss } = toast({
+      title: "Mempersiapkan PDF...",
+      description: "Mohon tunggu sebentar.",
+    });
+
+    try {
+        const ComponentToPrint = <PrintableAbsensi data={attendanceSummary} period={dateRange} />;
+        await generatePdfFromComponent(
+            ComponentToPrint,
+            `Rekap Absensi - ${dateRange?.from ? format(dateRange.from, 'dd-MM-yy') : ''} - ${dateRange?.to ? format(dateRange.to, 'dd-MM-yy') : ''}.pdf`
+        );
+        dismiss();
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+        dismiss();
+        toast({
+            id: 'pdf-error',
+            title: "Gagal Membuat PDF",
+            description: "Terjadi kesalahan saat mencoba membuat file PDF.",
+            variant: "destructive",
+        });
+    } finally {
+        setIsExporting(false);
+    }
+  };
+
 
   const columns: ColumnDef<AttendanceSummary>[] = [
     {
@@ -283,8 +323,8 @@ export default function AbsensiPage() {
                   <Download className="mr-2 h-4 w-4" />
                   Template
               </Button>
-              <Button variant="outline" className="w-full sm:w-auto" disabled>
-                <FileDown className="mr-2 h-4 w-4" />
+              <Button variant="outline" className="w-full sm:w-auto" disabled={isExporting} onClick={handleExportPdf}>
+                {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
                 Ekspor PDF
               </Button>
               <Dialog open={isImportModalOpen} onOpenChange={setImportModalOpen}>
