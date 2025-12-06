@@ -66,31 +66,31 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                 
                 <main className="flex-grow flex flex-col">
                     <table className="w-full border-collapse border border-black text-center text-xs">
-                         <thead className="bg-gray-100">
+                         <thead className="bg-gray-100 text-xs">
                             <tr>
-                                <th className="border border-black p-1 text-xs w-[4%]">NO</th>
-                                <th className="border border-black p-1 text-xs w-[12%]">NIK</th>
-                                <th className="border border-black p-1 text-xs w-[30%]">NAMA LENGKAP</th>
-                                <th className="border border-black p-1 text-xs w-[20%]">JABATAN</th>
-                                <th className="border border-black p-1 text-xs w-[6.8%]">HADIR</th>
-                                <th className="border border-black p-1 text-xs w-[6.8%]">SAKIT</th>
-                                <th className="border border-black p-1 text-xs w-[6.8%]">IZIN</th>
-                                <th className="border border-black p-1 text-xs w-[6.8%]">ALPHA</th>
-                                <th className="border border-black p-1 text-xs w-[6.8%]">CUTI</th>
+                                <th className="border border-black p-1 align-middle w-[4%]">NO</th>
+                                <th className="border border-black p-1 align-middle w-[12%]">NIK</th>
+                                <th className="border border-black p-1 align-middle w-[30%]">NAMA LENGKAP</th>
+                                <th className="border border-black p-1 align-middle w-[20%]">JABATAN</th>
+                                <th className="border border-black p-1 align-middle w-[6.8%]">HADIR</th>
+                                <th className="border border-black p-1 align-middle w-[6.8%]">SAKIT</th>
+                                <th className="border border-black p-1 align-middle w-[6.8%]">IZIN</th>
+                                <th className="border border-black p-1 align-middle w-[6.8%]">ALPHA</th>
+                                <th className="border border-black p-1 align-middle w-[6.8%]">CUTI</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.map((item, index) => (
                                 <tr key={item.employeeId}>
-                                    <td className="border border-black p-1">{index + 1}</td>
-                                    <td className="border border-black p-1">{item.employeeNik}</td>
-                                    <td className="border border-black p-1 text-left">{item.employeeName}</td>
-                                    <td className="border border-black p-1 text-left">{item.employeeJobTitle}</td>
-                                    <td className="border border-black p-1">{item.hadir}</td>
-                                    <td className="border border-black p-1">{item.sakit}</td>
-                                    <td className="border border-black p-1">{item.izin}</td>
-                                    <td className="border border-black p-1">{item.alpha}</td>
-                                    <td className="border border-black p-1">{item.cuti}</td>
+                                    <td className="border border-black p-1 align-middle">{index + 1}</td>
+                                    <td className="border border-black p-1 align-middle">{item.employeeNik}</td>
+                                    <td className="border border-black p-1 align-middle text-left">{item.employeeName}</td>
+                                    <td className="border border-black p-1 align-middle text-left">{item.employeeJobTitle}</td>
+                                    <td className="border border-black p-1 align-middle">{item.hadir}</td>
+                                    <td className="border border-black p-1 align-middle">{item.sakit}</td>
+                                    <td className="border border-black p-1 align-middle">{item.izin}</td>
+                                    <td className="border border-black p-1 align-middle">{item.alpha}</td>
+                                    <td className="border border-black p-1 align-middle">{item.cuti}</td>
                                 </tr>
                             ))}
                         </tbody>
