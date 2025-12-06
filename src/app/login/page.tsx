@@ -168,14 +168,19 @@ export default function LoginPage() {
           animate="visible"
         >
           <div className="flex flex-col items-center justify-center text-center">
-            <Image 
-                src="/zenithr-logo.png"
-                alt="ZENITHR Logo"
-                width={200}
-                height={56}
-                className="object-contain"
-                priority
-            />
+            <motion.div
+              whileHover={{ rotate: 360, scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            >
+              <Image 
+                  src="/zenithr-logo.png"
+                  alt="ZENITHR Logo"
+                  width={200}
+                  height={56}
+                  className="object-contain"
+                  priority
+              />
+            </motion.div>
             <h1 className="text-5xl font-bold text-gray-800 mt-4 tracking-wider">ZENITHR</h1>
             <p className="text-gray-500 mt-2">Sistem Manajemen Sumber Daya Manusia Modern</p>
           </div>
@@ -190,13 +195,18 @@ export default function LoginPage() {
         >
            <motion.div className='mb-8 text-center' variants={itemVariants}>
                 <div className="flex md:hidden items-center justify-center mb-6">
-                     <Image 
-                        src="/zenithr-logo.png"
-                        alt="ZENITHR Logo"
-                        width={180}
-                        height={50}
-                        className="object-contain"
-                    />
+                    <motion.div
+                        whileHover={{ rotate: 360, scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                    >
+                      <Image 
+                          src="/zenithr-logo.png"
+                          alt="ZENITHR Logo"
+                          width={180}
+                          height={50}
+                          className="object-contain"
+                      />
+                    </motion.div>
                 </div>
                 <h3 className='text-3xl font-bold text-gray-800'>Selamat Datang!</h3>
                 <p className='text-muted-foreground'>Silakan masuk untuk melanjutkan</p>
