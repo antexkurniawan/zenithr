@@ -34,7 +34,7 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
     
     return (
         <div id="printable-container" className="bg-white text-black font-body">
-             <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col font-sans text-sm">
+             <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col font-sans">
                 <header className="mb-4">
                     <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-2">
                             <div className="w-40 flex-shrink-0">
@@ -65,32 +65,32 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                 </header>
                 
                 <main className="flex-grow flex flex-col">
-                    <table className="w-full border-collapse border border-black text-center text-xs">
+                    <table className="w-full border-collapse border border-black text-xs">
                          <thead className="bg-gray-100 text-xs">
                             <tr>
-                                <th className="border border-black p-1 align-middle w-[4%]">NO</th>
-                                <th className="border border-black p-1 align-middle w-[12%]">NIK</th>
-                                <th className="border border-black p-1 align-middle w-[30%]">NAMA LENGKAP</th>
-                                <th className="border border-black p-1 align-middle w-[20%]">JABATAN</th>
-                                <th className="border border-black p-1 align-middle w-[6.8%]">HADIR</th>
-                                <th className="border border-black p-1 align-middle w-[6.8%]">SAKIT</th>
-                                <th className="border border-black p-1 align-middle w-[6.8%]">IZIN</th>
-                                <th className="border border-black p-1 align-middle w-[6.8%]">ALPHA</th>
-                                <th className="border border-black p-1 align-middle w-[6.8%]">CUTI</th>
+                                <th className="border border-black p-1 align-middle text-center w-[4%]">NO</th>
+                                <th className="border border-black p-1 align-middle text-center w-[12%]">NIK</th>
+                                <th className="border border-black p-1 align-middle text-center w-[30%]">NAMA LENGKAP</th>
+                                <th className="border border-black p-1 align-middle text-center w-[20%]">JABATAN</th>
+                                <th className="border border-black p-1 align-middle text-center w-[6.8%]">HADIR</th>
+                                <th className="border border-black p-1 align-middle text-center w-[6.8%]">SAKIT</th>
+                                <th className="border border-black p-1 align-middle text-center w-[6.8%]">IZIN</th>
+                                <th className="border border-black p-1 align-middle text-center w-[6.8%]">ALPHA</th>
+                                <th className="border border-black p-1 align-middle text-center w-[6.8%]">CUTI</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.map((item, index) => (
                                 <tr key={item.employeeId}>
-                                    <td className="border border-black p-1 align-middle">{index + 1}</td>
-                                    <td className="border border-black p-1 align-middle">{item.employeeNik}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{index + 1}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{item.employeeNik}</td>
                                     <td className="border border-black p-1 align-middle text-left">{item.employeeName}</td>
                                     <td className="border border-black p-1 align-middle text-left">{item.employeeJobTitle}</td>
-                                    <td className="border border-black p-1 align-middle">{item.hadir}</td>
-                                    <td className="border border-black p-1 align-middle">{item.sakit}</td>
-                                    <td className="border border-black p-1 align-middle">{item.izin}</td>
-                                    <td className="border border-black p-1 align-middle">{item.alpha}</td>
-                                    <td className="border border-black p-1 align-middle">{item.cuti}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{item.hadir}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{item.sakit}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{item.izin}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{item.alpha}</td>
+                                    <td className="border border-black p-1 align-middle text-center">{item.cuti}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -112,4 +112,3 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
         </div>
     );
 }
-
