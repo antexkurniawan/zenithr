@@ -193,10 +193,12 @@ export default function ProfilPage() {
                             </div>
                             <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
                                 <DialogTrigger asChild>
+                                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Button variant="outline" className="w-full sm:w-auto">
                                         <Edit className="mr-2 h-4 w-4" />
                                         Edit Profil
                                     </Button>
+                                  </motion.div>
                                 </DialogTrigger>
                                 {effectiveUserProfile && (
                                     <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
@@ -228,10 +230,12 @@ export default function ProfilPage() {
                         <CardContent>
                              <Dialog open={isChangePasswordModalOpen} onOpenChange={setChangePasswordModalOpen}>
                                 <DialogTrigger asChild>
+                                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Button>
                                         <KeyRound className="mr-2 h-4 w-4" />
                                         Ubah Password
                                     </Button>
+                                  </motion.div>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[450px]">
                                     <DialogHeader>
@@ -258,13 +262,17 @@ export default function ProfilPage() {
                                     <div className="border rounded-md p-2 bg-muted/50 flex justify-center items-center">
                                         <Image src={effectiveUserProfile.signatureUrl} alt="Tanda tangan" width={200} height={100} className="object-contain" />
                                     </div>
-                                     <Button variant="outline" className="w-full" onClick={() => setIsSignatureModalOpen(true)}>Ganti Tanda Tangan</Button>
+                                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                       <Button variant="outline" className="w-full" onClick={() => setIsSignatureModalOpen(true)}>Ganti Tanda Tangan</Button>
+                                     </motion.div>
                                 </div>
                             ) : (
-                                <Button className="w-full" onClick={() => setIsSignatureModalOpen(true)}>
-                                    <PenSquare className="mr-2 h-4 w-4"/>
-                                    Upload Tanda Tangan
-                                </Button>
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                  <Button className="w-full" onClick={() => setIsSignatureModalOpen(true)}>
+                                      <PenSquare className="mr-2 h-4 w-4"/>
+                                      Upload Tanda Tangan
+                                  </Button>
+                                </motion.div>
                             )}
                         </CardContent>
                     </MotionCard>
@@ -280,10 +288,12 @@ export default function ProfilPage() {
                                     <Label className="text-xs text-muted-foreground">Nama Koordinator</Label>
                                     <p className="font-medium">{userProfile?.operationPointCoordinatorName || 'Belum diatur'}</p>
                                 </div>
+                                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                  <Button variant="outline" className="w-full" onClick={() => {
                                         setCoordinatorName(userProfile?.operationPointCoordinatorName || '');
                                         setIsCoordinatorModalOpen(true);
                                     }}>Ganti Nama Koordinator</Button>
+                                </motion.div>
                                 
                                 <div className="pt-2">
                                      <Label className="text-xs text-muted-foreground">Tanda Tangan Koordinator</Label>
@@ -292,13 +302,17 @@ export default function ProfilPage() {
                                             <div className="border rounded-md p-2 bg-muted/50 flex justify-center items-center">
                                                 <Image src={userProfile.operationPointCoordinatorSignatureUrl} alt="TTD Koordinator" width={200} height={100} className="object-contain" />
                                             </div>
-                                             <Button variant="outline" className="w-full" onClick={() => setIsCoordinatorSignatureModalOpen(true)}>Ganti TTD Koordinator</Button>
+                                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                               <Button variant="outline" className="w-full" onClick={() => setIsCoordinatorSignatureModalOpen(true)}>Ganti TTD Koordinator</Button>
+                                             </motion.div>
                                         </div>
                                     ) : (
-                                        <Button className="w-full mt-1" onClick={() => setIsCoordinatorSignatureModalOpen(true)}>
-                                            <UploadCloud className="mr-2 h-4 w-4"/>
-                                            Upload TTD Koordinator
-                                        </Button>
+                                        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                          <Button className="w-full mt-1" onClick={() => setIsCoordinatorSignatureModalOpen(true)}>
+                                              <UploadCloud className="mr-2 h-4 w-4"/>
+                                              Upload TTD Koordinator
+                                          </Button>
+                                        </motion.div>
                                     )}
                                 </div>
                             </CardContent>

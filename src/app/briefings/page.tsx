@@ -297,10 +297,12 @@ export default function BriefingsPage() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Buka menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Buka menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </motion.div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openDetailModal(briefing)}>
@@ -383,10 +385,12 @@ export default function BriefingsPage() {
         <div className="flex flex-col sm:flex-row gap-2 w-full">
           <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
             <DialogTrigger asChild>
-              <Button>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Buat Briefing Baru
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button>
+                  <PlusCircle className="mr-2 h-4 w-4" />
+                  Buat Briefing Baru
+                </Button>
+              </motion.div>
             </DialogTrigger>
             <DialogContent className="sm:max-w-3xl max-h-[90dvh] flex flex-col p-0">
               <DialogHeader className="p-6 pb-0">
@@ -679,23 +683,29 @@ export default function BriefingsPage() {
 
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Sebelumnya
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Selanjutnya
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Sebelumnya
+          </Button>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Selanjutnya
+          </Button>
+        </motion.div>
       </div>
     </motion.div>
   );
 }
+
+    

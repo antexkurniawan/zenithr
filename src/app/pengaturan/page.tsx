@@ -97,10 +97,12 @@ function RulesTable({ rules, category, isLoading, onEdit, onDelete }: { rules: C
                     <TableCell className="text-right">
                     <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Buka menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
+                              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Buka menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </motion.div>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => onEdit(rule)}><Edit className="mr-2 h-4 w-4"/>Edit</DropdownMenuItem>
@@ -273,10 +275,12 @@ export default function PengaturanPage() {
               </div>
               <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
                   <DialogTrigger asChild>
+                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button>
                           <PlusCircle className="mr-2 h-4 w-4" />
                           Tambah Aturan Baru
                       </Button>
+                    </motion.div>
                   </DialogTrigger>
                   <DialogContent>
                       <DialogHeader>

@@ -404,10 +404,12 @@ export default function PegawaiPage() {
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Buka menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
+              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Buka menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </motion.div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => openDetailModal(employee)}>Lihat Detail</DropdownMenuItem>
@@ -528,29 +530,37 @@ export default function PegawaiPage() {
               className="w-full sm:max-w-sm"
             />
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-              <Button variant="outline" onClick={handleDownloadData} className="w-full sm:w-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-              <Button variant="outline" onClick={handleDownloadTemplate} className="w-full sm:w-auto">
-                <Download className="mr-2 h-4 w-4" />
-                Template
-              </Button>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" onClick={handleDownloadData} className="w-full sm:w-auto">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button variant="outline" onClick={handleDownloadTemplate} className="w-full sm:w-auto">
+                  <Download className="mr-2 h-4 w-4" />
+                  Template
+                </Button>
+              </motion.div>
               <Dialog open={isImportModalOpen} onOpenChange={setIsImportModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Import
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button variant="outline" className="w-full sm:w-auto">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import
+                    </Button>
+                  </motion.div>
                 </DialogTrigger>
                 <ImportDialog setModalOpen={setIsImportModalOpen} />
               </Dialog>
               <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
                 <DialogTrigger asChild>
-                  <Button className="w-full sm:w-auto">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Tambah
-                  </Button>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button className="w-full sm:w-auto">
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Tambah
+                    </Button>
+                  </motion.div>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
                   <DialogHeader>
@@ -740,22 +750,26 @@ export default function PegawaiPage() {
 
 
       <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Sebelumnya
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Selanjutnya
-        </Button>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Sebelumnya
+          </Button>
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Selanjutnya
+          </Button>
+        </motion.div>
       </div>
     </motion.div>
   );
