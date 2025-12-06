@@ -13,6 +13,7 @@ import {
   ColumnFiltersState,
 } from "@tanstack/react-table";
 import { PlusCircle, MoreHorizontal, Loader2, Edit, Trash2, Printer, Eye, FileWarning, Calendar, User, FileText } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import type { Employee, Warning, WarningStatus, WarningType, UserProfile } from "@/lib/types";
@@ -66,6 +67,8 @@ import { EditWarningForm } from '@/components/warnings/edit-warning-form';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isAfter } from 'date-fns';
+
+const MotionCard = motion(Card);
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '-';
@@ -279,8 +282,35 @@ export default function WarningsPage() {
 
   const isLoading = isLoadingWarnings || isLoadingEmployees;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
+
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <PageHeader title="Manajemen Surat Peringatan">
         <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
@@ -458,9 +488,11 @@ export default function WarningsPage() {
 
 
       {/* Desktop Table */}
-      <div className="hidden md:block">
-        <Card>
-          <CardContent className="p-0">
+      <MotionCard 
+        className="hidden md:block"
+        variants={itemVariants}
+      >
+        <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -512,25 +544,31 @@ export default function WarningsPage() {
               </Table>
             </div>
           </CardContent>
-        </Card>
-      </div>
+      </MotionCard>
 
        {/* Mobile Card View */}
-       <div className="grid gap-4 md:hidden">
+       <motion.div 
+        className="grid gap-4 md:hidden"
+        variants={containerVariants}
+       >
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-             <Card key={i}>
+             <MotionCard key={i} variants={itemVariants}>
                 <CardContent className="p-4">
                   <Skeleton className="h-24 w-full" />
                 </CardContent>
-             </Card>
+             </MotionCard>
           ))
         ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
               const warning = row.original;
               const status = getWarningStatus(warning.expiryDate);
               return (
-                <Card key={row.id} className="w-full">
+                <MotionCard 
+                  key={row.id} 
+                  className="w-full"
+                  variants={itemVariants}
+                >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-2">
                         <div>
@@ -555,17 +593,17 @@ export default function WarningsPage() {
                         </div>
                     </div>
                   </CardContent>
-                </Card>
+                </MotionCard>
               )
             })
         ) : (
-          <Card>
+          <MotionCard variants={itemVariants}>
             <CardContent className="p-4 text-center text-muted-foreground">
               Tidak ada data surat peringatan.
             </CardContent>
-          </Card>
+          </MotionCard>
         )}
-      </div>
+      </motion.div>
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
@@ -585,6 +623,8 @@ export default function WarningsPage() {
           Selanjutnya
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+    

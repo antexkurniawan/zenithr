@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { collection, doc, query, where, updateDoc } from "firebase/firestore";
 import { Edit, User, Briefcase, MapPin, Loader2, KeyRound, PenSquare, UploadCloud } from "lucide-react";
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from "@/firebase";
 import PageHeader from "@/components/shared/page-header";
@@ -30,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from 'sonner';
 
+const MotionCard = motion(Card);
 
 function ProfilePageSkeleton() {
     return (
@@ -139,8 +141,35 @@ export default function ProfilPage() {
     const avatarImage = effectiveUserProfile ? getAvatarImage(effectiveUserProfile.name) : { imageUrl: '', imageHint: '' };
     const userInitial = effectiveUserProfile?.name.charAt(0).toUpperCase() || '?';
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+            },
+        },
+    };
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                duration: 0.5,
+                ease: 'easeOut',
+            },
+        },
+    };
+
     return (
-        <div className="space-y-6">
+        <motion.div 
+          className="space-y-6"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
             <PageHeader
                 title="Profil Saya"
                 description="Kelola informasi pribadi dan pengaturan akun Anda."
@@ -150,7 +179,7 @@ export default function ProfilPage() {
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2 space-y-6">
-                    <Card>
+                    <MotionCard variants={itemVariants}>
                         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                             <Avatar className="h-24 w-24 border-4">
                                 <AvatarImage src={avatarImage.imageUrl} alt={effectiveUserProfile.name} data-ai-hint={avatarImage.imageHint} />
@@ -190,8 +219,8 @@ export default function ProfilPage() {
                             <InfoRow icon={Briefcase} label="Jabatan" value={effectiveUserProfile.jobTitle} />
                             <InfoRow icon={MapPin} label="Area Kerja" value={effectiveUserProfile.workArea} />
                         </CardContent>
-                    </Card>
-                    <Card>
+                    </MotionCard>
+                    <MotionCard variants={itemVariants}>
                         <CardHeader>
                             <CardTitle>Keamanan Akun</CardTitle>
                             <CardDescription>Ubah password Anda secara berkala untuk menjaga keamanan akun.</CardDescription>
@@ -215,10 +244,10 @@ export default function ProfilPage() {
                                 </DialogContent>
                             </Dialog>
                         </CardContent>
-                    </Card>
+                    </MotionCard>
                   </div>
                   <div className="space-y-6">
-                    <Card>
+                    <MotionCard variants={itemVariants}>
                         <CardHeader>
                             <CardTitle>Tanda Tangan Digital</CardTitle>
                             <CardDescription>Tanda tangan ini akan digunakan pada dokumen yang Anda buat.</CardDescription>
@@ -238,10 +267,10 @@ export default function ProfilPage() {
                                 </Button>
                             )}
                         </CardContent>
-                    </Card>
+                    </MotionCard>
                     
                     {effectiveUserProfile.jobTitle === 'Field Coordinator' && (
-                        <Card>
+                        <MotionCard variants={itemVariants}>
                              <CardHeader>
                                 <CardTitle>Atasan Langsung (O.P.C)</CardTitle>
                                 <CardDescription>Kelola nama dan tanda tangan Operation Point Coordinator.</CardDescription>
@@ -273,7 +302,7 @@ export default function ProfilPage() {
                                     )}
                                 </div>
                             </CardContent>
-                        </Card>
+                        </MotionCard>
                     )}
                   </div>
                 </div>
@@ -348,6 +377,8 @@ export default function ProfilPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </motion.div>
     );
 }
+
+    

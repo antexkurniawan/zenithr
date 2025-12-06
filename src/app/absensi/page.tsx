@@ -18,6 +18,7 @@ import { collection, query, orderBy, where, doc } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DateRange } from 'react-day-picker';
 import { addDays, format } from 'date-fns';
+import { motion } from 'framer-motion';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import type { Attendance, Employee, UserProfile } from '@/lib/types';
@@ -46,6 +47,8 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { toast } from 'sonner';
 import { generatePdfFromComponent } from '@/lib/pdf-generator';
 import { PrintableAbsensi } from '@/components/absensi/printable-absensi';
+
+const MotionCard = motion(Card);
 
 type AttendanceSummary = {
   employeeId: string;
@@ -301,9 +304,36 @@ export default function AbsensiPage() {
   });
 
   const isLoading = isLoadingAttendances || isLoadingEmployees;
+  
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <PageHeader title="Rekap Absensi Pegawai">
         <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
@@ -338,9 +368,11 @@ export default function AbsensiPage() {
       </PageHeader>
       
       {/* Desktop Table */}
-      <div className="hidden md:block">
-        <Card>
-          <CardContent className="p-0">
+      <MotionCard 
+        className="hidden md:block"
+        variants={itemVariants}
+      >
+        <CardContent className="p-0">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -392,24 +424,30 @@ export default function AbsensiPage() {
               </Table>
             </div>
           </CardContent>
-        </Card>
-      </div>
+      </MotionCard>
 
       {/* Mobile Card View */}
-      <div className="grid gap-4 md:hidden">
+      <motion.div 
+        className="grid gap-4 md:hidden"
+        variants={containerVariants}
+      >
         {isLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
-             <Card key={i}>
+             <MotionCard key={i} variants={itemVariants}>
                 <CardContent className="p-4">
                   <Skeleton className="h-28 w-full" />
                 </CardContent>
-             </Card>
+             </MotionCard>
           ))
         ) : table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => {
               const summary = row.original;
               return (
-                <Card key={row.id} className="w-full">
+                <MotionCard 
+                  key={row.id} 
+                  className="w-full"
+                  variants={itemVariants}
+                >
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-3">
                         <div>
@@ -441,17 +479,17 @@ export default function AbsensiPage() {
                         </div>
                     </div>
                   </CardContent>
-                </Card>
+                </MotionCard>
               )
             })
         ) : (
-          <Card>
+          <MotionCard variants={itemVariants}>
             <CardContent className="p-4 text-center text-muted-foreground">
               Belum ada data absensi untuk periode ini.
             </CardContent>
-          </Card>
+          </MotionCard>
         )}
-      </div>
+      </motion.div>
 
 
       <div className="flex items-center justify-end space-x-2 py-4">
@@ -472,6 +510,8 @@ export default function AbsensiPage() {
           Selanjutnya
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 }
+
+    

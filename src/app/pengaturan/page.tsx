@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { collection, writeBatch, doc, deleteDoc } from 'firebase/firestore';
+import { motion } from 'framer-motion';
 import {
   Table,
   TableHeader,
@@ -58,6 +59,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { EditRuleForm } from '@/components/pengaturan/edit-rule-form';
 
 import * as initialData from './initial-rules.json';
+
+const MotionCard = motion(Card);
 
 function RulesTable({ rules, category, isLoading, onEdit, onDelete }: { rules: CompanyRule[], category: WarningType, isLoading: boolean, onEdit: (rule: CompanyRule) => void, onDelete: (rule: CompanyRule) => void }) {
   return (
@@ -215,9 +218,35 @@ export default function PengaturanPage() {
     }
   }
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        ease: 'easeOut',
+      },
+    },
+  };
 
   return (
-    <div className="space-y-6">
+    <motion.div 
+      className="space-y-6"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       <PageHeader
         title="Pengaturan Aplikasi"
         description="Kelola data master, integrasi, dan preferensi aplikasi Anda."
@@ -234,7 +263,7 @@ export default function PengaturanPage() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="master-data" className="space-y-4">
-          <Card>
+          <MotionCard variants={itemVariants}>
             <CardHeader className="flex flex-row justify-between items-start">
               <div>
                 <CardTitle>Panduan Peraturan</CardTitle>
@@ -282,7 +311,7 @@ export default function PengaturanPage() {
                 </Accordion>
                )}
             </CardContent>
-          </Card>
+          </MotionCard>
         </TabsContent>
       </Tabs>
 
@@ -315,6 +344,8 @@ export default function PengaturanPage() {
           </AlertDialogContent>
       </AlertDialog>
 
-    </div>
+    </motion.div>
   );
 }
+
+    
