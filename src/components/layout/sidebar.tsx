@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 import {
   Sidebar,
@@ -56,18 +57,20 @@ export function SiteSidebar() {
       </SidebarHeader>
       <SidebarMenu className="p-2">
         {navItems.map((item) => (
-          <SidebarMenuItem key={item.href}>
-            <Link href={item.href}>
-              <SidebarMenuButton
-                isActive={isActive(item.href)}
-                tooltip={{ children: item.label }}
-                className="w-full justify-start"
-              >
-                <item.icon className="h-4 w-4" />
-                <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
+          <motion.div key={item.href} whileHover={{ scale: 1.05 }}>
+            <SidebarMenuItem>
+              <Link href={item.href}>
+                <SidebarMenuButton
+                  isActive={isActive(item.href)}
+                  tooltip={{ children: item.label }}
+                  className="w-full justify-start"
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          </motion.div>
         ))}
       </SidebarMenu>
     </Sidebar>
