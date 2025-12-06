@@ -69,6 +69,32 @@ import { SignaturePad } from '@/components/pegawai/signature-pad';
 const MotionCard = motion(Card);
 const MotionDialogContent = motion(DialogContent);
 
+const modalVariants = {
+  hidden: {
+    opacity: 0,
+    scale: 0.95,
+    y: 20
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
+    transition: {
+      duration: 0.3,
+      ease: 'easeOut'
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    y: 20,
+    transition: {
+      duration: 0.2,
+      ease: 'easeIn'
+    }
+  }
+};
+
 const formatDateForDisplay = (dateString: string) => {
   if (!dateString) return '-';
   return new Date(dateString).toLocaleDateString('id-ID', {
@@ -513,32 +539,6 @@ export default function PegawaiPage() {
     },
   };
   
-  const modalVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.95,
-      y: 20
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        duration: 0.3,
-        ease: 'easeOut'
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.95,
-      y: 20,
-      transition: {
-        duration: 0.2,
-        ease: 'easeIn'
-      }
-    }
-  };
-
   return (
     <motion.div 
       className="space-y-6"
