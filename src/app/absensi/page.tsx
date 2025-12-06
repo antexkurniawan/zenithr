@@ -13,9 +13,11 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { Upload, CalendarDays, MoreHorizontal, Download } from 'lucide-react';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { Upload, MoreHorizontal, Download, FileDown } from 'lucide-react';
+import { collection, query, orderBy, where } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
+import { DateRange } from 'react-day-picker';
+import { addDays } from 'date-fns';
 
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Attendance, Employee } from '@/lib/types';
@@ -37,13 +39,10 @@ import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { ImportAbsensiDialog } from '@/components/absensi/import-dialog';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
 
 type AttendanceSummary = {
   employeeId: string;
@@ -61,18 +60,36 @@ export default function AbsensiPage() {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [isImportModalOpen, setImportModalOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: addDays(new Date(), -30),
+    to: new Date(),
+  });
 
   const firestore = useFirestore();
-
-  const attendanceCollection = useMemoFirebase(() => collection(firestore, 'attendances'), [firestore]);
-  const { data: attendances, isLoading: isLoadingAttendances } = useCollection<Attendance>(attendanceCollection);
-
+  
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
+  const attendanceQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    let q = query(collection(firestore, 'attendances'));
+    if (dateRange?.from && dateRange?.to) {
+      q = query(q, 
+        where('date', '>=', dateRange.from.toISOString().split('T')[0]),
+        where('date', '<=', dateRange.to.toISOString().split('T')[0])
+      );
+    } else if (dateRange?.from) {
+      q = query(q, where('date', '>=', dateRange.from.toISOString().split('T')[0]));
+    }
+    return q;
+  }, [firestore, dateRange]);
+  
+  const { data: attendances, isLoading: isLoadingAttendances } = useCollection<Attendance>(attendanceQuery);
+
+
   const attendanceSummary = useMemo(() => {
-    if (!attendances || !employees) return [];
+    if (!employees) return [];
     
     const summaryMap = new Map<string, AttendanceSummary>();
 
@@ -91,19 +108,22 @@ export default function AbsensiPage() {
       });
     });
 
-    // Populate with attendance data
-    attendances.forEach(att => {
-      const summary = summaryMap.get(att.employeeId);
-      if (summary) {
-        switch (att.status) {
-          case 'Hadir': summary.hadir++; break;
-          case 'Sakit': summary.sakit++; break;
-          case 'Izin': summary.izin++; break;
-          case 'Alpha': summary.alpha++; break;
-          case 'Cuti': summary.cuti++; break;
-        }
-      }
-    });
+    // Populate with attendance data (which is already filtered by date from the hook)
+    if(attendances){
+        attendances.forEach(att => {
+          const summary = summaryMap.get(att.employeeId);
+          if (summary) {
+            switch (att.status) {
+              case 'Hadir': summary.hadir++; break;
+              case 'Sakit': summary.sakit++; break;
+              case 'Izin': summary.izin++; break;
+              case 'Alpha': summary.alpha++; break;
+              case 'Cuti': summary.cuti++; break;
+            }
+          }
+        });
+    }
+
 
     return Array.from(summaryMap.values());
   }, [attendances, employees]);
@@ -146,10 +166,12 @@ export default function AbsensiPage() {
     ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }]; // Merge A1 to F1
 
     // Style the main header
-    ws['A1'].s = {
-      font: { bold: true, sz: 16 },
-      alignment: { horizontal: 'center' }
-    };
+    if (ws['A1']) {
+      ws['A1'].s = {
+        font: { bold: true, sz: 16 },
+        alignment: { horizontal: 'center' }
+      };
+    }
 
     // Style table header
     tableHeader.forEach((h, i) => {
@@ -255,15 +277,15 @@ export default function AbsensiPage() {
               }
               className="w-full sm:max-w-sm"
             />
-            {/* TODO: Add Date Range Picker */}
-            <Button variant="outline" className="w-full sm:w-auto" disabled>
-                <CalendarDays className="mr-2 h-4 w-4" />
-                Filter Periode
-            </Button>
+            <DateRangePicker date={dateRange} onDateChange={setDateRange} className="w-full sm:w-auto" />
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button variant="outline" onClick={handleDownloadTemplate} className="w-full sm:w-auto">
                   <Download className="mr-2 h-4 w-4" />
                   Template
+              </Button>
+              <Button variant="outline" className="w-full sm:w-auto" disabled>
+                <FileDown className="mr-2 h-4 w-4" />
+                Ekspor PDF
               </Button>
               <Dialog open={isImportModalOpen} onOpenChange={setImportModalOpen}>
                 <DialogTrigger asChild>
@@ -325,7 +347,7 @@ export default function AbsensiPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={columns.length} className="h-24 text-center">
-                        Belum ada data absensi. Silakan impor data terlebih dahulu.
+                        Belum ada data absensi. Silakan impor data terlebih dahulu atau sesuaikan filter periode.
                       </TableCell>
                     </TableRow>
                   )}
@@ -388,7 +410,7 @@ export default function AbsensiPage() {
         ) : (
           <Card>
             <CardContent className="p-4 text-center text-muted-foreground">
-              Belum ada data absensi.
+              Belum ada data absensi untuk periode ini.
             </CardContent>
           </Card>
         )}
