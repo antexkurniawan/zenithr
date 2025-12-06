@@ -10,7 +10,6 @@ import { format } from 'date-fns';
 import { collection, doc, serverTimestamp, writeBatch } from 'firebase/firestore';
 
 import { useFirestore, useUser, useDoc, useMemoFirebase } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -29,6 +28,7 @@ import { Textarea } from '../ui/textarea';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import { StepIndicator } from './step-indicator';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
     area: z.string().min(1, 'Area tugas harus diisi.'),
@@ -50,7 +50,6 @@ interface NewBriefingFormProps {
 }
 
 export function NewBriefingForm({ setModalOpen, employees }: NewBriefingFormProps) {
-  const { toast } = useToast();
   const firestore = useFirestore();
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,7 +99,7 @@ export function NewBriefingForm({ setModalOpen, employees }: NewBriefingFormProp
 
   async function onSubmit(data: NewBriefingFormValues) {
     if (!user || !userProfile) {
-        toast({ title: "User tidak ditemukan", variant: "destructive" });
+        toast.error("User tidak ditemukan");
         return;
     }
     setIsSubmitting(true);
@@ -139,18 +138,15 @@ export function NewBriefingForm({ setModalOpen, employees }: NewBriefingFormProp
 
         await batch.commit();
 
-        toast({
-            title: 'Briefing Berhasil Dibuat!',
+        toast.success('Briefing Berhasil Dibuat!', {
             description: `Materi briefing dan daftar peserta untuk area ${data.area} telah disimpan.`,
         });
         setModalOpen(false);
         form.reset();
     } catch (error) {
       console.error('Error adding briefing:', error);
-      toast({
-        title: 'Terjadi Kesalahan',
+      toast.error('Terjadi Kesalahan', {
         description: 'Gagal membuat materi briefing. Silakan coba lagi.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);

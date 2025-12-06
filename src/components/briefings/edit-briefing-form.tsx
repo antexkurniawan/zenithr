@@ -10,7 +10,6 @@ import { format } from 'date-fns';
 import { doc, serverTimestamp, updateDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 
 import { useFirestore, useCollection, useMemoFirebase, useUser, useDoc } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -29,6 +28,7 @@ import { Textarea } from '../ui/textarea';
 import { ScrollArea } from '../ui/scroll-area';
 import { Checkbox } from '../ui/checkbox';
 import { StepIndicator } from './step-indicator';
+import { toast } from 'sonner';
 
 const formSchema = z.object({
     area: z.string().min(1, 'Area tugas harus diisi.'),
@@ -51,7 +51,6 @@ interface EditBriefingFormProps {
 }
 
 export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBriefingFormProps) {
-  const { toast } = useToast();
   const firestore = useFirestore();
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -139,17 +138,14 @@ export function EditBriefingForm({ briefing, employees, setModalOpen }: EditBrie
       
       await batch.commit();
 
-      toast({
-        title: 'Briefing Berhasil Diperbarui!',
+      toast.success('Briefing Berhasil Diperbarui!', {
         description: `Materi briefing dan daftar peserta untuk area ${data.area} telah diperbarui.`,
       });
       setModalOpen(false);
     } catch (error) {
       console.error('Error updating briefing:', error);
-      toast({
-        title: 'Terjadi Kesalahan',
+      toast.error('Terjadi Kesalahan', {
         description: 'Gagal memperbarui materi briefing. Silakan coba lagi.',
-        variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
