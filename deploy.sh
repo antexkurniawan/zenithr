@@ -5,7 +5,7 @@ set -e
 
 # --- Your GitHub Repository URL ---
 # --- Ganti URL di bawah ini dengan URL repositori GitHub Anda ---
-GITHUB_REPO_URL="https://github.com/username/repo.git"
+GITHUB_REPO_URL="https://github.com/antexkurniawan/zenithr.git"
 
 # Check if the URL has been changed
 if [ "$GITHUB_REPO_URL" == "https://github.com/username/repo.git" ]; then
@@ -50,7 +50,7 @@ echo ">>> Remote 'origin' telah diatur ke: $GITHUB_REPO_URL"
 
 # Push to GitHub
 echo ">>> Mengirim (push) kode ke branch 'main' di GitHub..."
-git push -u origin main
+git push -u origin main --force
 
 echo "---------------------------------------------------------"
 echo ">>> DEPLOYMENT BERHASIL! Kode Anda sudah ada di GitHub. <<<"
