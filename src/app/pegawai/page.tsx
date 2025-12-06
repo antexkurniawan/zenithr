@@ -18,7 +18,7 @@ import { MoreHorizontal, PlusCircle, Download, Upload, ArrowUpDown, Loader2, Edi
 import * as XLSX from 'xlsx';
 import { differenceInDays, differenceInMonths, isPast, isAfter } from 'date-fns';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import type { Employee, UserProfile, Warning, WarningStatus } from '@/lib/types';
@@ -67,6 +67,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SignaturePad } from '@/components/pegawai/signature-pad';
 
 const MotionCard = motion(Card);
+const MotionDialogContent = motion(DialogContent);
 
 const formatDateForDisplay = (dateString: string) => {
   if (!dateString) return '-';
@@ -511,6 +512,32 @@ export default function PegawaiPage() {
       },
     },
   };
+  
+  const modalVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.95,
+      y: 20
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: 0.3,
+        ease: 'easeOut'
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      y: 20,
+      transition: {
+        duration: 0.2,
+        ease: 'easeIn'
+      }
+    }
+  };
 
   return (
     <motion.div 
@@ -551,7 +578,18 @@ export default function PegawaiPage() {
                     </Button>
                   </motion.div>
                 </DialogTrigger>
-                <ImportDialog setModalOpen={setIsImportModalOpen} />
+                <AnimatePresence>
+                  {isImportModalOpen && (
+                    <MotionDialogContent
+                      variants={modalVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <ImportDialog setModalOpen={setIsImportModalOpen} />
+                    </MotionDialogContent>
+                  )}
+                </AnimatePresence>
               </Dialog>
               <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
                 <DialogTrigger asChild>
@@ -562,12 +600,22 @@ export default function PegawaiPage() {
                     </Button>
                   </motion.div>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
-                  <DialogHeader>
-                    <DialogTitle>Tambah Pegawai Baru</DialogTitle>
-                  </DialogHeader>
-                  <NewEmployeeForm setModalOpen={setIsNewModalOpen} />
-                </DialogContent>
+                <AnimatePresence>
+                  {isNewModalOpen && (
+                    <MotionDialogContent
+                      className="sm:max-w-[600px] max-h-[90dvh] flex flex-col"
+                      variants={modalVariants}
+                      initial="hidden"
+                      animate="visible"
+                      exit="exit"
+                    >
+                      <DialogHeader>
+                        <DialogTitle>Tambah Pegawai Baru</DialogTitle>
+                      </DialogHeader>
+                      <NewEmployeeForm setModalOpen={setIsNewModalOpen} />
+                    </MotionDialogContent>
+                  )}
+                </AnimatePresence>
               </Dialog>
             </div>
         </div>
@@ -705,35 +753,62 @@ export default function PegawaiPage() {
       
       {/* Detail Modal */}
        <Dialog open={isDetailModalOpen} onOpenChange={setIsDetailModalOpen}>
-            <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
-                {selectedEmployee ? (
-                    <DetailModalContent 
-                        employee={selectedEmployee} 
-                        onSignatureUploaded={handleSignatureUploaded}
-                        closeMainModal={() => setIsDetailModalOpen(false)}
-                        openEditModal={() => setIsEditModalOpen(true)}
-                        openSignatureModal={() => setIsSignatureModalOpen(true)}
-                    />
-                ) : (
-                    <div className="flex items-center justify-center p-8">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                )}
-            </DialogContent>
+            <AnimatePresence>
+            {isDetailModalOpen && (
+                <MotionDialogContent
+                  className="sm:max-w-4xl max-h-[90dvh] flex flex-col"
+                  variants={modalVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                    {selectedEmployee ? (
+                        <DetailModalContent 
+                            employee={selectedEmployee} 
+                            onSignatureUploaded={handleSignatureUploaded}
+                            closeMainModal={() => setIsDetailModalOpen(false)}
+                            openEditModal={() => setIsEditModalOpen(true)}
+                            openSignatureModal={() => setIsSignatureModalOpen(true)}
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center p-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        </div>
+                    )}
+                </MotionDialogContent>
+              )}
+            </AnimatePresence>
         </Dialog>
         
       {/* Nested Modals from Detail */}
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-          <DialogContent className="sm:max-w-[600px] max-h-[90dvh] flex flex-col">
+        <AnimatePresence>
+          {isEditModalOpen && (
+            <MotionDialogContent
+              className="sm:max-w-[600px] max-h-[90dvh] flex flex-col"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
               <DialogHeader>
                   <DialogTitle>Edit Data Pegawai</DialogTitle>
                   <DialogDescription>Perbarui informasi detail untuk pegawai ini.</DialogDescription>
               </DialogHeader>
               {selectedEmployee && <EditEmployeeForm employee={selectedEmployee} setModalOpen={setIsEditModalOpen} />}
-          </DialogContent>
+            </MotionDialogContent>
+          )}
+        </AnimatePresence>
       </Dialog>
       <Dialog open={isSignatureModalOpen} onOpenChange={setIsSignatureModalOpen}>
-          <DialogContent>
+        <AnimatePresence>
+          {isSignatureModalOpen && (
+            <MotionDialogContent
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
               {selectedEmployee && (
                   <SignaturePad 
                       docId={selectedEmployee.id} 
@@ -745,7 +820,9 @@ export default function PegawaiPage() {
                       collectionPath="employees"
                   />
               )}
-          </DialogContent>
+            </MotionDialogContent>
+          )}
+        </AnimatePresence>
       </Dialog>
 
 
@@ -775,4 +852,3 @@ export default function PegawaiPage() {
   );
 }
 
-    
