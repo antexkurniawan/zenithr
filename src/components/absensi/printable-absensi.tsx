@@ -33,7 +33,7 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
         : 'Semua Waktu';
     
     return (
-        <div id="printable-container" className="bg-white text-black font-sans">
+        <div id="printable-container" className="bg-white text-black font-body">
              <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col font-sans text-sm">
                 <header className="mb-4">
                     <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-2">
@@ -65,7 +65,7 @@ export function PrintableAbsensi({ data, period }: PrintableAbsensiProps) {
                 </header>
                 
                 <main className="flex-grow flex flex-col">
-                    <table className="w-full border-collapse border border-black text-center text-[9px]">
+                    <table className="w-full border-collapse border border-black text-center text-xs">
                          <thead className="bg-gray-100">
                             <tr>
                                 <th className="border border-black p-1 text-xs w-[4%]">NO</th>
