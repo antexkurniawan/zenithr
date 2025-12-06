@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
 import { signInWithEmailAndPassword, UserCredential } from 'firebase/auth';
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
@@ -67,8 +66,8 @@ export default function LoginPage() {
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: 'hrd@example.com',
-      password: 'password',
+      email: '',
+      password: '',
     },
   });
 
@@ -125,7 +124,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gray-50 text-gray-900 overflow-hidden p-4">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-gray-50 text-gray-900 overflow-hidden p-4">
       {/* Background Animated Gradients */}
       <motion.div 
         initial={{ opacity: 0 }}
@@ -216,7 +215,6 @@ export default function LoginPage() {
                           <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
                               <Input
                                   type="email"
-                                  placeholder="nama@perusahaan.com"
                                   className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
                                   {...field}
                               />
@@ -238,7 +236,6 @@ export default function LoginPage() {
                           <div className="relative rounded-md p-px bg-gradient-to-r from-[#17c9ec] to-[#b21593]">
                               <Input
                               type="password"
-                              placeholder="******"
                               className="bg-white border-0 focus-visible:ring-transparent focus-visible:ring-offset-0"
                               {...field}
                               />
@@ -248,10 +245,6 @@ export default function LoginPage() {
                     </FormItem>
                   )}
                 />
-              </motion.div>
-              
-              <motion.div className="text-right text-sm" variants={itemVariants}>
-                <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">Lupa Password?</Link>
               </motion.div>
 
               <motion.div variants={itemVariants}>
@@ -270,17 +263,13 @@ export default function LoginPage() {
                   )}
                 </Button>
               </motion.div>
-              
-               <motion.div className="text-center text-sm text-muted-foreground" variants={itemVariants}>
-                  Belum punya akun?{' '}
-                  <Link href="#" className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#17c9ec] to-[#b21593] hover:brightness-125">
-                    Hubungi Administrator
-                  </Link>
-               </motion.div>
             </form>
           </Form>
         </motion.div>
       </motion.div>
+      <footer className="absolute bottom-4 text-center text-sm text-gray-500">
+        ZENITHR by AfrIbr
+      </footer>
     </div>
   );
 }
