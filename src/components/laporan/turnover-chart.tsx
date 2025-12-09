@@ -32,7 +32,7 @@ const chartConfig = {
 export function TurnoverChart() {
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height={300}>
         <BarChart data={chartData} accessibilityLayer>
           <CartesianGrid vertical={false} />
           <XAxis
