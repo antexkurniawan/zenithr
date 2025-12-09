@@ -95,7 +95,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
         const normalizedData = jsonData.map(row => ({
           ...row,
           areaTugas: row.areaTugas || defaultWorkArea,
-          birthDate: row.birthDate instanceof Date ? row.birthDate.toISOString().split('T')[0] : String(row.birthDate),
+          birthDate: row.birthDate instanceof Date ? row.birthDate.toISOString().split('T')[0] : String(row.birthDate || ''),
           contractStartDate: row.contractStartDate instanceof Date ? row.contractStartDate.toISOString().split('T')[0] : String(row.contractStartDate),
           contractEndDate: row.contractEndDate instanceof Date ? row.contractEndDate.toISOString().split('T')[0] : String(row.contractEndDate),
         }));
@@ -124,11 +124,9 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
       let newEntriesCount = 0;
       let updatedEntriesCount = 0;
 
-      // Create a map of NIK to employee data from the Excel file
       const importDataMap = new Map(data.map(item => [item.nik, item]));
       const niksToQuery = Array.from(importDataMap.keys());
 
-      // Find existing employees with matching NIKs in chunks to avoid query limits
       const existingEmployeesMap = new Map<string, { id: string; data: Employee }>();
       for (let i = 0; i < niksToQuery.length; i += 30) {
           const chunk = niksToQuery.slice(i, i + 30);
@@ -147,8 +145,13 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
           // --- UPDATE EXISTING EMPLOYEE ---
           const docRef = doc(firestore, 'employees', existingEmployee.id);
           const updatedData = {
-            ...existingEmployee.data, // Keep existing data
-            ...importData, // Overwrite with new data from Excel
+            ...existingEmployee.data,
+            name: importData.name,
+            jobTitle: importData.jobTitle,
+            areaTugas: importData.areaTugas,
+            birthDate: importData.birthDate,
+            contractStartDate: importData.contractStartDate,
+            contractEndDate: importData.contractEndDate,
             updatedAt: serverTimestamp(),
           };
           batch.update(docRef, updatedData);
