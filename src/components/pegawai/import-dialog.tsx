@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -48,6 +49,7 @@ type EmployeeImportData = {
   name: string;
   jobTitle: 'Driver' | 'Dispatcher' | 'Checker' | 'Field Coordinator';
   areaTugas: string;
+  birthDate: string;
   contractStartDate: string;
   contractEndDate: string;
   [key: string]: any;
@@ -93,6 +95,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
         const normalizedData = jsonData.map(row => ({
           ...row,
           areaTugas: row.areaTugas || defaultWorkArea,
+          birthDate: row.birthDate instanceof Date ? row.birthDate.toISOString().split('T')[0] : String(row.birthDate),
           contractStartDate: row.contractStartDate instanceof Date ? row.contractStartDate.toISOString().split('T')[0] : String(row.contractStartDate),
           contractEndDate: row.contractEndDate instanceof Date ? row.contractEndDate.toISOString().split('T')[0] : String(row.contractEndDate),
         }));
@@ -231,7 +234,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
                             <TableHead>NIK</TableHead>
                             <TableHead>Nama</TableHead>
                             <TableHead>Jabatan</TableHead>
-                            <TableHead>Area Tugas</TableHead>
+                            <TableHead>Tgl Lahir</TableHead>
                             <TableHead>Awal Kontrak</TableHead>
                             <TableHead>Akhir Kontrak</TableHead>
                         </TableRow>
@@ -242,7 +245,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
                                 <TableCell>{row.nik}</TableCell>
                                 <TableCell>{row.name}</TableCell>
                                 <TableCell>{row.jobTitle}</TableCell>
-                                <TableCell>{row.areaTugas}</TableCell>
+                                <TableCell>{row.birthDate}</TableCell>
                                 <TableCell>{row.contractStartDate}</TableCell>
                                 <TableCell>{row.contractEndDate}</TableCell>
                             </TableRow>

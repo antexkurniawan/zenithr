@@ -89,11 +89,10 @@ const LaporanPegawaiTab = () => {
     }, [pegawaiAktif]);
 
     const pegawaiUlangTahun = useMemo(() => {
-        // Placeholder logic: uses contract start date month as birthday month
         const currentMonth = getMonth(new Date());
         return pegawaiAktif.filter(e => {
-            if (!e.contractStartDate) return false;
-            const birthDate = parseISO(e.contractStartDate);
+            if (!e.birthDate) return false;
+            const birthDate = parseISO(e.birthDate);
             return getMonth(birthDate) === currentMonth;
         });
     }, [pegawaiAktif]);
@@ -124,6 +123,7 @@ const LaporanPegawaiTab = () => {
             Nama: emp.name,
             Jabatan: emp.jobTitle,
             'Area Tugas': emp.areaTugas,
+            'Tanggal Lahir': emp.birthDate,
             'Awal Kontrak': emp.contractStartDate,
             'Akhir Kontrak': emp.contractEndDate,
             Status: emp.status

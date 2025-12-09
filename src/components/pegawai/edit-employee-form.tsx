@@ -46,6 +46,7 @@ const formSchema = z.object({
   }),
   areaTugas: z.string().min(1, 'Area tugas harus diisi.'),
   status: z.enum(['Aktif', 'Kontrak', 'Resign'], { required_error: 'Status harus dipilih.' }),
+  birthDate: z.date({ required_error: 'Tanggal lahir harus diisi.' }),
   contractStartDate: z.date({ required_error: 'Tanggal awal kontrak harus diisi.' }),
   contractEndDate: z.date({ required_error: 'Tanggal akhir kontrak harus diisi.' }),
 });
@@ -70,6 +71,7 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
       jobTitle: employee.jobTitle,
       areaTugas: employee.areaTugas || '',
       status: employee.status,
+      birthDate: new Date(employee.birthDate),
       contractStartDate: new Date(employee.contractStartDate),
       contractEndDate: new Date(employee.contractEndDate),
     },
@@ -82,6 +84,7 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
       
       const updatedEmployeeData = {
         ...data,
+        birthDate: data.birthDate.toISOString(),
         contractStartDate: data.contractStartDate.toISOString(),
         contractEndDate: data.contractEndDate.toISOString(),
         updatedAt: serverTimestamp(),
@@ -199,7 +202,48 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
                   </FormItem>
                 )}
               />
-              <div></div>
+               <FormField
+                control={form.control}
+                name="birthDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Tanggal Lahir</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              value={field.value ? format(field.value, 'dd/MM/yyyy') : ''}
+                              onChange={(e) => {
+                                try {
+                                  const parsedDate = parse(e.target.value, 'dd/MM/yyyy', new Date());
+                                  if (!isNaN(parsedDate.getTime())) {
+                                    field.onChange(parsedDate);
+                                  }
+                                } catch (error) {
+                                  // Handle parsing error if needed
+                                }
+                              }}
+                              placeholder="dd/mm/yyyy"
+                              className="pr-8"
+                            />
+                            <CalendarIcon className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 opacity-50" />
+                          </div>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 z-[9999]" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="contractStartDate"

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { collection, writeBatch, serverTimestamp, doc, getDocs, query, where, updateDoc, orderBy } from 'firebase/firestore';
+import { collection, writeBatch, serverTimestamp, doc, getDocs, query, where, updateDoc, orderBy, addMonths, startOfMonth } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -14,9 +14,9 @@ import {
   SortingState,
   ColumnFiltersState,
 } from "@tanstack/react-table";
-import { MoreHorizontal, PlusCircle, Download, Upload, ArrowUpDown, Loader2, Edit, FileText, User, ShieldAlert, PenSquare, CalendarDays, RefreshCw } from 'lucide-react';
+import { MoreHorizontal, PlusCircle, Download, Upload, ArrowUpDown, Loader2, Edit, FileText, User, ShieldAlert, PenSquare, CalendarDays, RefreshCw, Cake } from 'lucide-react';
 import * as XLSX from 'xlsx';
-import { differenceInDays, differenceInMonths, isPast, isAfter, addMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths, isPast, isAfter } from 'date-fns';
 import { id as localeID } from 'date-fns/locale';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -179,6 +179,17 @@ function DetailModalContent({
                             <TabsTrigger value="peringatan"><ShieldAlert className="mr-2 h-4 w-4" /> Riwayat Peringatan</TabsTrigger>
                         </TabsList>
                         <TabsContent value="profil" className="mt-6 grid gap-6 md:grid-cols-2">
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle>Informasi Pribadi</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-center">
+                                        <Cake className="h-4 w-4 mr-3 text-muted-foreground" />
+                                        <span className="text-sm">Tgl Lahir: {formatDateForDisplay(employee.birthDate)}</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
                             <Card>
                                 <CardHeader>
                                     <CardTitle>Informasi Kontrak</CardTitle>
@@ -186,11 +197,11 @@ function DetailModalContent({
                                 <CardContent className="space-y-4">
                                     <div className="flex items-center">
                                         <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span className="text-sm">Awal Kontrak: {formatDateForDisplay(employee.contractStartDate)}</span>
+                                        <span className="text-sm">Awal: {formatDateForDisplay(employee.contractStartDate)}</span>
                                     </div>
                                     <div className="flex items-center">
                                         <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
-                                        <span className="text-sm">Akhir Kontrak: {formatDateForDisplay(employee.contractEndDate)}</span>
+                                        <span className="text-sm">Akhir: {formatDateForDisplay(employee.contractEndDate)}</span>
                                     </div>
                                     <Button variant="outline" className="w-full" onClick={openRenewContractModal}>
                                         <RefreshCw className="mr-2 h-4 w-4"/>
@@ -198,7 +209,7 @@ function DetailModalContent({
                                     </Button>
                                 </CardContent>
                             </Card>
-                            <Card>
+                            <Card className="md:col-span-2">
                                 <CardHeader>
                                     <CardTitle>Tanda Tangan Digital</CardTitle>
                                     <CardDescription>Digunakan untuk absensi briefing.</CardDescription>
@@ -476,6 +487,7 @@ export default function PegawaiPage() {
       name: emp.name,
       jobTitle: emp.jobTitle,
       areaTugas: emp.areaTugas,
+      birthDate: formatDateForExport(emp.birthDate),
       contractStartDate: formatDateForExport(emp.contractStartDate),
       contractEndDate: formatDateForExport(emp.contractEndDate),
     }));
@@ -493,6 +505,7 @@ export default function PegawaiPage() {
         name: '', 
         jobTitle: 'Driver/Dispatcher/Checker/Field Coordinator', 
         areaTugas: userProfile?.workArea || '',
+        birthDate: 'YYYY-MM-DD',
         contractStartDate: 'YYYY-MM-DD', 
         contractEndDate: 'YYYY-MM-DD' 
       },
@@ -510,36 +523,50 @@ export default function PegawaiPage() {
   }
 
   const handleRenewContract = async () => {
-      if (!selectedEmployee) return;
-      setIsProcessingRenewal(true);
-      try {
-          const employeeRef = doc(firestore, 'employees', selectedEmployee.id);
-          const currentEndDate = new Date(selectedEmployee.contractEndDate);
-          const newEndDate = addMonths(currentEndDate, renewalMonths[0]);
-          
-          await updateDoc(employeeRef, {
-              contractEndDate: newEndDate.toISOString()
-          });
+    if (!selectedEmployee) return;
+    setIsProcessingRenewal(true);
+    try {
+        const employeeRef = doc(firestore, 'employees', selectedEmployee.id);
+        
+        // The new start date is the 1st of the next month after the old contract ends.
+        const currentEndDate = new Date(selectedEmployee.contractEndDate);
+        const nextMonth = new Date(currentEndDate.getFullYear(), currentEndDate.getMonth() + 1, 1);
+        const newStartDate = startOfMonth(nextMonth);
+        
+        // The new end date is calculated from the new start date.
+        const newEndDate = addMonths(newStartDate, renewalMonths[0]);
+        
+        await updateDoc(employeeRef, {
+            contractStartDate: newStartDate.toISOString(),
+            contractEndDate: newEndDate.toISOString()
+        });
 
-          const updatedEmployee = { ...selectedEmployee, contractEndDate: newEndDate.toISOString() };
-          updateEmployeeState(updatedEmployee);
-          
-          toast.success("Kontrak Diperpanjang", {
-              description: `Kontrak ${selectedEmployee.name} telah diperpanjang hingga ${formatDateForDisplay(newEndDate.toISOString())}`
-          });
-          setIsRenewContractModalOpen(false);
+        const updatedEmployee = { 
+            ...selectedEmployee, 
+            contractStartDate: newStartDate.toISOString(),
+            contractEndDate: newEndDate.toISOString() 
+        };
+        updateEmployeeState(updatedEmployee);
+        
+        toast.success("Kontrak Diperpanjang", {
+            description: `Kontrak ${selectedEmployee.name} telah diperpanjang. Mulai: ${formatDateForDisplay(newStartDate.toISOString())}, Berakhir: ${formatDateForDisplay(newEndDate.toISOString())}`
+        });
+        setIsRenewContractModalOpen(false);
 
-      } catch (error) {
-          console.error("Error renewing contract:", error);
-          toast.error("Gagal Memperbarui Kontrak");
-      } finally {
-          setIsProcessingRenewal(false);
-      }
-  };
+    } catch (error) {
+        console.error("Error renewing contract:", error);
+        toast.error("Gagal Memperbarui Kontrak");
+    } finally {
+        setIsProcessingRenewal(false);
+    }
+};
 
-  const newContractEndDate = selectedEmployee
-    ? addMonths(new Date(selectedEmployee.contractEndDate), renewalMonths[0])
+
+  const newContractStartDate = selectedEmployee
+    ? startOfMonth(addMonths(new Date(selectedEmployee.contractEndDate), 1))
     : new Date();
+  
+  const newContractEndDate = addMonths(newContractStartDate, renewalMonths[0]);
 
 
   const containerVariants = {
@@ -842,11 +869,19 @@ export default function PegawaiPage() {
                         onValueChange={setRenewalMonths}
                       />
                     </div>
-                    <div className="space-y-1 text-sm p-4 border rounded-lg bg-muted/50">
-                      <p className="text-muted-foreground">Kontrak baru akan berakhir pada:</p>
-                      <p className="font-bold text-lg text-primary">
-                        {newContractEndDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', locale: localeID })}
-                      </p>
+                    <div className="space-y-2 text-sm p-4 border rounded-lg bg-muted/50">
+                      <div>
+                          <p className="text-muted-foreground">Mulai Kontrak Baru:</p>
+                          <p className="font-bold text-lg text-primary">
+                            {newContractStartDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </p>
+                      </div>
+                      <div>
+                          <p className="text-muted-foreground">Akhir Kontrak Baru:</p>
+                          <p className="font-bold text-lg text-primary">
+                            {newContractEndDate.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
+                          </p>
+                      </div>
                     </div>
                   </div>
                 )}
