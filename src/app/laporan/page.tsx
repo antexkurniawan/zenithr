@@ -76,7 +76,7 @@ const LaporanPegawaiTab = () => {
     const employeesCollectionRef = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
     const { data: employees, isLoading } = useCollection<Employee>(employeesCollectionRef);
     
-    constpegawaiAktif = useMemo(() => employees?.filter(e => e.status === 'Aktif' || e.status === 'Kontrak') || [], [employees]);
+    const pegawaiAktif = useMemo(() => employees?.filter(e => e.status === 'Aktif' || e.status === 'Kontrak') || [], [employees]);
 
     const pegawaiHabisKontrak = useMemo(() => {
         const today = new Date();
@@ -112,7 +112,7 @@ const LaporanPegawaiTab = () => {
             default:
                 setFilteredData(pegawaiAktif);
         }
-    }, [activeFilter,pegawaiAktif, pegawaiHabisKontrak, pegawaiUlangTahun]);
+    }, [activeFilter, pegawaiAktif, pegawaiHabisKontrak, pegawaiUlangTahun]);
 
     const handleExportExcel = () => {
         if (filteredData.length === 0) {
@@ -185,7 +185,6 @@ const LaporanPegawaiTab = () => {
                     title="Akan Habis Kontrak"
                     value={pegawaiHabisKontrak.length}
                     icon={FileClock}
-                    description="Dalam 30 hari ke depan"
                     isLoading={isLoading}
                     isActive={activeFilter === 'habis_kontrak'}
                     onClick={() => setActiveFilter('habis_kontrak')}
