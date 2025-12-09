@@ -39,7 +39,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO } from 'date-fns';
+import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getAvatarImage } from '@/lib/utils';
@@ -134,33 +134,78 @@ const LaporanPegawaiTab = () => {
         XLSX.writeFile(wb, `Laporan Pegawai - ${activeFilter}.xlsx`);
     };
 
-    const columns: ColumnDef<Employee>[] = [
-        {
-            accessorKey: "name",
-            header: "Nama Pegawai",
-            cell: ({ row }) => {
-                const employee = row.original;
-                const { imageUrl } = getAvatarImage(employee.name);
-                return (
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={imageUrl} alt={employee.name} />
-                      <AvatarFallback>
-                        {employee.name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">{employee.name}</p>
-                      <p className="text-sm text-muted-foreground">NIK: {employee.nik}</p>
-                    </div>
-                  </div>
-                );
+    const columns = useMemo<ColumnDef<Employee>[]>(() => {
+        const defaultColumns: ColumnDef<Employee>[] = [
+            {
+                accessorKey: "name",
+                header: "Nama Pegawai",
+                cell: ({ row }) => {
+                    const employee = row.original;
+                    const { imageUrl } = getAvatarImage(employee.name);
+                    return (
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={imageUrl} alt={employee.name} />
+                          <AvatarFallback>
+                            {employee.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{employee.name}</p>
+                          <p className="text-sm text-muted-foreground">NIK: {employee.nik}</p>
+                        </div>
+                      </div>
+                    );
+                },
             },
-        },
-        { accessorKey: "jobTitle", header: "Jabatan" },
-        { accessorKey: "areaTugas", header: "Area Tugas" },
-        { accessorKey: "contractEndDate", header: "Akhir Kontrak", cell: ({row}) => new Date(row.original.contractEndDate).toLocaleDateString('id-ID') },
-    ];
+            { accessorKey: "jobTitle", header: "Jabatan" },
+            { accessorKey: "areaTugas", header: "Area Tugas" },
+            { accessorKey: "contractEndDate", header: "Akhir Kontrak", cell: ({row}) => new Date(row.original.contractEndDate).toLocaleDateString('id-ID') },
+        ];
+
+        const birthdayColumns: ColumnDef<Employee>[] = [
+             {
+                accessorKey: "name",
+                header: "Nama Pegawai",
+                cell: ({ row }) => {
+                    const employee = row.original;
+                    const { imageUrl } = getAvatarImage(employee.name);
+                    return (
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={imageUrl} alt={employee.name} />
+                          <AvatarFallback>
+                            {employee.name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium">{employee.name}</p>
+                          <p className="text-sm text-muted-foreground">NIK: {employee.nik}</p>
+                        </div>
+                      </div>
+                    );
+                },
+            },
+            { accessorKey: "jobTitle", header: "Jabatan" },
+            {
+                accessorKey: "birthDate",
+                header: "Tgl. Ulang Tahun",
+                cell: ({ row }) => new Date(row.original.birthDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }),
+            },
+            {
+                id: "age",
+                header: "Umur",
+                cell: ({ row }) => {
+                    const birthDate = new Date(row.original.birthDate);
+                    const age = differenceInYears(new Date(), birthDate);
+                    return `${age + 1} tahun`;
+                },
+            },
+        ];
+
+        return activeFilter === 'ulang_tahun' ? birthdayColumns : defaultColumns;
+    }, [activeFilter]);
+
 
     const table = useReactTable({
         data: filteredData,
