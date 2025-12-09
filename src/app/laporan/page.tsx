@@ -181,9 +181,9 @@ const LaporanPegawaiTab = () => {
             Nama: emp.name,
             Jabatan: emp.jobTitle,
             'Area Tugas': emp.areaTugas,
-            'Tanggal Lahir': emp.birthDate,
-            'Awal Kontrak': emp.contractStartDate,
-            'Akhir Kontrak': emp.contractEndDate,
+            'Tanggal Lahir': emp.birthDate ? new Date(emp.birthDate).toLocaleDateString('id-ID') : '',
+            'Awal Kontrak': emp.contractStartDate ? new Date(emp.contractStartDate).toLocaleDateString('id-ID') : '',
+            'Akhir Kontrak': emp.contractEndDate ? new Date(emp.contractEndDate).toLocaleDateString('id-ID') : '',
             Status: emp.status
         }));
         const ws = XLSX.utils.json_to_sheet(dataToExport);
@@ -225,12 +225,13 @@ const LaporanPegawaiTab = () => {
                 {
                     accessorKey: "birthDate",
                     header: "Tgl. Ulang Tahun",
-                    cell: ({ row }) => new Date(row.original.birthDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }),
+                    cell: ({ row }) => row.original.birthDate ? new Date(row.original.birthDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }) : '-',
                 },
                 {
                     id: "age",
                     header: "Umur",
                     cell: ({ row }) => {
+                        if(!row.original.birthDate) return '-';
                         const birthDate = new Date(row.original.birthDate);
                         const age = differenceInYears(new Date(), birthDate);
                         return `${age} tahun`;
@@ -245,7 +246,7 @@ const LaporanPegawaiTab = () => {
                  { 
                     accessorKey: "contractEndDate", 
                     header: "Akhir Kontrak", 
-                    cell: ({row}) => new Date(row.original.contractEndDate).toLocaleDateString('id-ID') 
+                    cell: ({row}) => row.original.contractEndDate ? new Date(row.original.contractEndDate).toLocaleDateString('id-ID') : '-'
                  },
                  {
                     id: 'remainingContract',
@@ -262,7 +263,7 @@ const LaporanPegawaiTab = () => {
         return [
             ...baseColumns,
             { accessorKey: "areaTugas", header: "Area Tugas" },
-            { accessorKey: "contractEndDate", header: "Akhir Kontrak", cell: ({row}) => new Date(row.original.contractEndDate).toLocaleDateString('id-ID') },
+            { accessorKey: "contractEndDate", header: "Akhir Kontrak", cell: ({row}) => row.original.contractEndDate ? new Date(row.original.contractEndDate).toLocaleDateString('id-ID') : '-' },
         ];
     }, [activeFilter]);
 
@@ -438,25 +439,33 @@ const LaporanAbsensiTab = () => {
         setReportGenerated(false);
 
         try {
-            const employeesSnapshot = await getDocs(query(collection(firestore, 'employees'), orderBy('name', 'asc')));
-            const employees = employeesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Employee[];
+            // 1. Fetch all employees first
+            const employeesQuery = query(collection(firestore, 'employees'), orderBy('name', 'asc'));
+            const employeesSnapshot = await getDocs(employeesQuery);
+            const allEmployees = employeesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Employee[];
 
-            let attendanceQuery = query(collection(firestore, 'attendances'));
-            attendanceQuery = query(attendanceQuery, 
+            // 2. Initialize summary map with all employees
+            const summaryMap = new Map<string, AttendanceSummary>();
+            allEmployees.forEach(emp => {
+                summaryMap.set(emp.id, {
+                    employeeId: emp.id, 
+                    employeeName: emp.name, 
+                    employeeNik: emp.nik, 
+                    employeeJobTitle: emp.jobTitle,
+                    hadir: 0, sakit: 0, izin: 0, alpha: 0, cuti: 0,
+                });
+            });
+
+            // 3. Fetch attendance data for the selected period
+            const attendanceQuery = query(
+                collection(firestore, 'attendances'),
                 where('date', '>=', dateRange.from.toISOString().split('T')[0]),
                 where('date', '<=', (dateRange.to || dateRange.from).toISOString().split('T')[0])
             );
             const attendanceSnapshot = await getDocs(attendanceQuery);
             const attendances = attendanceSnapshot.docs.map(doc => doc.data()) as Attendance[];
-
-            const summaryMap = new Map<string, AttendanceSummary>();
-            employees.forEach(emp => {
-                summaryMap.set(emp.id, {
-                    employeeId: emp.id, employeeName: emp.name, employeeNik: emp.nik, employeeJobTitle: emp.jobTitle,
-                    hadir: 0, sakit: 0, izin: 0, alpha: 0, cuti: 0,
-                });
-            });
-
+            
+            // 4. Populate the summary map with attendance data
             attendances.forEach(att => {
                 const summary = summaryMap.get(att.employeeId);
                 if (summary) {
@@ -470,8 +479,10 @@ const LaporanAbsensiTab = () => {
                 }
             });
 
+            // 5. Set the final summary array to state
             setAttendanceSummary(Array.from(summaryMap.values()));
             setReportGenerated(true);
+            
         } catch (error) {
             console.error(error);
             toast.error("Gagal mengambil data", { description: "Terjadi kesalahan saat memuat laporan absensi." });
