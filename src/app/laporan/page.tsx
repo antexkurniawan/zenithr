@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, FileText, FileWarning, CalendarCheck, UserPlus, Briefcase, FileDown, Loader2, Cake, FileClock, UserRound } from 'lucide-react';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -28,8 +28,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TurnoverChart } from '@/components/laporan/turnover-chart';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import type { Employee } from '@/lib/types';
+import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
+import type { Employee, Attendance, UserProfile } from '@/lib/types';
 import {
   Table,
   TableHeader,
@@ -39,12 +39,28 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears, differenceInDays, isPast, differenceInMonths } from 'date-fns';
+import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears, differenceInDays, isPast, differenceInMonths, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getAvatarImage } from '@/lib/utils';
+import { DateRangePicker } from '@/components/ui/date-range-picker';
+import { DateRange } from 'react-day-picker';
+import { generatePdfFromComponent } from '@/lib/pdf-generator';
+import { PrintableAbsensi } from '@/components/absensi/printable-absensi';
+
 
 type FilterType = 'aktif' | 'habis_kontrak' | 'ulang_tahun';
+type AttendanceSummary = {
+  employeeId: string;
+  employeeName: string;
+  employeeNik: string;
+  employeeJobTitle: string;
+  hadir: number;
+  sakit: number;
+  izin: number;
+  alpha: number;
+  cuti: number;
+};
 
 
 const StatCard = ({ title, value, icon: Icon, isLoading, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, isLoading?: boolean, isActive: boolean, onClick: () => void }) => (
@@ -397,6 +413,190 @@ const ReportTabContent = ({ title, description }: { title: string, description: 
      </motion.div>
   );
 
+const LaporanAbsensiTab = () => {
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: startOfMonth(new Date()),
+        to: new Date(),
+    });
+    const [attendanceSummary, setAttendanceSummary] = useState<AttendanceSummary[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+    const [reportGenerated, setReportGenerated] = useState(false);
+    
+    const firestore = useFirestore();
+    const { user } = useUser();
+    
+    const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+    const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
+    const handleGenerateReport = async () => {
+        if (!dateRange?.from) {
+            toast.error("Periode tidak valid", { description: "Silakan pilih tanggal mulai." });
+            return;
+        }
+        setIsLoading(true);
+        setReportGenerated(false);
+
+        try {
+            const employeesSnapshot = await getDocs(query(collection(firestore, 'employees'), orderBy('name', 'asc')));
+            const employees = employeesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Employee[];
+
+            let attendanceQuery = query(collection(firestore, 'attendances'));
+            attendanceQuery = query(attendanceQuery, 
+                where('date', '>=', dateRange.from.toISOString().split('T')[0]),
+                where('date', '<=', (dateRange.to || dateRange.from).toISOString().split('T')[0])
+            );
+            const attendanceSnapshot = await getDocs(attendanceQuery);
+            const attendances = attendanceSnapshot.docs.map(doc => doc.data()) as Attendance[];
+
+            const summaryMap = new Map<string, AttendanceSummary>();
+            employees.forEach(emp => {
+                summaryMap.set(emp.id, {
+                    employeeId: emp.id, employeeName: emp.name, employeeNik: emp.nik, employeeJobTitle: emp.jobTitle,
+                    hadir: 0, sakit: 0, izin: 0, alpha: 0, cuti: 0,
+                });
+            });
+
+            attendances.forEach(att => {
+                const summary = summaryMap.get(att.employeeId);
+                if (summary) {
+                    switch (att.status) {
+                        case 'Hadir': summary.hadir++; break;
+                        case 'Sakit': summary.sakit++; break;
+                        case 'Izin': summary.izin++; break;
+                        case 'Alpha': summary.alpha++; break;
+                        case 'Cuti': summary.cuti++; break;
+                    }
+                }
+            });
+
+            setAttendanceSummary(Array.from(summaryMap.values()));
+            setReportGenerated(true);
+        } catch (error) {
+            console.error(error);
+            toast.error("Gagal mengambil data", { description: "Terjadi kesalahan saat memuat laporan absensi." });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    const handleExportPdf = async () => {
+        if (!attendanceSummary || attendanceSummary.length === 0) {
+          toast.error("Tidak ada data untuk diekspor");
+          return;
+        }
+        setIsExporting(true);
+        const toastId = toast.loading("Mempersiapkan PDF...", {
+          description: "Mohon tunggu sebentar.",
+        });
+
+        try {
+            const ComponentToPrint = <PrintableAbsensi data={attendanceSummary} period={dateRange} userProfile={userProfile} />;
+            await generatePdfFromComponent(
+                ComponentToPrint,
+                `Rekap Absensi - ${dateRange?.from ? format(dateRange.from, 'dd-MM-yy') : ''} - ${dateRange?.to ? format(dateRange.to, 'dd-MM-yy') : ''}.pdf`
+            );
+            toast.dismiss(toastId);
+        } catch (error) {
+            console.error("Failed to generate PDF", error);
+            toast.error("Gagal Membuat PDF", {
+                id: 'pdf-error',
+                description: "Terjadi kesalahan saat mencoba membuat file PDF.",
+            });
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+
+    const columns: ColumnDef<AttendanceSummary>[] = [
+        { accessorKey: "employeeNik", header: "NIK" },
+        { accessorKey: "employeeName", header: "Nama Pegawai" },
+        { accessorKey: "employeeJobTitle", header: "Jabatan" },
+        { accessorKey: "hadir", header: "Hadir", cell: ({ row }) => <div className="text-center">{row.original.hadir}</div> },
+        { accessorKey: "sakit", header: "Sakit", cell: ({ row }) => <div className="text-center">{row.original.sakit}</div> },
+        { accessorKey: "izin", header: "Izin", cell: ({ row }) => <div className="text-center">{row.original.izin}</div> },
+        { accessorKey: "alpha", header: "Alpha", cell: ({ row }) => <div className="text-center">{row.original.alpha}</div> },
+        { accessorKey: "cuti", header: "Cuti", cell: ({ row }) => <div className="text-center">{row.original.cuti}</div> },
+    ];
+
+    const table = useReactTable({
+        data: attendanceSummary,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    });
+
+    return (
+        <Card className="mt-4">
+            <CardHeader>
+                <CardTitle>Laporan Rekapitulasi Absensi</CardTitle>
+                <CardDescription>Pilih periode untuk menampilkan rekap absensi pegawai, lalu ekspor ke PDF.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 p-4 border rounded-lg bg-muted/50">
+                    <DateRangePicker date={dateRange} onDateChange={setDateRange} className="w-full sm:w-auto" />
+                    <Button onClick={handleGenerateReport} disabled={isLoading} className="w-full sm:w-auto">
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Tampilkan Laporan
+                    </Button>
+                    <Button variant="outline" onClick={handleExportPdf} disabled={!reportGenerated || isExporting} className="w-full sm:w-auto">
+                        {isExporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileDown className="mr-2 h-4 w-4" />}
+                        Ekspor PDF
+                    </Button>
+                </div>
+
+                {isLoading && (
+                    <div className="flex flex-col items-center justify-center text-center py-16">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+                        <p className="font-semibold">Memuat Data Laporan...</p>
+                        <p className="text-sm text-muted-foreground">Ini mungkin memakan waktu beberapa saat.</p>
+                    </div>
+                )}
+
+                {reportGenerated && !isLoading && (
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => (
+                                            <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableHeader>
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow key={row.id}>
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="h-24 text-center">Tidak ada data absensi untuk periode ini.</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+
+                {!reportGenerated && !isLoading && (
+                     <div className="flex flex-col items-center justify-center text-center py-16 border-2 border-dashed rounded-lg">
+                        <CalendarCheck className="h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="font-semibold">Laporan Absensi Belum Dibuat</p>
+                        <p className="text-sm text-muted-foreground">Pilih periode tanggal dan klik "Tampilkan Laporan" untuk memulai.</p>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function LaporanPage() {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -456,15 +656,10 @@ export default function LaporanPage() {
                 />
             </TabsContent>
             <TabsContent value="absensi">
-                 <ReportTabContent 
-                    title="Laporan Absensi"
-                    description="Rekapitulasi dan analisis tingkat kehadiran, keterlambatan, dan absensi."
-                />
+                 <LaporanAbsensiTab />
             </TabsContent>
         </Tabs>
       </motion.div>
     </motion.div>
   );
 }
-
-    

@@ -8,7 +8,6 @@ import {
   LineChart,
   Users,
   User,
-  CalendarCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -28,7 +27,6 @@ const navItems = [
   { href: "/pegawai", label: "Pegawai", icon: Users },
   { href: "/briefings", label: "Briefing", icon: FileText },
   { href: "/warnings", label: "Surat Peringatan", icon: FileWarning },
-  { href: "/absensi", label: "Absensi", icon: CalendarCheck },
   { href: "/laporan", label: "Laporan", icon: LineChart },
   { href: "/profil", label: "Profil", icon: User },
 ];
