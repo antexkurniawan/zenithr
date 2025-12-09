@@ -71,9 +71,9 @@ export function EditEmployeeForm({ employee, setModalOpen }: EditEmployeeFormPro
       jobTitle: employee.jobTitle,
       areaTugas: employee.areaTugas || '',
       status: employee.status,
-      birthDate: new Date(employee.birthDate),
-      contractStartDate: new Date(employee.contractStartDate),
-      contractEndDate: new Date(employee.contractEndDate),
+      birthDate: employee.birthDate ? new Date(employee.birthDate) : new Date(),
+      contractStartDate: employee.contractStartDate ? new Date(employee.contractStartDate) : new Date(),
+      contractEndDate: employee.contractEndDate ? new Date(employee.contractEndDate) : new Date(),
     },
   });
 
