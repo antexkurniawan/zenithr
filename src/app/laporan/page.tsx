@@ -4,7 +4,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Users, FileText, FileWarning, CalendarCheck, UserPlus, Briefcase, FileDown, Loader2, Cake, FileClock, UserRound } from 'lucide-react';
-import { collection, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, getDocs, doc } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -134,7 +134,7 @@ const LaporanPegawaiTab = () => {
         return pegawaiAktif.filter(e => {
             if (!e.contractEndDate) return false;
             try {
-                const endDate = parseISO(e.contractEndDate);
+                const endDate = new Date(e.contractEndDate);
                 return isWithinInterval(endDate, { start: today, end: next30Days });
             } catch (error) {
                 return false;
@@ -147,7 +147,7 @@ const LaporanPegawaiTab = () => {
         return pegawaiAktif.filter(e => {
             if (!e.birthDate) return false;
             try {
-                const birthDate = parseISO(e.birthDate);
+                const birthDate = new Date(e.birthDate);
                 return getMonth(birthDate) === currentMonth;
             } catch (error) {
                 return false;
