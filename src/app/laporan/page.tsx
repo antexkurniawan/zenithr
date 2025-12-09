@@ -39,7 +39,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears } from 'date-fns';
+import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears, differenceInDays, isPast, differenceInMonths } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getAvatarImage } from '@/lib/utils';
@@ -68,6 +68,40 @@ const StatCard = ({ title, value, icon: Icon, isLoading, isActive, onClick }: { 
     </motion.div>
 );
 
+const getRemainingContract = (endDateString?: string | null) => {
+    if (!endDateString) {
+      return { text: '-', color: 'text-muted-foreground' };
+    }
+    const endDate = new Date(endDateString);
+    if (isPast(endDate)) {
+        return { text: 'Kontrak Berakhir', color: 'text-muted-foreground' };
+    }
+
+    const today = new Date();
+    const daysRemaining = differenceInDays(endDate, today);
+
+    if (daysRemaining <= 30) {
+        return { text: `${daysRemaining} hari`, color: 'text-red-500 font-semibold' };
+    }
+    if (daysRemaining <= 90) {
+         return { text: `${daysRemaining} hari`, color: 'text-yellow-500 font-semibold' };
+    }
+
+    const months = differenceInMonths(endDate, today);
+    const remainingDaysAfterMonths = differenceInDays(endDate, new Date(today.setMonth(today.getMonth() + months)));
+
+    let text = '';
+    if (months > 0) {
+        text += `${months} bulan`;
+    }
+    if (remainingDaysAfterMonths > 0) {
+        text += ` ${remainingDaysAfterMonths} hari`;
+    }
+
+    return { text: text.trim(), color: 'text-foreground' };
+};
+
+
 const LaporanPegawaiTab = () => {
     const [activeFilter, setActiveFilter] = useState<FilterType>('aktif');
     const [filteredData, setFilteredData] = useState<Employee[]>([]);
@@ -83,8 +117,12 @@ const LaporanPegawaiTab = () => {
         const next30Days = addDays(today, 30);
         return pegawaiAktif.filter(e => {
             if (!e.contractEndDate) return false;
-            const endDate = parseISO(e.contractEndDate);
-            return isWithinInterval(endDate, { start: today, end: next30Days });
+            try {
+                const endDate = parseISO(e.contractEndDate);
+                return isWithinInterval(endDate, { start: today, end: next30Days });
+            } catch (error) {
+                return false;
+            }
         });
     }, [pegawaiAktif]);
 
@@ -92,8 +130,12 @@ const LaporanPegawaiTab = () => {
         const currentMonth = getMonth(new Date());
         return pegawaiAktif.filter(e => {
             if (!e.birthDate) return false;
-            const birthDate = parseISO(e.birthDate);
-            return getMonth(birthDate) === currentMonth;
+            try {
+                const birthDate = parseISO(e.birthDate);
+                return getMonth(birthDate) === currentMonth;
+            } catch (error) {
+                return false;
+            }
         });
     }, [pegawaiAktif]);
 
@@ -135,7 +177,7 @@ const LaporanPegawaiTab = () => {
     };
 
     const columns = useMemo<ColumnDef<Employee>[]>(() => {
-        const defaultColumns: ColumnDef<Employee>[] = [
+        const baseColumns: ColumnDef<Employee>[] = [
             {
                 accessorKey: "name",
                 header: "Nama Pegawai",
@@ -159,51 +201,53 @@ const LaporanPegawaiTab = () => {
                 },
             },
             { accessorKey: "jobTitle", header: "Jabatan" },
+        ];
+        
+        if (activeFilter === 'ulang_tahun') {
+            return [
+                ...baseColumns,
+                {
+                    accessorKey: "birthDate",
+                    header: "Tgl. Ulang Tahun",
+                    cell: ({ row }) => new Date(row.original.birthDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }),
+                },
+                {
+                    id: "age",
+                    header: "Umur",
+                    cell: ({ row }) => {
+                        const birthDate = new Date(row.original.birthDate);
+                        const age = differenceInYears(new Date(), birthDate);
+                        return `${age} tahun`;
+                    },
+                },
+            ];
+        }
+        
+        if (activeFilter === 'habis_kontrak') {
+            return [
+                ...baseColumns,
+                 { 
+                    accessorKey: "contractEndDate", 
+                    header: "Akhir Kontrak", 
+                    cell: ({row}) => new Date(row.original.contractEndDate).toLocaleDateString('id-ID') 
+                 },
+                 {
+                    id: 'remainingContract',
+                    header: "Sisa Kontrak",
+                    cell: ({ row }) => {
+                        const { text, color } = getRemainingContract(row.original.contractEndDate);
+                        return <span className={color}>{text}</span>;
+                    }
+                },
+            ];
+        }
+
+        // Default columns for 'aktif'
+        return [
+            ...baseColumns,
             { accessorKey: "areaTugas", header: "Area Tugas" },
             { accessorKey: "contractEndDate", header: "Akhir Kontrak", cell: ({row}) => new Date(row.original.contractEndDate).toLocaleDateString('id-ID') },
         ];
-
-        const birthdayColumns: ColumnDef<Employee>[] = [
-             {
-                accessorKey: "name",
-                header: "Nama Pegawai",
-                cell: ({ row }) => {
-                    const employee = row.original;
-                    const { imageUrl } = getAvatarImage(employee.name);
-                    return (
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={imageUrl} alt={employee.name} />
-                          <AvatarFallback>
-                            {employee.name.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{employee.name}</p>
-                          <p className="text-sm text-muted-foreground">NIK: {employee.nik}</p>
-                        </div>
-                      </div>
-                    );
-                },
-            },
-            { accessorKey: "jobTitle", header: "Jabatan" },
-            {
-                accessorKey: "birthDate",
-                header: "Tgl. Ulang Tahun",
-                cell: ({ row }) => new Date(row.original.birthDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' }),
-            },
-            {
-                id: "age",
-                header: "Umur",
-                cell: ({ row }) => {
-                    const birthDate = new Date(row.original.birthDate);
-                    const age = differenceInYears(new Date(), birthDate);
-                    return `${age + 1} tahun`;
-                },
-            },
-        ];
-
-        return activeFilter === 'ulang_tahun' ? birthdayColumns : defaultColumns;
     }, [activeFilter]);
 
 
@@ -422,3 +466,5 @@ export default function LaporanPage() {
     </motion.div>
   );
 }
+
+    
