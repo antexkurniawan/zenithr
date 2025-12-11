@@ -141,7 +141,7 @@ const LaporanPegawaiTab = () => {
     const [filteredData, setFilteredData] = useState<Employee[]>([]);
 
     const firestore = useFirestore();
-    const employeesCollectionRef = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
+    const employeesCollectionRef = useMemoFirebase(() => query(collection(firestore, 'employees'), orderBy('name', 'asc')), [firestore]);
     const { data: employees, isLoading } = useCollection<Employee>(employeesCollectionRef);
     
     const pegawaiAktif = useMemo(() => employees?.filter(e => e.status === 'Aktif' || e.status === 'Kontrak') || [], [employees]);
@@ -809,12 +809,11 @@ const LaporanBriefingTab = () => {
             
             // 4. Group briefings by area
             const briefingsByArea = briefingsInRange.reduce((acc, briefing) => {
-                if (briefing.area && !acc[briefing.area]) {
-                    acc[briefing.area] = [];
+                const area = briefing.area || 'unknown';
+                if (!acc[area]) {
+                    acc[area] = [];
                 }
-                if(briefing.area) {
-                  acc[briefing.area].push(briefing);
-                }
+                acc[area].push(briefing);
                 return acc;
             }, {} as Record<string, Briefing[]>);
             
@@ -822,7 +821,8 @@ const LaporanBriefingTab = () => {
             allEmployees.forEach(emp => {
                 const summary = summaryMap.get(emp.id);
                 if (summary) {
-                    summary.totalBriefings = briefingsByArea[emp.areaTugas || '']?.length || 0;
+                    const employeeArea = emp.areaTugas || 'unknown';
+                    summary.totalBriefings = briefingsByArea[employeeArea]?.length || 0;
                 }
             });
 
