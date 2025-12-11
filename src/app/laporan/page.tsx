@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, FileText, FileWarning, CalendarCheck, UserPlus, Briefcase, FileDown, Loader2, Cake, FileClock, UserRound } from 'lucide-react';
+import { Users, FileText, FileWarning, CalendarCheck, UserPlus, Briefcase, FileDown, Loader2, Cake, FileClock, UserRound, Percent } from 'lucide-react';
 import { collection, query, where, orderBy, getDocs, doc } from 'firebase/firestore';
 import {
   ColumnDef,
@@ -29,7 +29,7 @@ import { TurnoverChart } from '@/components/laporan/turnover-chart';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
-import type { Employee, Attendance, UserProfile, Warning } from '@/lib/types';
+import type { Employee, Attendance, UserProfile, Warning, Briefing, BriefingParticipant } from '@/lib/types';
 import {
   Table,
   TableHeader,
@@ -69,7 +69,15 @@ type WarningSummary = {
   SP1: number;
   SP2: number;
   SP3: number;
-}
+};
+type BriefingSummary = {
+    employeeId: string;
+    employeeName: string;
+    employeeJobTitle: string;
+    totalBriefings: number;
+    attendedBriefings: number;
+    attendancePercentage: number;
+};
 
 
 const StatCard = ({ title, value, icon: Icon, isLoading, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, isLoading?: boolean, isActive: boolean, onClick: () => void }) => (
@@ -407,22 +415,6 @@ const LaporanPegawaiTab = () => {
 };
 
 
-const ReportTabContent = ({ title, description }: { title: string, description: string }) => (
-     <motion.div>
-        <Card className="mt-4">
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                    Fitur laporan untuk {title.toLowerCase()} akan segera kita bangun di sini.
-                </p>
-            </CardContent>
-        </Card>
-     </motion.div>
-  );
-
 const LaporanAbsensiTab = () => {
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: startOfMonth(new Date()),
@@ -615,7 +607,7 @@ const LaporanAbsensiTab = () => {
             </CardContent>
         </Card>
     );
-}
+};
 
 const LaporanPeringatanTab = () => {
     const firestore = useFirestore();
@@ -766,6 +758,208 @@ const LaporanPeringatanTab = () => {
     );
 };
 
+const LaporanBriefingTab = () => {
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: startOfMonth(new Date()),
+        to: new Date(),
+    });
+    const [briefingSummary, setBriefingSummary] = useState<BriefingSummary[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [reportGenerated, setReportGenerated] = useState(false);
+    
+    const firestore = useFirestore();
+    const { user } = useUser();
+    
+    const handleGenerateReport = async () => {
+        if (!dateRange?.from) {
+            toast.error("Periode tidak valid", { description: "Silakan pilih tanggal mulai." });
+            return;
+        }
+        setIsLoading(true);
+        setReportGenerated(false);
+
+        try {
+            // 1. Fetch all employees
+            const employeesQuery = query(collection(firestore, 'employees'), orderBy('name', 'asc'));
+            const employeesSnapshot = await getDocs(employeesQuery);
+            const allEmployees = employeesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Employee[];
+
+            // 2. Initialize summary map for each employee
+            const summaryMap = new Map<string, BriefingSummary>();
+            allEmployees.forEach(emp => {
+                summaryMap.set(emp.id, {
+                    employeeId: emp.id,
+                    employeeName: emp.name,
+                    employeeJobTitle: emp.jobTitle,
+                    totalBriefings: 0,
+                    attendedBriefings: 0,
+                    attendancePercentage: 0,
+                });
+            });
+            
+            // 3. Fetch briefings within the date range
+            const briefingsQuery = query(
+                collection(firestore, 'briefings'),
+                where('briefingDate', '>=', dateRange.from.toISOString()),
+                where('briefingDate', '<=', (dateRange.to || dateRange.from).toISOString())
+            );
+            const briefingsSnapshot = await getDocs(briefingsQuery);
+            const briefingsInRange = briefingsSnapshot.docs.map(doc => ({...doc.data(), id: doc.id})) as Briefing[];
+            
+            // 4. Group briefings by area
+            const briefingsByArea = briefingsInRange.reduce((acc, briefing) => {
+                if (!acc[briefing.area]) {
+                    acc[briefing.area] = [];
+                }
+                acc[briefing.area].push(briefing);
+                return acc;
+            }, {} as Record<string, Briefing[]>);
+            
+            // 5. Update total briefings for each employee based on their area
+            allEmployees.forEach(emp => {
+                const summary = summaryMap.get(emp.id);
+                if (summary && emp.areaTugas && briefingsByArea[emp.areaTugas]) {
+                    summary.totalBriefings = briefingsByArea[emp.areaTugas].length;
+                }
+            });
+
+            // 6. Fetch all participants for the briefings in range and count attendance
+            for (const briefing of briefingsInRange) {
+                const participantsQuery = query(collection(firestore, 'briefings', briefing.id, 'participants'));
+                const participantsSnapshot = await getDocs(participantsQuery);
+                participantsSnapshot.forEach(pDoc => {
+                    const participant = pDoc.data() as BriefingParticipant;
+                    const summary = summaryMap.get(participant.employeeId);
+                    if (summary) {
+                        summary.attendedBriefings++;
+                    }
+                });
+            }
+
+            // 7. Calculate percentage and set final data
+            const finalSummary: BriefingSummary[] = [];
+            summaryMap.forEach(summary => {
+                summary.attendancePercentage = summary.totalBriefings > 0 
+                    ? (summary.attendedBriefings / summary.totalBriefings) * 100
+                    : 0;
+                finalSummary.push(summary);
+            });
+
+            setBriefingSummary(finalSummary);
+            setReportGenerated(true);
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Gagal mengambil data", { description: "Terjadi kesalahan saat memuat laporan briefing." });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+     const handleExportExcel = () => {
+        if (briefingSummary.length === 0) {
+            toast.error("Tidak ada data untuk diekspor.");
+            return;
+        }
+        const dataToExport = briefingSummary.map(item => ({
+            'Nama Pegawai': item.employeeName,
+            'Jabatan': item.employeeJobTitle,
+            'Total Briefing': item.totalBriefings,
+            'Jumlah Hadir': item.attendedBriefings,
+            'Persentase Kehadiran (%)': item.attendancePercentage.toFixed(2),
+        }));
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Rekap Kehadiran Briefing");
+        XLSX.writeFile(wb, "Laporan Kehadiran Briefing.xlsx");
+    };
+
+    const columns: ColumnDef<BriefingSummary>[] = [
+        { accessorKey: "employeeName", header: "Nama Pegawai" },
+        { accessorKey: "employeeJobTitle", header: "Jabatan" },
+        { accessorKey: "totalBriefings", header: "Total Briefing", cell: ({ row }) => <div className="text-center">{row.original.totalBriefings}</div> },
+        { accessorKey: "attendedBriefings", header: "Jumlah Hadir", cell: ({ row }) => <div className="text-center">{row.original.attendedBriefings}</div> },
+        { accessorKey: "attendancePercentage", header: "Persentase Kehadiran", cell: ({ row }) => <div className="text-center">{row.original.attendancePercentage.toFixed(1)}%</div> },
+    ];
+
+    const table = useReactTable({
+        data: briefingSummary,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    });
+
+    return (
+        <Card className="mt-4">
+            <CardHeader>
+                <CardTitle>Laporan Kehadiran Briefing</CardTitle>
+                <CardDescription>Rekapitulasi partisipasi setiap pegawai dalam sesi briefing pada periode tertentu.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-center gap-4 p-4 border rounded-lg bg-muted/50">
+                    <DateRangePicker date={dateRange} onDateChange={setDateRange} className="w-full sm:w-auto" />
+                    <Button onClick={handleGenerateReport} disabled={isLoading} className="w-full sm:w-auto">
+                        {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Tampilkan Laporan
+                    </Button>
+                    <Button variant="outline" onClick={handleExportExcel} disabled={!reportGenerated || isLoading} className="w-full sm:w-auto">
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Ekspor Excel
+                    </Button>
+                </div>
+                
+                 {isLoading && (
+                    <div className="flex flex-col items-center justify-center text-center py-16">
+                        <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
+                        <p className="font-semibold">Menganalisis Data Briefing...</p>
+                        <p className="text-sm text-muted-foreground">Ini mungkin memerlukan waktu lebih lama jika data banyak.</p>
+                    </div>
+                )}
+
+                {reportGenerated && !isLoading && (
+                    <div className="overflow-x-auto">
+                        <Table>
+                            <TableHeader>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <TableRow key={headerGroup.id}>
+                                        {headerGroup.headers.map((header) => (
+                                            <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableHeader>
+                            <TableBody>
+                                {table.getRowModel().rows?.length ? (
+                                    table.getRowModel().rows.map((row) => (
+                                        <TableRow key={row.id}>
+                                            {row.getVisibleCells().map((cell) => (
+                                                <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                                            ))}
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} className="h-24 text-center">Tidak ada data briefing untuk periode ini.</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+                
+                 {!reportGenerated && !isLoading && (
+                     <div className="flex flex-col items-center justify-center text-center py-16 border-2 border-dashed rounded-lg">
+                        <FileText className="h-12 w-12 text-muted-foreground mb-4" />
+                        <p className="font-semibold">Laporan Briefing Belum Dibuat</p>
+                        <p className="text-sm text-muted-foreground">Pilih periode tanggal dan klik "Tampilkan Laporan" untuk memulai.</p>
+                    </div>
+                )}
+
+            </CardContent>
+        </Card>
+    );
+};
+
 
 export default function LaporanPage() {
   const containerVariants = {
@@ -814,10 +1008,7 @@ export default function LaporanPage() {
                 <LaporanPegawaiTab />
             </TabsContent>
             <TabsContent value="briefing">
-                 <ReportTabContent 
-                    title="Laporan Briefing"
-                    description="Rekapitulasi pelaksanaan briefing, materi, dan daftar hadir."
-                />
+                 <LaporanBriefingTab />
             </TabsContent>
             <TabsContent value="peringatan">
                  <LaporanPeringatanTab />
@@ -830,3 +1021,4 @@ export default function LaporanPage() {
     </motion.div>
   );
 }
+
