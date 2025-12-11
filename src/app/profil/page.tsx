@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { collection, doc, query, where, updateDoc } from "firebase/firestore";
-import { Edit, User, Briefcase, MapPin, Loader2, KeyRound, PenSquare, UploadCloud } from "lucide-react";
+import { Edit, User, Briefcase, MapPin, Loader2, KeyRound, PenSquare, UploadCloud, Mail } from "lucide-react";
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
@@ -26,6 +26,7 @@ import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getAvatarImage } from "@/lib/utils";
 import { ChangePasswordForm } from "@/components/profil/change-password-form";
+import { ChangeEmailForm } from "@/components/profil/change-email-form";
 import { SignaturePad } from "@/components/pegawai/signature-pad";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -90,6 +91,7 @@ export default function ProfilPage() {
     
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isChangePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
+    const [isChangeEmailModalOpen, setChangeEmailModalOpen] = useState(false);
     const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
     const [isCoordinatorModalOpen, setIsCoordinatorModalOpen] = useState(false);
     const [coordinatorName, setCoordinatorName] = useState('');
@@ -225,9 +227,28 @@ export default function ProfilPage() {
                     <MotionCard variants={itemVariants}>
                         <CardHeader>
                             <CardTitle>Keamanan Akun</CardTitle>
-                            <CardDescription>Ubah password Anda secara berkala untuk menjaga keamanan akun.</CardDescription>
+                            <CardDescription>Ubah kredensial login Anda untuk menjaga keamanan akun.</CardDescription>
                         </CardHeader>
-                        <CardContent>
+                        <CardContent className="flex flex-wrap gap-2">
+                             <Dialog open={isChangeEmailModalOpen} onOpenChange={setChangeEmailModalOpen}>
+                                <DialogTrigger asChild>
+                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                        <Button variant="outline">
+                                            <Mail className="mr-2 h-4 w-4" />
+                                            Ubah Email
+                                        </Button>
+                                    </motion.div>
+                                </DialogTrigger>
+                                <AnimatedDialogContent open={isChangeEmailModalOpen} className="sm:max-w-[450px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Ubah Alamat Email</DialogTitle>
+                                        <DialogDescription>
+                                            Masukkan email baru dan password Anda saat ini untuk verifikasi.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <ChangeEmailForm setModalOpen={setChangeEmailModalOpen} />
+                                </AnimatedDialogContent>
+                            </Dialog>
                              <Dialog open={isChangePasswordModalOpen} onOpenChange={setChangePasswordModalOpen}>
                                 <DialogTrigger asChild>
                                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -388,3 +409,5 @@ export default function ProfilPage() {
         </motion.div>
     );
 }
+
+    

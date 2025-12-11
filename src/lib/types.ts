@@ -36,6 +36,7 @@ export type Warning = {
   expiryDate: string; // ISO string date
   description: string;
   peraturanDilanggar: string;
+  createdAt?: Timestamp;
 };
 
 export type UserProfile = {
@@ -102,3 +103,5 @@ export type CompanyRule = {
     description: string;
     text: string;
 };
+
+    
