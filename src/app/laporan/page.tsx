@@ -656,6 +656,25 @@ const LaporanPeringatanTab = () => {
         
         return Array.from(summaryMap.values());
     }, [employees, warnings]);
+    
+    const handleExportExcel = () => {
+        if (warningSummary.length === 0) {
+            toast.error("Tidak ada data untuk diekspor.");
+            return;
+        }
+        const dataToExport = warningSummary.map(item => ({
+            'Nama Pegawai': item.employeeName,
+            'Jabatan': item.employeeJobTitle,
+            'ST': item.Teguran,
+            'SP 1': item.SP1,
+            'SP 2': item.SP2,
+            'SP 3': item.SP3,
+        }));
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Rekap Surat Peringatan");
+        XLSX.writeFile(wb, "Laporan Rekap Peringatan.xlsx");
+    };
 
     const columns: ColumnDef<WarningSummary>[] = [
         { accessorKey: "employeeName", header: "Nama Pegawai" },
@@ -677,9 +696,15 @@ const LaporanPeringatanTab = () => {
 
     return (
         <Card className="mt-4">
-            <CardHeader>
-                <CardTitle>Rekapitulasi Surat Peringatan Aktif</CardTitle>
-                <CardDescription>Tabel ini merangkum jumlah surat peringatan (SP) dan surat teguran (ST) yang masih aktif untuk setiap pegawai.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Rekapitulasi Surat Peringatan Aktif</CardTitle>
+                    <CardDescription>Tabel ini merangkum jumlah surat peringatan (SP) dan surat teguran (ST) yang masih aktif untuk setiap pegawai.</CardDescription>
+                </div>
+                 <Button variant="outline" onClick={handleExportExcel} disabled={isLoading || warningSummary.length === 0}>
+                    <FileDown className="mr-2 h-4 w-4" />
+                    Ekspor ke Excel
+                </Button>
             </CardHeader>
             <CardContent>
                 <div className="overflow-x-auto">
