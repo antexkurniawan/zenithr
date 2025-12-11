@@ -809,18 +809,20 @@ const LaporanBriefingTab = () => {
             
             // 4. Group briefings by area
             const briefingsByArea = briefingsInRange.reduce((acc, briefing) => {
-                if (!acc[briefing.area]) {
+                if (briefing.area && !acc[briefing.area]) {
                     acc[briefing.area] = [];
                 }
-                acc[briefing.area].push(briefing);
+                if(briefing.area) {
+                  acc[briefing.area].push(briefing);
+                }
                 return acc;
             }, {} as Record<string, Briefing[]>);
             
             // 5. Update total briefings for each employee based on their area
             allEmployees.forEach(emp => {
                 const summary = summaryMap.get(emp.id);
-                if (summary && emp.areaTugas && briefingsByArea[emp.areaTugas]) {
-                    summary.totalBriefings = briefingsByArea[emp.areaTugas].length;
+                if (summary) {
+                    summary.totalBriefings = briefingsByArea[emp.areaTugas || '']?.length || 0;
                 }
             });
 
