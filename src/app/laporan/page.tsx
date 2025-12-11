@@ -47,6 +47,7 @@ import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { generatePdfFromComponent } from '@/lib/pdf-generator';
 import { PrintableAbsensi } from '@/components/absensi/printable-absensi';
+import { Badge } from '@/components/ui/badge';
 
 
 type FilterType = 'aktif' | 'habis_kontrak' | 'ulang_tahun';
@@ -440,7 +441,7 @@ const LaporanAbsensiTab = () => {
         setReportGenerated(false);
 
         try {
-            // 1. Fetch all employees first
+            // 1. Fetch all employees first to ensure everyone is on the list
             const employeesQuery = query(collection(firestore, 'employees'), orderBy('name', 'asc'));
             const employeesSnapshot = await getDocs(employeesQuery);
             const allEmployees = employeesSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })) as Employee[];
@@ -761,7 +762,7 @@ const LaporanPeringatanTab = () => {
 const LaporanBriefingTab = () => {
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
         from: startOfMonth(new Date()),
-        to: new Date(),
+        to: endOfMonth(new Date()),
     });
     const [briefingSummary, setBriefingSummary] = useState<BriefingSummary[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -879,7 +880,25 @@ const LaporanBriefingTab = () => {
         { accessorKey: "employeeJobTitle", header: "Jabatan" },
         { accessorKey: "totalBriefings", header: "Total Briefing", cell: ({ row }) => <div className="text-center">{row.original.totalBriefings}</div> },
         { accessorKey: "attendedBriefings", header: "Jumlah Hadir", cell: ({ row }) => <div className="text-center">{row.original.attendedBriefings}</div> },
-        { accessorKey: "attendancePercentage", header: "Persentase Kehadiran", cell: ({ row }) => <div className="text-center">{row.original.attendancePercentage.toFixed(1)}%</div> },
+        { 
+            accessorKey: "attendancePercentage", 
+            header: "Persentase Kehadiran", 
+            cell: ({ row }) => {
+                const percentage = row.original.attendancePercentage;
+                let badgeClass = "bg-green-100 text-green-800 border-green-200";
+                if (percentage < 75) {
+                    badgeClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                }
+                if (percentage < 50) {
+                    badgeClass = "bg-red-100 text-red-800 border-red-200";
+                }
+                return (
+                    <div className="text-center">
+                        <Badge className={cn("text-xs", badgeClass)}>{percentage.toFixed(1)}%</Badge>
+                    </div>
+                )
+            } 
+        },
     ];
 
     const table = useReactTable({
@@ -897,7 +916,13 @@ const LaporanBriefingTab = () => {
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="flex flex-col sm:flex-row items-center gap-4 p-4 border rounded-lg bg-muted/50">
-                    <DateRangePicker date={dateRange} onDateChange={setDateRange} className="w-full sm:w-auto" />
+                    <DateRangePicker date={dateRange} onDateChange={(newDate) => {
+                        if (newDate?.from) {
+                            setDateRange({ from: startOfMonth(newDate.from), to: endOfMonth(newDate.from) });
+                        } else {
+                            setDateRange(newDate);
+                        }
+                    }} className="w-full sm:w-auto" />
                     <Button onClick={handleGenerateReport} disabled={isLoading} className="w-full sm:w-auto">
                         {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                         Tampilkan Laporan
@@ -1021,4 +1046,3 @@ export default function LaporanPage() {
     </motion.div>
   );
 }
-
