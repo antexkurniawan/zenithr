@@ -29,7 +29,7 @@ import { TurnoverChart } from '@/components/laporan/turnover-chart';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
-import type { Employee, Attendance, UserProfile } from '@/lib/types';
+import type { Employee, Attendance, UserProfile, Warning } from '@/lib/types';
 import {
   Table,
   TableHeader,
@@ -39,7 +39,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { toast } from 'sonner';
-import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears, differenceInDays, isPast, differenceInMonths, format } from 'date-fns';
+import { isWithinInterval, addDays, startOfMonth, endOfMonth, getMonth, parseISO, differenceInYears, differenceInDays, isPast, differenceInMonths, format, isAfter } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getAvatarImage } from '@/lib/utils';
@@ -61,6 +61,15 @@ type AttendanceSummary = {
   alpha: number;
   cuti: number;
 };
+type WarningSummary = {
+  employeeId: string;
+  employeeName: string;
+  employeeJobTitle: string;
+  Teguran: number;
+  SP1: number;
+  SP2: number;
+  SP3: number;
+}
 
 
 const StatCard = ({ title, value, icon: Icon, isLoading, isActive, onClick }: { title: string, value: string | number, icon: React.ElementType, isLoading?: boolean, isActive: boolean, onClick: () => void }) => (
@@ -608,6 +617,131 @@ const LaporanAbsensiTab = () => {
     );
 }
 
+const LaporanPeringatanTab = () => {
+    const firestore = useFirestore();
+
+    const employeesCollectionRef = useMemoFirebase(() => query(collection(firestore, 'employees'), orderBy('name', 'asc')), [firestore]);
+    const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesCollectionRef);
+
+    const warningsCollectionRef = useMemoFirebase(() => query(collection(firestore, 'warnings')), [firestore]);
+    const { data: warnings, isLoading: isLoadingWarnings } = useCollection<Warning>(warningsCollectionRef);
+
+    const warningSummary = useMemo<WarningSummary[]>(() => {
+        if (!employees || !warnings) return [];
+
+        const activeWarnings = warnings.filter(w => isAfter(new Date(w.expiryDate), new Date()));
+        
+        const summaryMap = new Map<string, WarningSummary>();
+
+        // Initialize map with all employees
+        employees.forEach(emp => {
+            summaryMap.set(emp.id, {
+                employeeId: emp.id,
+                employeeName: emp.name,
+                employeeJobTitle: emp.jobTitle,
+                Teguran: 0,
+                SP1: 0,
+                SP2: 0,
+                SP3: 0,
+            });
+        });
+
+        // Populate with active warnings count
+        activeWarnings.forEach(warning => {
+            const summary = summaryMap.get(warning.employeeId);
+            if (summary) {
+                summary[warning.type]++;
+            }
+        });
+        
+        return Array.from(summaryMap.values());
+    }, [employees, warnings]);
+
+    const columns: ColumnDef<WarningSummary>[] = [
+        { accessorKey: "employeeName", header: "Nama Pegawai" },
+        { accessorKey: "employeeJobTitle", header: "Jabatan" },
+        { accessorKey: "Teguran", header: "ST", cell: ({ row }) => <div className="text-center">{row.original.Teguran || 0}</div> },
+        { accessorKey: "SP1", header: "SP 1", cell: ({ row }) => <div className="text-center">{row.original.SP1 || 0}</div> },
+        { accessorKey: "SP2", header: "SP 2", cell: ({ row }) => <div className="text-center">{row.original.SP2 || 0}</div> },
+        { accessorKey: "SP3", header: "SP 3", cell: ({ row }) => <div className="text-center">{row.original.SP3 || 0}</div> },
+    ];
+
+    const table = useReactTable({
+        data: warningSummary,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+    });
+    
+    const isLoading = isLoadingEmployees || isLoadingWarnings;
+
+    return (
+        <Card className="mt-4">
+            <CardHeader>
+                <CardTitle>Rekapitulasi Surat Peringatan Aktif</CardTitle>
+                <CardDescription>Tabel ini merangkum jumlah surat peringatan (SP) dan surat teguran (ST) yang masih aktif untuk setiap pegawai.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            {table.getHeaderGroups().map((headerGroup) => (
+                                <TableRow key={headerGroup.id}>
+                                    {headerGroup.headers.map((header) => (
+                                        <TableHead key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                Array.from({ length: 10 }).map((_, i) => (
+                                    <TableRow key={i}>
+                                        <TableCell colSpan={columns.length}>
+                                            <Skeleton className="h-10 w-full" />
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : table.getRowModel().rows?.length ? (
+                                table.getRowModel().rows.map((row) => (
+                                    <TableRow key={row.id}>
+                                        {row.getVisibleCells().map((cell) => (
+                                            <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">Tidak ada data peringatan untuk ditampilkan.</TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+                <div className="flex items-center justify-end space-x-2 py-4">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Sebelumnya
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Selanjutnya
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
+
 export default function LaporanPage() {
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -661,10 +795,7 @@ export default function LaporanPage() {
                 />
             </TabsContent>
             <TabsContent value="peringatan">
-                 <ReportTabContent 
-                    title="Laporan Surat Peringatan"
-                    description="Analisis tren pelanggaran dan rekapitulasi surat peringatan aktif."
-                />
+                 <LaporanPeringatanTab />
             </TabsContent>
             <TabsContent value="absensi">
                  <LaporanAbsensiTab />
