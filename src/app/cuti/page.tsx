@@ -102,7 +102,7 @@ export default function CutiPage() {
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
-  const calculateLeaveBalance = async (employeeId: string, currentRequestId?: string) => {
+  const calculateLeaveBalance = async (employeeId: string, currentRequest: LeaveRequest) => {
     setLeaveBalance(null); // Reset on new calculation
     const currentYearStart = startOfYear(new Date());
     const currentYearEnd = endOfYear(new Date());
@@ -118,22 +118,22 @@ export default function CutiPage() {
     );
 
     const querySnapshot = await getDocs(q);
-    const usedLeave = querySnapshot.docs
-      .filter(doc => doc.id !== currentRequestId) // Exclude the current request from the "already used" calculation
-      .reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
-    
+
+    // Calculate total approved leave duration, including the current one if it's approved.
+    const usedLeave = querySnapshot.docs.reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
+
     setLeaveBalance({
-      used: usedLeave,
-      remaining: ANNUAL_LEAVE_QUOTA - usedLeave,
+        used: usedLeave,
+        remaining: ANNUAL_LEAVE_QUOTA - usedLeave,
     });
-  };
+};
 
 
   const openDetailModal = async (request: LeaveRequest) => {
     setSelectedRequest(request);
     setDetailModalOpen(true);
     if (request.requestType === 'Cuti' && request.leaveType === 'Tahunan') {
-      await calculateLeaveBalance(request.employeeId, request.id);
+      await calculateLeaveBalance(request.employeeId, request);
     } else {
       setLeaveBalance(null);
     }
