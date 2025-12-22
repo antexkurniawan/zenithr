@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs } from 'firebase/firestore';
 import {
   ColumnDef,
@@ -60,7 +60,6 @@ import { EditLeaveRequestForm } from '@/components/cuti/edit-leave-request-form'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { PrintableLeaveRequest } from '@/components/cuti/printable-leave-request';
-import { generatePdfFromComponent } from '@/lib/pdf-generator';
 
 const MotionCard = motion(Card);
 
@@ -190,17 +189,15 @@ export default function CutiPage() {
    const handlePrint = async () => {
     if (!selectedRequest || !currentUserProfile) return;
     
-    const toastId = toast.loading("Mempersiapkan PDF...", {
+    const toastId = toast.loading("Mempersiapkan Pratinjau Cetak...", {
         description: "Mohon tunggu sebentar.",
     });
 
     try {
-        // Find requester profile if different from current user
-        const requesterProfileRef = doc(firestore, 'users', selectedRequest.requesterId);
         const requesterProfileSnap = await getDocs(query(collection(firestore, 'users'), where('id', '==', selectedRequest.requesterId)));
         const requesterProfile = requesterProfileSnap.docs.length > 0 ? requesterProfileSnap.docs[0].data() as UserProfile : null;
         
-        const ComponentToPrint = (
+        const printableContent = (
             <PrintableLeaveRequest 
                 request={selectedRequest}
                 requester={requesterProfile}
@@ -209,16 +206,27 @@ export default function CutiPage() {
             />
         );
 
-        await generatePdfFromComponent(
-            ComponentToPrint,
-            `FPCI-${selectedRequest.employeeName}-${format(new Date(selectedRequest.startDate), 'yyyy-MM-dd')}.pdf`
-        );
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        document.body.appendChild(container);
+        
+        const { createRoot } = await import('react-dom/client');
+        const root = createRoot(container);
+        root.render(printableContent);
+
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+
+        window.print();
+        
+        document.body.removeChild(container);
+        root.unmount();
 
         toast.dismiss(toastId);
     } catch (error) {
-        console.error("Failed to generate PDF", error);
-        toast.error("Gagal Mencetak PDF", {
-            description: "Terjadi kesalahan saat membuat file PDF.",
+        console.error("Failed to prepare for printing", error);
+        toast.error("Gagal Mempersiapkan Cetak", {
+            description: "Terjadi kesalahan saat mempersiapkan dokumen.",
         });
     }
   };
@@ -556,11 +564,11 @@ export default function CutiPage() {
                   )}
                 </div>
               </div>
-              <DialogFooter className="pt-4 border-t">
+              <DialogFooter className="pt-4 border-t print:hidden">
                     <Button variant="outline" onClick={() => setDetailModalOpen(false)}>Tutup</Button>
                     <Button onClick={handlePrint} disabled={isProcessing}>
                         {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-2 h-4 w-4" />}
-                        Cetak PDF
+                        Cetak
                     </Button>
               </DialogFooter>
             </>
@@ -589,7 +597,7 @@ export default function CutiPage() {
       </Dialog>
 
 
-      <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4 print:hidden">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button
             variant="outline"
@@ -611,6 +619,25 @@ export default function CutiPage() {
           </Button>
         </motion.div>
       </div>
+
+       <style jsx global>{`
+        @media print {
+          body > *:not(#printable-container) {
+            display: none;
+          }
+          #printable-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          .print\\:hidden {
+            display: none;
+          }
+        }
+      `}</style>
+
     </motion.div>
   );
 }
