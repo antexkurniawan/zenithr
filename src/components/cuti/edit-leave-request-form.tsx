@@ -59,7 +59,7 @@ const formSchema = z.object({
     return false;
 }, {
     message: "Sub-jenis permohonan harus dipilih.",
-    path: ["leaveType"],
+    path: ["requestType"],
 });
 
 type EditRequestFormValues = z.infer<typeof formSchema>;
@@ -90,7 +90,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         explanation: request.explanation,
         contactAddress: request.contactAddress,
         contactPhone: request.contactPhone,
-        deductLeave: request.deductLeave,
+        deductLeave: request.deductLeave || false,
         duration: request.duration || 0,
     }
   });
@@ -164,14 +164,14 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        const updatedRequestData: Partial<LeaveRequest> = {
+        const updatedRequestData = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
             employeeJobTitle: selectedEmployee.jobTitle,
             requestType: data.requestType,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
-            updatedAt: serverTimestamp() as any,
+            updatedAt: serverTimestamp(),
             leaveType: data.leaveType,
             permitType: data.permitType,
             dutyType: data.dutyType,

@@ -1,5 +1,5 @@
 
-import { Timestamp } from 'firebase/firestore';
+import { Timestamp, FieldValue } from 'firebase/firestore';
 
 export type EmployeeStatus = 'Aktif' | 'Resign' | 'Kontrak';
 
@@ -135,8 +135,8 @@ export type LeaveRequest = {
   approvedBy?: string;
   rejectedBy?: string;
   rejectionReason?: string;
-  createdAt: Timestamp;
-  updatedAt?: Timestamp;
+  createdAt: Timestamp | FieldValue;
+  updatedAt?: Timestamp | FieldValue;
 };
 
     

@@ -60,7 +60,7 @@ const formSchema = z.object({
     return false;
 }, {
     message: "Sub-jenis permohonan harus dipilih.",
-    path: ["leaveType"], // a bit of a hack, but shows error in a reasonable place
+    path: ["requestType"],
 });
 
 type NewRequestFormValues = z.infer<typeof formSchema>;
@@ -84,6 +84,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
     resolver: zodResolver(formSchema),
     defaultValues: {
       duration: 0,
+      deductLeave: false,
     }
   });
   
@@ -179,14 +180,14 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        const newRequestData: Omit<LeaveRequest, 'id' | 'createdAt'> & {createdAt: any} = {
+        const newRequestData = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
             employeeJobTitle: selectedEmployee.jobTitle,
             requestType: data.requestType,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
-            status: "Pending",
+            status: "Pending" as const,
             requesterId: user.uid,
             requesterName: userProfile.name,
             createdAt: serverTimestamp(),
@@ -480,3 +481,4 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
     </Form>
   );
 }
+
