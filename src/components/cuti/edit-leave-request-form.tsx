@@ -114,11 +114,6 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        let duration = 0;
-        if(startDate && endDate) {
-            duration = differenceInDays(endDate, startDate) + 1;
-        }
-
         const updatedRequestData: any = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
@@ -132,7 +127,6 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         if (data.leaveType) updatedRequestData.leaveType = data.leaveType;
         if (data.permitType) updatedRequestData.permitType = data.permitType;
         if (data.dutyType) updatedRequestData.dutyType = data.dutyType;
-        if (duration > 0) updatedRequestData.duration = duration;
         if (data.explanation) updatedRequestData.explanation = data.explanation;
         if (data.contactAddress) updatedRequestData.contactAddress = data.contactAddress;
         if (data.contactPhone) updatedRequestData.contactPhone = data.contactPhone;

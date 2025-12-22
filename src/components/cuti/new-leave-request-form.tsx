@@ -129,11 +129,6 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        let duration = 0;
-        if(startDate && endDate) {
-            duration = differenceInDays(endDate, startDate) + 1;
-        }
-
         const newRequestData: any = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
@@ -145,12 +140,12 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
             requesterId: user.uid,
             requesterName: userProfile.name,
             createdAt: serverTimestamp(),
+            // Duration is now optional and will be calculated later
         };
 
         if (data.leaveType) newRequestData.leaveType = data.leaveType;
         if (data.permitType) newRequestData.permitType = data.permitType;
         if (data.dutyType) newRequestData.dutyType = data.dutyType;
-        if (duration > 0) newRequestData.duration = duration;
         if (data.explanation) newRequestData.explanation = data.explanation;
         if (data.contactAddress) newRequestData.contactAddress = data.contactAddress;
         if (data.contactPhone) newRequestData.contactPhone = data.contactPhone;

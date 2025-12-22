@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -54,8 +55,7 @@ const statusMap: { [key: string]: AttendanceStatus | null } = {
   'IZIN': 'Izin', 'I': 'Izin',
   'ALPHA': 'Alpha', 'A': 'Alpha',
   'CUTI': 'Cuti', 'C': 'Cuti',
-  // Map other statuses to null to ignore them
-  'OFF': null, 'LIBUR': null,
+  'OFF': 'Off', 'LIBUR': 'Off',
 };
 
 // Helper to convert Excel serial date to JS Date
@@ -197,7 +197,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
       }
 
       toast.success('Impor Selesai!', {
-        description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan atau status tidak relevan.`,
+        description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan.`,
       });
       setModalOpen(false);
 

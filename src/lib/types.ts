@@ -83,7 +83,7 @@ export type BriefingParticipant = {
     hasSigned: boolean;
 };
 
-export type AttendanceStatus = 'Hadir' | 'Sakit' | 'Izin' | 'Alpha' | 'Cuti';
+export type AttendanceStatus = 'Hadir' | 'Sakit' | 'Izin' | 'Alpha' | 'Cuti' | 'Off';
 
 export type Attendance = {
   id: string;
@@ -137,3 +137,4 @@ export type LeaveRequest = {
   rejectionReason?: string;
   createdAt: Timestamp;
 };
+
