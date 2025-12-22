@@ -103,35 +103,35 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
     try {
         const requestsCollectionRef = collection(firestore, 'leave_requests');
         
-        let duration = 0;
         const startDate = data.dateRange.from as Date;
-        // If 'to' is not selected, it's a single-day request, so 'to' is the same as 'from'.
         const endDate = data.dateRange.to || startDate;
-
+        
+        let duration = 0;
         if(startDate && endDate) {
             duration = differenceInDays(endDate, startDate) + 1;
         }
 
-        const newRequestData = {
+        const newRequestData: any = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
             employeeJobTitle: selectedEmployee.jobTitle,
             requestType: data.requestType,
-            leaveType: data.leaveType,
-            permitType: data.permitType,
-            dutyType: data.dutyType,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
-            duration,
-            explanation: data.explanation,
-            contactAddress: data.contactAddress,
-            contactPhone: data.contactPhone,
-            deductLeave: data.deductLeave,
             status: "Pending",
             requesterId: user.uid,
             requesterName: userProfile.name,
             createdAt: serverTimestamp(),
         };
+
+        if (data.leaveType) newRequestData.leaveType = data.leaveType;
+        if (data.permitType) newRequestData.permitType = data.permitType;
+        if (data.dutyType) newRequestData.dutyType = data.dutyType;
+        if (duration > 0) newRequestData.duration = duration;
+        if (data.explanation) newRequestData.explanation = data.explanation;
+        if (data.contactAddress) newRequestData.contactAddress = data.contactAddress;
+        if (data.contactPhone) newRequestData.contactPhone = data.contactPhone;
+        if (data.deductLeave) newRequestData.deductLeave = data.deductLeave;
 
         await addDoc(requestsCollectionRef, newRequestData);
 
