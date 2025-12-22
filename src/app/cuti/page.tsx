@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -10,7 +10,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusCircle, Loader2 } from 'lucide-react';
+import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -27,6 +27,22 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogHeader,
   DialogTitle,
@@ -38,14 +54,22 @@ import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NewLeaveRequestForm } from '@/components/cuti/new-leave-request-form';
 import { Card, CardContent } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 const MotionCard = motion(Card);
 
-const statusVariant: Record<RequestStatus, 'default' | 'secondary' | 'destructive'> = {
+const statusVariant: Record<RequestStatus, 'success' | 'secondary' | 'destructive'> = {
     'Pending': 'secondary',
-    'Approved': 'default',
+    'Approved': 'success',
     'Rejected': 'destructive',
 };
+
+const badgeStatusClasses: Record<RequestStatus, string> = {
+  Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+  Approved: "bg-green-100 text-green-800 border-green-200",
+  Rejected: "bg-red-100 text-red-800 border-red-200",
+};
+
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '-';
@@ -55,17 +79,46 @@ const formatDate = (dateString: string) => {
 
 export default function CutiPage() {
   const [isNewModalOpen, setNewModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
+  const [isApproveAlertOpen, setApproveAlertOpen] = useState(false);
+  const [isRejectAlertOpen, setRejectAlertOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const firestore = useFirestore();
   const { user } = useUser();
 
   const requestsCollection = useMemoFirebase(() => collection(firestore, 'leave_requests'), [firestore]);
   const requestsQuery = useMemoFirebase(() => query(requestsCollection, orderBy('createdAt', 'desc')), [requestsCollection]);
-  const { data: requests, isLoading: isLoadingRequests } = useCollection<LeaveRequest>(requestsQuery);
+  const { data: requests, isLoading: isLoadingRequests, refetch: refetchRequests } = useCollection<LeaveRequest>(requestsQuery);
 
   const employeesCollection = useMemoFirebase(() => collection(firestore, 'employees'), [firestore]);
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
+
+  const handleUpdateRequestStatus = async (status: 'Approved' | 'Rejected') => {
+    if (!selectedRequest || !user) return;
+    setIsProcessing(true);
+    try {
+        const requestRef = doc(firestore, 'leave_requests', selectedRequest.id);
+        await updateDoc(requestRef, {
+            status: status,
+            approvedBy: status === 'Approved' ? user.uid : null,
+            rejectedBy: status === 'Rejected' ? user.uid : null,
+        });
+        toast.success(`Permohonan ${status === 'Approved' ? 'Disetujui' : 'Ditolak'}`, {
+            description: `Permohonan dari ${selectedRequest.employeeName} telah diubah.`,
+        });
+        refetchRequests(); // Refresh data table
+    } catch (error) {
+        console.error("Error updating request status:", error);
+        toast.error("Gagal Memperbarui Status");
+    } finally {
+        setIsProcessing(false);
+        setApproveAlertOpen(false);
+        setRejectAlertOpen(false);
+        setSelectedRequest(null);
+    }
+  };
 
   const columns: ColumnDef<LeaveRequest>[] = [
     {
@@ -89,7 +142,47 @@ export default function CutiPage() {
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => <Badge variant={statusVariant[row.original.status]}>{row.original.status}</Badge>,
+      cell: ({ row }) => <Badge className={badgeStatusClasses[row.original.status]}>{row.original.status}</Badge>,
+    },
+    {
+      id: "actions",
+      cell: ({ row }) => {
+        const request = row.original;
+        if (request.status !== 'Pending') return null;
+
+        return (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                        <span className="sr-only">Buka menu</span>
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem
+                        className="text-green-600 focus:bg-green-100 focus:text-green-700"
+                        onClick={() => {
+                            setSelectedRequest(request);
+                            setApproveAlertOpen(true);
+                        }}
+                    >
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Setujui
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        className="text-red-600 focus:bg-red-100 focus:text-red-700"
+                        onClick={() => {
+                            setSelectedRequest(request);
+                            setRejectAlertOpen(true);
+                        }}
+                    >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Tolak
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        );
+      },
     },
   ];
 
@@ -203,6 +296,42 @@ export default function CutiPage() {
         </CardContent>
       </MotionCard>
       
+      <AlertDialog open={isApproveAlertOpen} onOpenChange={setApproveAlertOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Setujui Permohonan?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Anda akan menyetujui permohonan <strong>{selectedRequest?.requestType}</strong> dari <strong>{selectedRequest?.employeeName}</strong>. Tindakan ini tidak dapat dibatalkan.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={() => handleUpdateRequestStatus('Approved')} disabled={isProcessing} className="bg-green-600 hover:bg-green-700">
+                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Ya, Setujui
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <AlertDialog open={isRejectAlertOpen} onOpenChange={setRejectAlertOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Tolak Permohonan?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Anda akan menolak permohonan <strong>{selectedRequest?.requestType}</strong> dari <strong>{selectedRequest?.employeeName}</strong>.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={() => handleUpdateRequestStatus('Rejected')} disabled={isProcessing} className="bg-destructive hover:bg-destructive/90">
+                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Ya, Tolak
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <div className="flex items-center justify-end space-x-2 py-4">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button
