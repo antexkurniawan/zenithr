@@ -317,7 +317,60 @@
         }
       },
       "required": ["id", "employeeId", "date", "status", "importedAt"]
-    }
+    },
+     "LeaveRequest": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "title": "LeaveRequest",
+        "description": "Represents a leave, permit, or office duty request from an employee.",
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "description": "Unique ID for the request." },
+          "employeeId": { "type": "string", "description": "ID of the employee making the request." },
+          "employeeName": { "type": "string", "description": "Denormalized name of the employee." },
+          "employeeJobTitle": { "type": "string", "description": "Denormalized job title of the employee." },
+          "requestType": {
+            "type": "string",
+            "description": "The main category of the request.",
+            "enum": ["Cuti", "Izin", "Tugas Kantor"]
+          },
+          "leaveType": {
+            "type": "string",
+            "description": "Specific type if requestType is 'Cuti'.",
+            "enum": ["Tahunan", "Besar", "Hamil/Keguguran"]
+          },
+          "permitType": {
+            "type": "string",
+            "description": "Specific type if requestType is 'Izin'.",
+            "enum": ["Haid", "Lainnya", "Terlambat Masuk Kantor", "Meninggalkan Kantor"]
+          },
+          "dutyType": {
+            "type": "string",
+            "description": "Specific type if requestType is 'Tugas Kantor'.",
+            "enum": ["Sidak", "Training", "Tugas Lapangan", "Kunjungan Customer"]
+          },
+          "startDate": { "type": "string", "format": "date-time", "description": "Start date/time of the request." },
+          "endDate": { "type": "string", "format": "date-time", "description": "End date/time of the request." },
+          "duration": { "type": "number", "description": "Duration in days for leave requests." },
+          "explanation": { "type": "string", "description": "Explanation for 'Izin' or 'Tugas Kantor'." },
+          "contactAddress": { "type": "string", "description": "Contact address during leave (Dalam Kota / Luar Kota)." },
+          "contactPhone": { "type": "string", "description": "Contact phone number during leave." },
+          "deductLeave": { "type": "boolean", "description": "True if the permit should deduct from annual leave balance." },
+          "status": {
+            "type": "string",
+            "description": "Approval status of the request.",
+            "enum": ["Pending", "Approved", "Rejected"]
+          },
+          "requesterId": { "type": "string", "description": "ID of the user who submitted the form." },
+          "requesterName": { "type": "string", "description": "Name of the user who submitted the form." },
+          "directSupervisorId": { "type": "string", "description": "ID of the direct supervisor." },
+          "indirectSupervisorId": { "type": "string", "description": "ID of the indirect supervisor." },
+          "approvedBy": { "type": "string", "description": "ID of the user who approved the request." },
+          "rejectedBy": { "type": "string", "description": "ID of the user who rejected the request." },
+          "rejectionReason": { "type": "string", "description": "Reason for rejection." },
+          "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp of request creation." }
+        },
+        "required": ["id", "employeeId", "requestType", "startDate", "status", "requesterId", "createdAt"]
+      }
   },
   "auth": {
     "providers": [
@@ -434,6 +487,15 @@
           "params": [{ "name": "ruleId", "description": "Unique identifier for the company rule." }]
         }
       },
+       {
+        "path": "/leave_requests/{requestId}",
+        "definition": {
+          "entityName": "LeaveRequest",
+          "schema": { "$ref": "#/backend/entities/LeaveRequest" },
+          "description": "Stores all leave, permit, and duty requests.",
+          "params": [{ "name": "requestId", "description": "Unique identifier for the request." }]
+        }
+      },
       {
         "path": "/roles_admin/{uid}",
         "definition": {
@@ -451,6 +513,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to optimize for security, scalability, and query performance, adhering to the principles of Authorization Independence, Structural Segregation, and Access Modeling. Here's a detailed breakdown:\n\n1.  **Authorization Independence:** The design avoids hierarchical authorization dependencies (`get()` calls in security rules). Each collection is secured independently, allowing atomic operations and simplifying security rules. The `WarningLetter` subcollection includes a denormalized `employeeId` which allows rules to check the user's permission on `Employee` data directly without needing a `get()` call to the parent document.\n\n2.  **Structural Segregation:**  The structure separates data with different access requirements into distinct collections. All documents within a collection share the same security posture, simplifying rules and improving maintainability.\n\n3.  **Access Modeling:**\n    *   **Private Data (Employee):**  The `/employees/{employeeId}` path provides a secure, path-based ownership model for employee data. Only authorized users (e.g., HR staff) can access employee documents.\n    *   **Hierarchical Paths for User-Owned Data (WarningLetter):** Warning letters are stored as a subcollection of employees: `/employees/{employeeId}/warningLetters/{warningLetterId}`. This is a typical 1:N structure. This allows for straightforward security rules based on the employee's ID.\n    *   **Global Roles (DBAC):**  The system does not implement custom claims. Instead, it relies on direct database access control (DBAC) to store roles. A dedicated collection, `/roles_admin/{uid}`, is used to determine if a user is an admin. The existence of a document at this path grants admin privileges.\n\n4.  **QAPs (Rules Are Not Filters):** The structure is designed to support secure list operations. For example, listing warning letters for a specific employee is secure because the rules can verify the user's access to the employee document and the list query is scoped to that specific employee. Admin users can access all warning letters, as defined by the rules accessing `/roles_admin/{uid}`.\n\n5. **Attendance Data**: A top-level `/attendances` collection is chosen for simplicity of import. When importing a large batch of attendance data for many employees at once, writing to a single collection is more efficient than writing to many different subcollections under each employee. Queries for reports across all employees (e.g., 'show all absences in May') are also more straightforward on a top-level collection.\n\n6. **Company Rules Data**: A top-level `/company_rules` collection is added to store the master data for company regulations. This allows for dynamic management (CRUD) of rules from an admin/settings page, rather than hardcoding them in the client. The warning creation form will now fetch rules from this collection, making the system more flexible.\n\nThe database structure supports integrity constraints by using transactions when updating employee data alongside related documents, such as `WarningLetter` records. This ensures consistency across the system."
+    "reasoning": "The Firestore structure is designed to optimize for security, scalability, and query performance, adhering to the principles of Authorization Independence, Structural Segregation, and Access Modeling. Here's a detailed breakdown:\n\n1.  **Authorization Independence:** The design avoids hierarchical authorization dependencies (`get()` calls in security rules). Each collection is secured independently, allowing atomic operations and simplifying security rules. The `WarningLetter` subcollection includes a denormalized `employeeId` which allows rules to check the user's permission on `Employee` data directly without needing a `get()` call to the parent document.\n\n2.  **Structural Segregation:**  The structure separates data with different access requirements into distinct collections. All documents within a collection share the same security posture, simplifying rules and improving maintainability.\n\n3.  **Access Modeling:**\n    *   **Private Data (Employee):**  The `/employees/{employeeId}` path provides a secure, path-based ownership model for employee data. Only authorized users (e.g., HR staff) can access employee documents.\n    *   **Hierarchical Paths for User-Owned Data (WarningLetter):** Warning letters are stored as a subcollection of employees: `/employees/{employeeId}/warningLetters/{warningLetterId}`. This is a typical 1:N structure. This allows for straightforward security rules based on the employee's ID.\n    *   **Global Roles (DBAC):**  The system does not implement custom claims. Instead, it relies on direct database access control (DBAC) to store roles. A dedicated collection, `/roles_admin/{uid}`, is used to determine if a user is an admin. The existence of a document at this path grants admin privileges.\n\n4.  **QAPs (Rules Are Not Filters):** The structure is designed to support secure list operations. For example, listing warning letters for a specific employee is secure because the rules can verify the user's access to the employee document and the list query is scoped to that specific employee. Admin users can access all warning letters, as defined by the rules accessing `/roles_admin/{uid}`.\n\n5. **Attendance Data**: A top-level `/attendances` collection is chosen for simplicity of import. When importing a large batch of attendance data for many employees at once, writing to a single collection is more efficient than writing to many different subcollections under each employee. Queries for reports across all employees (e.g., 'show all absences in May') are also more straightforward on a top-level collection.\n\n6. **Company Rules Data**: A top-level `/company_rules` collection is added to store the master data for company regulations. This allows for dynamic management (CRUD) of rules from an admin/settings page, rather than hardcoding them in the client. The warning creation form will now fetch rules from this collection, making the system more flexible.\n\n7. **Leave Requests Data**: A top-level `/leave_requests` collection is added to manage all types of employee requests (Cuti, Izin, Tugas Kantor). This centralizes the approval workflow and makes it easier to generate reports on all types of absences and duties from a single source.\n\nThe database structure supports integrity constraints by using transactions when updating employee data alongside related documents, such as `WarningLetter` records. This ensures consistency across the system."
   }
 }

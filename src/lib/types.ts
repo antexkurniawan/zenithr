@@ -104,4 +104,35 @@ export type CompanyRule = {
     text: string;
 };
 
-    
+export type LeaveRequestType = 'Cuti' | 'Izin' | 'Tugas Kantor';
+export type LeaveSubType = 'Tahunan' | 'Besar' | 'Hamil/Keguguran';
+export type PermitSubType = 'Haid' | 'Lainnya' | 'Terlambat Masuk Kantor' | 'Meninggalkan Kantor';
+export type DutySubType = 'Sidak' | 'Training' | 'Tugas Lapangan' | 'Kunjungan Customer';
+export type RequestStatus = 'Pending' | 'Approved' | 'Rejected';
+
+export type LeaveRequest = {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  employeeJobTitle: string;
+  requestType: LeaveRequestType;
+  leaveType?: LeaveSubType;
+  permitType?: PermitSubType;
+  dutyType?: DutySubType;
+  startDate: string; // ISO DateTime string
+  endDate: string; // ISO DateTime string
+  duration?: number; // In days for leave
+  explanation?: string;
+  contactAddress?: string;
+  contactPhone?: string;
+  deductLeave?: boolean;
+  status: RequestStatus;
+  requesterId: string;
+  requesterName: string;
+  directSupervisorId?: string;
+  indirectSupervisorId?: string;
+  approvedBy?: string;
+  rejectedBy?: string;
+  rejectionReason?: string;
+  createdAt: Timestamp;
+};
