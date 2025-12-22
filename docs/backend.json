@@ -29,6 +29,11 @@
             "description": "The employee's date of birth.",
             "format": "date-time"
         },
+        "joinDate": {
+            "type": "string",
+            "description": "The date the employee first joined the company.",
+            "format": "date-time"
+        },
         "areaTugas": {
           "type": "string",
           "description": "The employee's area of assignment."
@@ -50,6 +55,7 @@
         "nik",
         "jobTitle",
         "birthDate",
+        "joinDate",
         "areaTugas",
         "contractStartDate",
         "contractEndDate"

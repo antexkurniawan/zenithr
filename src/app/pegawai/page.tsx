@@ -188,6 +188,10 @@ function DetailModalContent({
                                         <Cake className="h-4 w-4 mr-3 text-muted-foreground" />
                                         <span className="text-sm">Tgl Lahir: {formatDateForDisplay(employee.birthDate)}</span>
                                     </div>
+                                    <div className="flex items-center">
+                                        <CalendarDays className="h-4 w-4 mr-3 text-muted-foreground" />
+                                        <span className="text-sm">Tgl Bergabung: {formatDateForDisplay(employee.joinDate)}</span>
+                                    </div>
                                 </CardContent>
                             </Card>
                             <Card>
@@ -488,6 +492,7 @@ export default function PegawaiPage() {
       jobTitle: emp.jobTitle,
       areaTugas: emp.areaTugas,
       birthDate: formatDateForExport(emp.birthDate),
+      joinDate: formatDateForExport(emp.joinDate),
       contractStartDate: formatDateForExport(emp.contractStartDate),
       contractEndDate: formatDateForExport(emp.contractEndDate),
     }));
@@ -506,6 +511,7 @@ export default function PegawaiPage() {
         jobTitle: 'Driver/Dispatcher/Checker/Field Coordinator', 
         areaTugas: userProfile?.workArea || '',
         birthDate: 'YYYY-MM-DD',
+        joinDate: 'YYYY-MM-DD',
         contractStartDate: 'YYYY-MM-DD', 
         contractEndDate: 'YYYY-MM-DD' 
       },

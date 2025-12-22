@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { format, differenceInDays } from 'date-fns';
+import { AlertCircle, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { format, differenceInDays, differenceInYears } from 'date-fns';
 import { collection, doc, serverTimestamp, addDoc } from 'firebase/firestore';
 
 import type { Employee, UserProfile } from "@/lib/types";
@@ -36,6 +36,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import { DateRangePicker } from '../ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { Switch } from '../ui/switch';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 
 const formSchema = z.object({
@@ -76,12 +77,32 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isEligibleForLeave, setIsEligibleForLeave] = useState<boolean | null>(null);
 
   const form = useForm<NewRequestFormValues>({
     resolver: zodResolver(formSchema),
   });
   
   const requestType = form.watch("requestType");
+  const selectedEmployeeId = form.watch("employeeId");
+
+  useEffect(() => {
+    if (selectedEmployeeId && requestType === 'Cuti') {
+      const employee = employees.find(e => e.id === selectedEmployeeId);
+      if (employee && employee.joinDate) {
+        const tenure = differenceInYears(new Date(), new Date(employee.joinDate));
+        setIsEligibleForLeave(tenure >= 1);
+        if (tenure < 1) {
+            form.setValue('requestType', undefined); // Reset selection if not eligible
+        }
+      } else {
+        setIsEligibleForLeave(false); // Not eligible if no join date
+      }
+    } else {
+      setIsEligibleForLeave(true); // Always eligible for non-leave requests
+    }
+  }, [selectedEmployeeId, employees, requestType, form]);
+
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -197,12 +218,12 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
+                        value={field.value}
                         className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
                       >
                         <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl><RadioGroupItem value="Cuti" /></FormControl>
-                          <FormLabel className="font-normal">Cuti</FormLabel>
+                          <FormControl><RadioGroupItem value="Cuti" disabled={!isEligibleForLeave} /></FormControl>
+                          <FormLabel className={`font-normal ${!isEligibleForLeave ? 'text-muted-foreground cursor-not-allowed' : ''}`}>Cuti</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl><RadioGroupItem value="Izin" /></FormControl>
@@ -215,6 +236,15 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                       </RadioGroup>
                     </FormControl>
                     <FormMessage />
+                    {isEligibleForLeave === false && (
+                        <Alert variant="destructive" className="text-xs">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertTitle>Tidak Berhak Cuti Tahunan</AlertTitle>
+                            <AlertDescription>
+                                Pegawai ini belum memiliki masa kerja 1 tahun.
+                            </AlertDescription>
+                        </Alert>
+                    )}
                   </FormItem>
                 )}
               />
@@ -229,7 +259,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Pilih jenis cuti..." /></SelectTrigger></FormControl>
                         <SelectContent>
-                          <SelectItem value="Tahunan">Tahunan</SelectItem>
+                          <SelectItem value="Tahunan" disabled={!isEligibleForLeave}>Tahunan</SelectItem>
                           <SelectItem value="Besar">Besar</SelectItem>
                           <SelectItem value="Hamil/Keguguran">Hamil / Keguguran</SelectItem>
                         </SelectContent>

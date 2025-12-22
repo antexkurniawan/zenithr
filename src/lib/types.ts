@@ -9,6 +9,7 @@ export type Employee = {
   nik: string;
   jobTitle: 'Driver' | 'Dispatcher' | 'Checker' | 'Field Coordinator';
   birthDate: string; // ISO string date
+  joinDate: string; // ISO string date
   contractStartDate: string;
   contractEndDate: string;
   status: EmployeeStatus;

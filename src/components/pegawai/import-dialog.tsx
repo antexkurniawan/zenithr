@@ -50,6 +50,7 @@ type EmployeeImportData = {
   jobTitle: 'Driver' | 'Dispatcher' | 'Checker' | 'Field Coordinator';
   areaTugas: string;
   birthDate: string;
+  joinDate: string;
   contractStartDate: string;
   contractEndDate: string;
   [key: string]: any;
@@ -96,6 +97,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
           ...row,
           areaTugas: row.areaTugas || defaultWorkArea,
           birthDate: row.birthDate instanceof Date ? row.birthDate.toISOString().split('T')[0] : String(row.birthDate || ''),
+          joinDate: row.joinDate instanceof Date ? row.joinDate.toISOString().split('T')[0] : String(row.joinDate || ''),
           contractStartDate: row.contractStartDate instanceof Date ? row.contractStartDate.toISOString().split('T')[0] : String(row.contractStartDate),
           contractEndDate: row.contractEndDate instanceof Date ? row.contractEndDate.toISOString().split('T')[0] : String(row.contractEndDate),
         }));
@@ -150,6 +152,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
             jobTitle: importData.jobTitle,
             areaTugas: importData.areaTugas,
             birthDate: importData.birthDate,
+            joinDate: importData.joinDate,
             contractStartDate: importData.contractStartDate,
             contractEndDate: importData.contractEndDate,
             updatedAt: serverTimestamp(),
@@ -238,6 +241,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
                             <TableHead>Nama</TableHead>
                             <TableHead>Jabatan</TableHead>
                             <TableHead>Tgl Lahir</TableHead>
+                            <TableHead>Tgl Bergabung</TableHead>
                             <TableHead>Awal Kontrak</TableHead>
                             <TableHead>Akhir Kontrak</TableHead>
                         </TableRow>
@@ -249,6 +253,7 @@ export function ImportDialog({ setModalOpen }: ImportDialogProps) {
                                 <TableCell>{row.name}</TableCell>
                                 <TableCell>{row.jobTitle}</TableCell>
                                 <TableCell>{row.birthDate}</TableCell>
+                                <TableCell>{row.joinDate}</TableCell>
                                 <TableCell>{row.contractStartDate}</TableCell>
                                 <TableCell>{row.contractEndDate}</TableCell>
                             </TableRow>
