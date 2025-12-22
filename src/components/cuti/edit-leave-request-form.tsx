@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2 } from 'lucide-react';
-import { differenceInDays } from 'date-fns';
-import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { differenceInDays, format } from 'date-fns';
+import { doc, serverTimestamp, updateDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 import type { Employee, LeaveRequest, UserProfile } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -51,7 +51,7 @@ const formSchema = z.object({
     contactAddress: z.string().optional(),
     contactPhone: z.string().optional(),
     deductLeave: z.boolean().optional(),
-    duration: z.number().optional(), // Duration is now optional
+    duration: z.number().optional(),
 }).refine(data => {
     if (data.requestType === "Cuti") return !!data.leaveType;
     if (data.requestType === "Izin") return !!data.permitType;
@@ -91,11 +91,51 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         contactAddress: request.contactAddress,
         contactPhone: request.contactPhone,
         deductLeave: request.deductLeave,
-        duration: request.duration,
+        duration: request.duration || 0,
     }
   });
   
   const requestType = form.watch("requestType");
+  const selectedEmployeeId = form.watch("employeeId");
+  const dateRange = form.watch("dateRange");
+
+  useEffect(() => {
+    const calculateDuration = async () => {
+      if (!dateRange?.from || !selectedEmployeeId || requestType !== 'Cuti') {
+        form.setValue('duration', 0);
+        return;
+      }
+
+      const { from, to } = dateRange;
+      const endDate = to || from;
+      const totalDays = differenceInDays(endDate, from) + 1;
+      
+      if (totalDays <= 0) {
+        form.setValue('duration', 0);
+        return;
+      }
+
+      const attendanceQuery = query(
+        collection(firestore, 'attendances'),
+        where('employeeId', '==', selectedEmployeeId),
+        where('date', '>=', format(from, 'yyyy-MM-dd')),
+        where('date', '<=', format(endDate, 'yyyy-MM-dd')),
+        where('status', '==', 'Off')
+      );
+
+      try {
+        const querySnapshot = await getDocs(attendanceQuery);
+        const offDays = querySnapshot.size;
+        const workDays = totalDays - offDays;
+        form.setValue('duration', workDays > 0 ? workDays : 0);
+      } catch (error) {
+        console.error("Error fetching attendance for duration calculation:", error);
+        form.setValue('duration', totalDays);
+      }
+    };
+
+    calculateDuration();
+  }, [dateRange, selectedEmployeeId, requestType, form, firestore]);
 
   const filteredEmployees = employees.filter(employee =>
     employee.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -131,7 +171,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
             contactAddress: data.contactAddress,
             contactPhone: data.contactPhone,
             deductLeave: data.deductLeave,
-            duration: data.duration, // Keep duration if provided
+            duration: data.duration,
         };
 
         await updateDoc(requestDocRef, updatedRequestData);
@@ -303,17 +343,18 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
                     name="duration"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Durasi (Hari)</FormLabel>
+                        <FormLabel>Durasi (Hari Kerja)</FormLabel>
                         <FormControl>
                         <Input
                             type="number"
-                            placeholder="Jumlah hari cuti yang diambil"
-                            onChange={e => field.onChange(parseInt(e.target.value, 10))}
-                            value={field.value}
+                            readOnly
+                            placeholder="Durasi akan terhitung otomatis"
+                            {...field}
+                            className="bg-muted"
                         />
                         </FormControl>
                         <FormDescription className="text-xs">
-                            Isi manual jumlah hari kerja yang digunakan (tidak termasuk hari OFF).
+                            Durasi dihitung otomatis berdasarkan jadwal kerja (tidak termasuk hari OFF).
                         </FormDescription>
                         <FormMessage />
                     </FormItem>
