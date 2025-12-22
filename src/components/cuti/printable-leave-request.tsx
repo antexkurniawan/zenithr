@@ -19,14 +19,14 @@ interface PrintableLeaveRequestProps {
 
 const Checkbox = ({ checked, label }: { checked: boolean, label: string }) => (
     <div className="flex items-baseline gap-1">
-        <span className="font-mono">[{checked ? 'X' : ' '}]</span>
+        <span className="font-sans">[{checked ? 'X' : '  '}]</span>
         <span>{label}</span>
     </div>
 );
 
 
 export function PrintableLeaveRequest({ request, requester, supervisor, leaveBalance }: PrintableLeaveRequestProps) {
-    const formatDate = (date: Date) => format(date, "d MMM yyyy", { locale: id });
+    const formatDate = (date: Date) => format(date, "d MMMM yyyy", { locale: id });
     const startDate = new Date(request.startDate);
     const endDate = new Date(request.endDate);
     const currentYear = getYear(new Date());
@@ -98,9 +98,9 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <span>Selama</span>
                         <span className="inline-block text-center font-semibold border-b border-dotted border-black w-12 mx-2">{isLeave ? request.duration : ''}</span>
                         <span>Hari pada tanggal</span>
-                        <span className="inline-block text-center font-semibold border-b border-dotted border-black w-24 mx-2">{isLeave ? formatDate(startDate) : ''}</span>
+                        <span className="inline-block text-center font-semibold border-b border-dotted border-black w-40 mx-2">{isLeave ? formatDate(startDate) : ''}</span>
                         <span>s.d</span>
-                        <span className="inline-block text-center font-semibold border-b border-dotted border-black w-24 ml-2">{isLeave ? formatDate(endDate) : ''}</span>
+                        <span className="inline-block text-center font-semibold border-b border-dotted border-black w-40 ml-2">{isLeave ? formatDate(endDate) : ''}</span>
                     </div>
                      <div className="mt-1 ml-4 flex items-center">
                         <span>Pada saat saya cuti, saya dapat dihubungi di nomor telepon berikut :</span>
@@ -131,7 +131,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                  <tr>
                                     <td className="pl-4">Cuti Akan Diambil</td>
                                     <td>=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-black">{leaveToBeTaken}</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black">{isAnnualLeave ? leaveToBeTaken : ''}</td>
                                     <td>Hari</td>
                                 </tr>
                                  <tr>
@@ -154,17 +154,10 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                          <Checkbox checked={isPermit && request.permitType === 'Meninggalkan Kantor'} label="Meninggalkan Kantor" />
                          <Checkbox checked={isPermit && request.permitType === 'Lainnya'} label="Lainnya :" />
                     </div>
-                    <div className="mt-1 ml-4 flex items-center">
-                        <span>Izin ini diberikan dengan ketentuan :</span>
-                        <div className="flex items-center gap-2 ml-4">
-                            <Checkbox checked={isPermit && request.deductLeave === false} label="Bebas" />
-                            <Checkbox checked={isPermit && request.deductLeave === true} label="Potong Cuti Tahunan" />
-                        </div>
-                    </div>
                  </div>
 
                  {/* --- DUTY SECTION (III. TUGAS KANTOR) --- */}
-                <div className="mt-4">
+                <div className="mt-2">
                     <p className="font-bold">III. TUGAS KANTOR (*)</p>
                     <div className="flex items-center gap-4 ml-4 mt-1">
                         <Checkbox checked={isDuty && request.dutyType === 'Sidak'} label="Sidak" />
@@ -174,26 +167,34 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                     </div>
                 </div>
 
-                <table className="w-full mt-2 text-xs ml-4">
+                <table className="w-full mt-2 text-xs">
                     <tbody>
                         <tr>
                             <td className="w-16">Hari, tgl</td>
                             <td className="w-2">:</td>
-                            <td className="flex-grow border-b border-dotted border-black">{!isLeave ? `${formatDate(startDate)} s.d ${formatDate(endDate)}` : ''}</td>
+                            <td className="flex-grow border-b border-dotted border-black">{!isLeave ? `${formatDate(startDate)} s.d ${formatDate(endDate)}` : '......................................................'}</td>
                         </tr>
                         <tr>
                             <td>Jam</td>
                             <td>:</td>
-                            <td className="border-b border-dotted border-black h-4">{!isLeave ? `${format(startDate, 'HH:mm')} s/d ${format(endDate, 'HH:mm')}`: ''}</td>
+                            <td className="border-b border-dotted border-black h-4">{!isLeave ? `${format(startDate, 'HH:mm')} s/d ${format(endDate, 'HH:mm')}`: '......................................................'}</td>
                         </tr>
                         <tr>
                             <td className="align-top">Ket.</td>
                             <td className="align-top">:</td>
-                            <td className="border-b border-dotted border-black h-4 align-top">{request.explanation || ''}</td>
+                            <td className="border-b border-dotted border-black h-4 align-top">{request.explanation || '......................................................'}</td>
                         </tr>
                     </tbody>
                 </table>
                 
+                <div className="mt-1 ml-4 flex items-center">
+                    <span>Izin ini diberikan dengan ketentuan :</span>
+                    <div className="flex items-center gap-2 ml-4">
+                         <Checkbox checked={isPermit && request.deductLeave === false} label="Bebas" />
+                         <Checkbox checked={isPermit && request.deductLeave === true} label="Potong Cuti Tahunan" />
+                    </div>
+                </div>
+                 
                  {/* --- NOTES & SIGNATURES --- */}
                 <footer className="mt-auto pt-4 text-xs">
                     <div>
@@ -225,9 +226,9 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                 </td>
                             </tr>
                             <tr>
-                                <td className="border-x border-black p-1 uppercase">{request.employeeName}</td>
-                                <td className="border-x border-black p-1 uppercase">{supervisorName}</td>
-                                <td className="border-x border-black p-1 uppercase">{indirectSupervisorName}</td>
+                                <td className="border-x border-black p-1 uppercase font-semibold">{request.employeeName}</td>
+                                <td className="border-x border-black p-1 uppercase font-semibold">{supervisorName}</td>
+                                <td className="border-x border-black p-1 uppercase font-semibold">{indirectSupervisorName}</td>
                             </tr>
                             <tr>
                                 <td className="border border-black p-1 uppercase">{request.employeeJobTitle}</td>
