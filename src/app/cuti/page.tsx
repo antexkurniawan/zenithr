@@ -10,7 +10,7 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash } from 'lucide-react';
+import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, getYear, startOfYear, endOfYear } from 'date-fns';
 import { id } from 'date-fns/locale';
@@ -49,6 +49,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { Badge } from '@/components/ui/badge';
@@ -57,6 +58,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { NewLeaveRequestForm } from '@/components/cuti/new-leave-request-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { PrintableLeaveRequest } from '@/components/cuti/printable-leave-request';
+import { generatePdfFromComponent } from '@/lib/pdf-generator';
 
 const MotionCard = motion(Card);
 
@@ -87,6 +90,9 @@ export default function CutiPage() {
   
   const firestore = useFirestore();
   const { user } = useUser();
+
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: currentUserProfile } = useDoc<UserProfile>(userProfileRef);
 
   const requestsCollection = useMemoFirebase(() => collection(firestore, 'leave_requests'), [firestore]);
   const requestsQuery = useMemoFirebase(() => query(requestsCollection, orderBy('createdAt', 'desc')), [requestsCollection]);
@@ -169,6 +175,43 @@ export default function CutiPage() {
     setRejectAlertOpen(false);
     setSelectedRequest(null);
   };
+  
+   const handlePrint = async () => {
+    if (!selectedRequest || !currentUserProfile) return;
+    
+    const toastId = toast.loading("Mempersiapkan PDF...", {
+        description: "Mohon tunggu sebentar.",
+    });
+
+    try {
+        // Find requester profile if different from current user
+        const requesterProfileRef = doc(firestore, 'users', selectedRequest.requesterId);
+        const requesterProfileSnap = await getDocs(query(collection(firestore, 'users'), where('id', '==', selectedRequest.requesterId)));
+        const requesterProfile = requesterProfileSnap.docs.length > 0 ? requesterProfileSnap.docs[0].data() as UserProfile : null;
+        
+        const ComponentToPrint = (
+            <PrintableLeaveRequest 
+                request={selectedRequest}
+                requester={requesterProfile}
+                supervisor={currentUserProfile}
+                leaveBalance={leaveBalance}
+            />
+        );
+
+        await generatePdfFromComponent(
+            ComponentToPrint,
+            `FPCI-${selectedRequest.employeeName}-${format(new Date(selectedRequest.startDate), 'yyyy-MM-dd')}.pdf`
+        );
+
+        toast.dismiss(toastId);
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+        toast.error("Gagal Mencetak PDF", {
+            description: "Terjadi kesalahan saat membuat file PDF.",
+        });
+    }
+  };
+
 
   const columns: ColumnDef<LeaveRequest>[] = [
     {
@@ -502,6 +545,13 @@ export default function CutiPage() {
                   )}
                 </div>
               </div>
+              <DialogFooter className="pt-4 border-t">
+                    <Button variant="outline" onClick={() => setDetailModalOpen(false)}>Tutup</Button>
+                    <Button onClick={handlePrint} disabled={isProcessing}>
+                        {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Printer className="mr-2 h-4 w-4" />}
+                        Cetak PDF
+                    </Button>
+              </DialogFooter>
             </>
           )}
         </AnimatedDialogContent>
