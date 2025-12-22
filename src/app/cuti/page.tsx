@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, startOfYear, endOfYear, getYear } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, startOfYear, endOfYear, getYear } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
@@ -116,15 +116,17 @@ export default function CutiPage() {
         where('requestType', '==', 'Cuti'),
         where('leaveType', '==', 'Tahunan'),
         where('status', '==', 'Approved'),
-        where('startDate', '>=', yearStart.toISOString()),
-        where('startDate', '<=', yearEnd.toISOString())
     );
 
     const querySnapshot = await getDocs(q);
 
     // Calculate previously used leave, excluding the current request being viewed/approved
     const usedLeave = querySnapshot.docs
-      .filter(doc => doc.id !== currentRequestId) // Exclude the current request from the "already taken" sum
+      .filter(doc => {
+          const data = doc.data();
+          // Pastikan startDate ada dan dalam tahun berjalan
+          return data.startDate && new Date(data.startDate).getFullYear() === currentYear;
+      })
       .reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
     
     setLeaveBalance({
@@ -207,10 +209,7 @@ export default function CutiPage() {
             />
         );
 
-        await generatePdfFromComponent(
-            printableContent,
-            `Permohonan Cuti - ${selectedRequest.employeeName}.pdf`
-        );
+        await generatePdfFromComponent(printableContent);
 
         toast.dismiss(toastId);
     } catch (error) {

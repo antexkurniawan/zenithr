@@ -5,11 +5,10 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 /**
- * Generates a PDF from a React component.
+ * Generates a PDF from a React component and opens it in a new tab.
  * @param component The React component to render into the PDF.
- * @param fileName The name of the file to save the PDF as.
  */
-export const generatePdfFromComponent = async (component: React.ReactElement, fileName: string): Promise<void> => {
+export const generatePdfFromComponent = async (component: React.ReactElement): Promise<void> => {
     
     // Create a temporary container to render the component off-screen
     const container = document.createElement('div');
@@ -59,7 +58,11 @@ export const generatePdfFromComponent = async (component: React.ReactElement, fi
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     }
     
-    pdf.save(fileName);
+    // Create a Blob from the PDF and open it in a new tab
+    const pdfBlob = pdf.output('blob');
+    const blobUrl = URL.createObjectURL(pdfBlob);
+    window.open(blobUrl);
+    URL.revokeObjectURL(blobUrl); // Clean up the URL object
 
     // Clean up the temporary container
     document.body.removeChild(container);

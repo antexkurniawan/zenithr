@@ -67,6 +67,7 @@ import { EditWarningForm } from '@/components/warnings/edit-warning-form';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { isAfter } from 'date-fns';
+import { generatePdfFromComponent } from '@/lib/pdf-generator';
 
 const MotionCard = motion(Card);
 
@@ -131,13 +132,9 @@ export default function WarningsPage() {
     try {
         // Dynamically import the necessary components and functions
         const { PrintableWarningLetter } = await import('@/app/warnings/[id]/print/page');
-        const { generatePdfFromComponent } = await import('@/lib/pdf-generator');
         
         const ComponentToPrint = PrintableWarningLetter({ warning, fieldCoordinator });
-        await generatePdfFromComponent(
-            ComponentToPrint,
-            `Surat Peringatan - ${warning.employeeName}.pdf`
-        );
+        await generatePdfFromComponent(ComponentToPrint);
         toast.dismiss(toastId);
     } catch (error) {
         console.error("Failed to generate PDF", error);
