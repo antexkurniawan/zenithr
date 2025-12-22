@@ -9,6 +9,7 @@ import { Loader2, Upload, FileCheck2, AlertCircle, Download } from 'lucide-react
 import * as XLSX from 'xlsx';
 import { collection, writeBatch, serverTimestamp, getDocs, query, where, doc } from 'firebase/firestore';
 import { format, isValid, parse, getYear, getMonth, setDate } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -225,7 +226,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   };
 
   const handleDownloadTemplate = () => {
-    const currentMonthName = format(new Date(), 'MMMM yyyy', { locale: { code: 'id' } });
+    const currentMonthName = format(new Date(), 'MMMM yyyy', { locale: id });
     
     // Create header row with NIK, Nama, and days 1 to 31
     const header: {[key: string]: any} = { 'NIK': '', 'Nama': '' };
