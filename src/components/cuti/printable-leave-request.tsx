@@ -48,7 +48,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
 
     return (
         <div id="printable-container" className="bg-white text-black font-sans">
-             <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col text-xs">
+             <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col text-xs font-sans">
                 {/* --- HEADER --- */}
                 <header className="relative mt-4 mb-2">
                     <div className="absolute left-0 top-0 w-32">
@@ -66,7 +66,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                 </header>
 
                 {/* --- EMPLOYEE INFO --- */}
-                <table className="w-full mt-4 text-xs">
+                <table className="w-full mt-4 text-sm">
                     <tbody>
                         <tr>
                             <td className="w-24">NAMA</td>
@@ -96,30 +96,30 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                     </div>
                     <div className="mt-1 ml-4 flex items-center">
                         <span>Selama</span>
-                        <span className="inline-block text-center font-semibold border-b border-dotted w-12 mx-2">{isLeave ? request.duration : ''}</span>
+                        <span className="inline-block text-center font-semibold w-12 mx-2">{isLeave ? request.duration : ''}</span>
                         <span>Hari pada tanggal</span>
-                        <span className="inline-block text-center font-semibold border-b border-dotted w-40 mx-2">{isLeave ? formatDate(startDate) : ''}</span>
+                        <span className="inline-block text-center font-semibold w-40 mx-2">{isLeave ? formatDate(startDate) : ''}</span>
                         <span>s.d</span>
-                        <span className="inline-block text-center font-semibold border-b border-dotted w-40 ml-2">{isLeave ? formatDate(endDate) : ''}</span>
+                        <span className="inline-block text-center font-semibold w-40 ml-2">{isLeave ? formatDate(endDate) : ''}</span>
                     </div>
                      <div className="mt-1 ml-4 flex items-center">
                         <span>Pada saat saya cuti, saya dapat dihubungi di nomor telepon berikut :</span>
-                        <span className="flex-grow text-center font-semibold border-b border-dotted ml-2">{isLeave ? request.contactPhone : ''}</span>
+                        <span className="flex-grow text-center font-semibold ml-2">{isLeave ? request.contactPhone : ''}</span>
                     </div>
                     <div className="mt-2 ml-4">
                         <p>Catatan :</p>
-                         <table className="mt-1 text-xs" style={{ borderSpacing: '0 2px', width: '320px' }}>
+                        <table className="mt-1 text-xs" style={{ borderSpacing: '0 2px', width: '320px' }}>
                             <tbody>
                                 <tr>
                                     <td className="w-48">- Hak cuti Tahun {currentYear}</td>
                                     <td className="w-4 text-center">=</td>
-                                    <td className="w-16 text-center border-b border-dotted">{isAnnualLeave ? annualLeaveQuota : ''}</td>
+                                    <td className="w-16 text-center">{isAnnualLeave ? annualLeaveQuota : ''}</td>
                                     <td className="pl-2">Hari</td>
                                 </tr>
                                  <tr>
                                     <td className="pl-4">Cuti sudah diambil</td>
                                     <td className="w-4 text-center">=</td>
-                                    <td className="w-16 text-center border-b border-dotted">{isAnnualLeave ? leaveAlreadyTaken : ''}</td>
+                                    <td className="w-16 text-center">{isAnnualLeave ? leaveAlreadyTaken : ''}</td>
                                     <td className="pl-2">Hari</td>
                                 </tr>
                                 <tr className="border-b-2 border-black">
@@ -131,7 +131,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                 <tr>
                                     <td className="pl-4 pt-1">Cuti Akan Diambil</td>
                                     <td className="w-4 text-center pt-1">=</td>
-                                    <td className="w-16 text-center border-b border-dotted pt-1">{isAnnualLeave ? leaveToBeTaken : ''}</td>
+                                    <td className="w-16 text-center pt-1">{isAnnualLeave ? leaveToBeTaken : ''}</td>
                                     <td className="pl-2 pt-1">Hari</td>
                                 </tr>
                                  <tr className="border-b-2 border-black">
@@ -172,17 +172,17 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <tr>
                             <td className="w-16">Hari, tgl</td>
                             <td className="w-2">:</td>
-                            <td className="flex-grow border-b border-dotted">{!isLeave ? `${formatDate(startDate)} s.d ${formatDate(endDate)}` : '......................................................'}</td>
+                            <td className="flex-grow">{!isLeave ? `${formatDate(startDate)} s.d ${formatDate(endDate)}` : '......................................................'}</td>
                         </tr>
                         <tr>
                             <td>Jam</td>
                             <td>:</td>
-                            <td className="h-4 border-b border-dotted">{!isLeave ? `${format(startDate, 'HH:mm')} s/d ${format(endDate, 'HH:mm')}`: '......................................................'}</td>
+                            <td className="h-4">{!isLeave ? `${format(startDate, 'HH:mm')} s/d ${format(endDate, 'HH:mm')}`: '......................................................'}</td>
                         </tr>
                         <tr>
                             <td className="align-top">Ket.</td>
                             <td className="align-top">:</td>
-                            <td className="h-4 align-top border-b border-dotted">{request.explanation || '......................................................'}</td>
+                            <td className="h-4 align-top">{request.explanation || '......................................................'}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -196,7 +196,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                 </div>
                  
                  {/* --- NOTES & SIGNATURES --- */}
-                <footer className="mt-auto pt-4 text-xs">
+                <div className="pt-4 text-xs">
                     <div>
                         <p className="font-bold underline">Note :</p>
                         <p>Untuk Permohonan Cuti di terima dan disetujui oleh HRD minimal 2 minggu sebelum hari H.</p>
@@ -237,7 +237,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                             </tr>
                         </tbody>
                     </table>
-                </footer>
+                </div>
             </div>
         </div>
     );
