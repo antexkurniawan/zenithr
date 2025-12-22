@@ -53,13 +53,13 @@ const formSchema = z.object({
     deductLeave: z.boolean().optional(),
     duration: z.number().optional(),
 }).refine(data => {
-    if (data.requestType === "Cuti") return !!data.leaveType;
-    if (data.requestType === "Izin") return !!data.permitType;
-    if (data.requestType === "Tugas Kantor") return !!data.dutyType;
-    return false;
+    if (data.requestType === "Cuti" && !data.leaveType) return false;
+    if (data.requestType === "Izin" && !data.permitType) return false;
+    if (data.requestType === "Tugas Kantor" && !data.dutyType) return false;
+    return true;
 }, {
     message: "Sub-jenis permohonan harus dipilih.",
-    path: ["requestType"],
+    path: ["leaveType"],
 });
 
 type EditRequestFormValues = z.infer<typeof formSchema>;
@@ -172,14 +172,14 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
             updatedAt: serverTimestamp(),
-            leaveType: data.leaveType,
-            permitType: data.permitType,
-            dutyType: data.dutyType,
-            explanation: data.explanation,
-            contactAddress: data.contactAddress,
-            contactPhone: data.contactPhone,
-            deductLeave: data.deductLeave,
-            duration: data.duration,
+            leaveType: data.leaveType || null,
+            permitType: data.permitType || null,
+            dutyType: data.dutyType || null,
+            explanation: data.explanation || '',
+            contactAddress: data.contactAddress || '',
+            contactPhone: data.contactPhone || '',
+            deductLeave: data.deductLeave || false,
+            duration: data.duration || 0,
         };
 
         await updateDoc(requestDocRef, updatedRequestData);
@@ -245,7 +245,12 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
                     <FormLabel>Jenis Permohonan</FormLabel>
                     <FormControl>
                       <RadioGroup
-                        onValueChange={field.onChange}
+                        onValueChange={(value) => {
+                            field.onChange(value);
+                            form.setValue('leaveType', undefined);
+                            form.setValue('permitType', undefined);
+                            form.setValue('dutyType', undefined);
+                        }}
                         defaultValue={field.value}
                         className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
                       >
