@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, startOfYear, endOfYear, getYear } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format, startOfYear, endOfYear, getYear } from 'date-fns';
+import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
@@ -59,6 +59,7 @@ import { NewLeaveRequestForm } from '@/components/cuti/new-leave-request-form';
 import { EditLeaveRequestForm } from '@/components/cuti/edit-leave-request-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { generatePdfFromComponent } from '@/lib/pdf-generator';
 import { PrintableLeaveRequest } from '@/components/cuti/printable-leave-request';
 
 const MotionCard = motion(Card);
@@ -189,7 +190,7 @@ export default function CutiPage() {
    const handlePrint = async () => {
     if (!selectedRequest || !currentUserProfile) return;
     
-    const toastId = toast.loading("Mempersiapkan Pratinjau Cetak...", {
+    const toastId = toast.loading("Mempersiapkan PDF...", {
         description: "Mohon tunggu sebentar.",
     });
 
@@ -206,26 +207,15 @@ export default function CutiPage() {
             />
         );
 
-        const container = document.createElement('div');
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        document.body.appendChild(container);
-        
-        const { createRoot } = await import('react-dom/client');
-        const root = createRoot(container);
-        root.render(printableContent);
-
-        await new Promise(resolve => setTimeout(resolve, 500)); 
-
-        window.print();
-        
-        document.body.removeChild(container);
-        root.unmount();
+        await generatePdfFromComponent(
+            printableContent,
+            `Permohonan Cuti - ${selectedRequest.employeeName}.pdf`
+        );
 
         toast.dismiss(toastId);
     } catch (error) {
         console.error("Failed to prepare for printing", error);
-        toast.error("Gagal Mempersiapkan Cetak", {
+        toast.error("Gagal Membuat PDF", {
             description: "Terjadi kesalahan saat mempersiapkan dokumen.",
         });
     }

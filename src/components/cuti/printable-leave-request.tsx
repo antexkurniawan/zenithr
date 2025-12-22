@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -192,13 +193,6 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         </tr>
                     </tbody>
                 </table>
-                 <div className="mt-1 ml-4 flex items-center">
-                    <span>Izin ini diberikan dengan ketentuan :</span>
-                    <div className="flex items-center gap-2 ml-4">
-                        <Checkbox checked={isPermit && request.deductLeave === false} label="Bebas" />
-                        <Checkbox checked={isPermit && request.deductLeave === true} label="Potong Cuti Tahunan" />
-                    </div>
-                </div>
                 
                  {/* --- NOTES & SIGNATURES --- */}
                 <footer className="mt-auto pt-4 text-xs">
@@ -208,14 +202,14 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <p>(*) Hanya untuk jabatan Leader/Supervisor atau setingkat</p>
                     </div>
 
-                    <p className="mt-4">Gorontalo, .................................... 20....</p>
+                    <p className="mt-4">Gorontalo, {format(new Date(), 'd MMMM yyyy', { locale: id })}</p>
                     
                     <table className="w-full border-collapse border border-black text-center text-xs mt-2">
                         <thead>
                             <tr>
-                                <td className="border border-black p-1 w-1/3">Pemohon,</td>
-                                <td className="border border-black p-1 w-1/3">Mengetahui,</td>
-                                <td className="border border-black p-1 w-1/3">Menyetujui,</td>
+                                <td className="border border-black p-1 w-1/3 font-semibold">Pemohon,</td>
+                                <td className="border border-black p-1 w-1/3 font-semibold">Mengetahui,</td>
+                                <td className="border border-black p-1 w-1/3 font-semibold">Menyetujui,</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -231,14 +225,14 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                 </td>
                             </tr>
                             <tr>
-                                <td className="border-x border-black p-1 font-semibold uppercase">Nama</td>
-                                <td className="border-x border-black p-1 font-semibold uppercase">Nama</td>
-                                <td className="border-x border-black p-1 font-semibold uppercase">Nama</td>
+                                <td className="border-x border-black p-1 uppercase">{request.employeeName}</td>
+                                <td className="border-x border-black p-1 uppercase">{supervisorName}</td>
+                                <td className="border-x border-black p-1 uppercase">{indirectSupervisorName}</td>
                             </tr>
                             <tr>
-                                <td className="border border-black p-1 font-semibold uppercase">Jabatan</td>
-                                <td className="border border-black p-1 font-semibold uppercase">Jabatan</td>
-                                <td className="border border-black p-1 font-semibold uppercase">Jabatan</td>
+                                <td className="border border-black p-1 uppercase">{request.employeeJobTitle}</td>
+                                <td className="border border-black p-1 uppercase">{supervisor?.jobTitle || ''}</td>
+                                <td className="border border-black p-1 uppercase">O. P. Coordinator</td>
                             </tr>
                         </tbody>
                     </table>
