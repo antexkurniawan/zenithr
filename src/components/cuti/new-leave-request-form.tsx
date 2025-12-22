@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,9 +6,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertCircle, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format, differenceInYears, parse, differenceInDays, eachDayOfInterval } from 'date-fns';
-import { collection, doc, serverTimestamp, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, addDoc, query, where, getDocs, FieldValue } from 'firebase/firestore';
 
-import type { Employee, UserProfile, LeaveRequest, Attendance, RequestStatus, FieldValue } from "@/lib/types";
+import type { Employee, UserProfile, LeaveRequest, Attendance, RequestStatus } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -54,13 +53,13 @@ const formSchema = z.object({
     deductLeave: z.boolean().optional(),
     duration: z.number().optional(),
 }).refine(data => {
-    if (data.requestType === "Cuti" && !data.leaveType) return false;
-    if (data.requestType === "Izin" && !data.permitType) return false;
-    if (data.requestType === "Tugas Kantor" && !data.dutyType) return false;
+    if (data.requestType === "Cuti") return !!data.leaveType;
+    if (data.requestType === "Izin") return !!data.permitType;
+    if (data.requestType === "Tugas Kantor") return !!data.dutyType;
     return true;
 }, {
     message: "Sub-jenis permohonan harus dipilih.",
-    path: ["leaveType"], // Path can be any of the subtype fields
+    path: ["leaveType"], // This path is a bit arbitrary, but the error appears on the first sub-type field
 });
 
 type NewRequestFormValues = z.infer<typeof formSchema>;
@@ -110,28 +109,21 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
     }
   }, [selectedEmployeeId, employees, form]);
 
-  useEffect(() => {
+ useEffect(() => {
     const calculateDuration = async () => {
-      if (
-        !dateRange ||
-        !dateRange.from ||
-        !selectedEmployeeId ||
-        requestType !== 'Cuti'
-      ) {
+      if (!dateRange?.from || !selectedEmployeeId || requestType !== 'Cuti') {
         form.setValue('duration', 0);
         return;
       }
-
       const { from, to } = dateRange;
       const endDate = to || from;
-      let totalDays = differenceInDays(endDate, from) + 1;
-
+      
+      const totalDays = differenceInDays(endDate, from) + 1;
       if (totalDays <= 0) {
         form.setValue('duration', 0);
         return;
       }
 
-      // Query for 'Off' days within the selected date range for the employee
       try {
         const attendanceQuery = query(
           collection(firestore, 'attendances'),
@@ -140,7 +132,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
           where('date', '<=', format(endDate, 'yyyy-MM-dd')),
           where('status', '==', 'Off')
         );
-
+        
         const querySnapshot = await getDocs(attendanceQuery);
         const offDaysCount = querySnapshot.size;
         const workDays = totalDays - offDaysCount;
@@ -148,7 +140,6 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         form.setValue('duration', workDays > 0 ? workDays : 0, { shouldValidate: true });
       } catch (error) {
         console.error("Error fetching attendance for duration calculation:", error);
-        // Fallback to total days on error
         form.setValue('duration', totalDays, { shouldValidate: true });
       }
     };
@@ -198,7 +189,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
             contactAddress: data.contactAddress || '',
             contactPhone: data.contactPhone || '',
             deductLeave: data.deductLeave || false,
-            duration: data.duration || 0,
+            duration: data.duration, // ensure duration is included
         };
 
         await addDoc(requestsCollectionRef, newRequestData);

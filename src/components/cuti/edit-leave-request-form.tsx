@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -53,9 +52,9 @@ const formSchema = z.object({
     deductLeave: z.boolean().optional(),
     duration: z.number().optional(),
 }).refine(data => {
-    if (data.requestType === "Cuti" && !data.leaveType) return false;
-    if (data.requestType === "Izin" && !data.permitType) return false;
-    if (data.requestType === "Tugas Kantor" && !data.dutyType) return false;
+    if (data.requestType === "Cuti") return !!data.leaveType;
+    if (data.requestType === "Izin") return !!data.permitType;
+    if (data.requestType === "Tugas Kantor") return !!data.dutyType;
     return true;
 }, {
     message: "Sub-jenis permohonan harus dipilih.",
@@ -91,7 +90,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         contactAddress: request.contactAddress,
         contactPhone: request.contactPhone,
         deductLeave: request.deductLeave || false,
-        duration: request.duration || 0,
+        duration: request.duration,
     }
   });
   
@@ -101,26 +100,19 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
 
   useEffect(() => {
     const calculateDuration = async () => {
-      if (
-        !dateRange ||
-        !dateRange.from ||
-        !selectedEmployeeId ||
-        requestType !== 'Cuti'
-      ) {
+      if (!dateRange?.from || !selectedEmployeeId || requestType !== 'Cuti') {
         form.setValue('duration', 0);
         return;
       }
-
       const { from, to } = dateRange;
       const endDate = to || from;
-      let totalDays = differenceInDays(endDate, from) + 1;
-
+      
+      const totalDays = differenceInDays(endDate, from) + 1;
       if (totalDays <= 0) {
         form.setValue('duration', 0);
         return;
       }
 
-      // Query for 'Off' days within the selected date range for the employee
       try {
         const attendanceQuery = query(
           collection(firestore, 'attendances'),
@@ -129,7 +121,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
           where('date', '<=', format(endDate, 'yyyy-MM-dd')),
           where('status', '==', 'Off')
         );
-
+        
         const querySnapshot = await getDocs(attendanceQuery);
         const offDaysCount = querySnapshot.size;
         const workDays = totalDays - offDaysCount;
@@ -137,7 +129,6 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         form.setValue('duration', workDays > 0 ? workDays : 0, { shouldValidate: true });
       } catch (error) {
         console.error("Error fetching attendance for duration calculation:", error);
-        // Fallback to total days on error
         form.setValue('duration', totalDays, { shouldValidate: true });
       }
     };
@@ -179,7 +170,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
             contactAddress: data.contactAddress || '',
             contactPhone: data.contactPhone || '',
             deductLeave: data.deductLeave || false,
-            duration: data.duration || 0,
+            duration: data.duration, // Ensure duration is included
         };
 
         await updateDoc(requestDocRef, updatedRequestData);
