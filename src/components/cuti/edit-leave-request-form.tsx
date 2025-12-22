@@ -100,38 +100,44 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
 
   useEffect(() => {
     const calculateDuration = async () => {
-      if (!dateRange?.from || !selectedEmployeeId || requestType !== 'Cuti') {
+      if (
+        !dateRange ||
+        !dateRange.from ||
+        !selectedEmployeeId ||
+        requestType !== 'Cuti'
+      ) {
         form.setValue('duration', 0);
         return;
       }
 
       const { from, to } = dateRange;
       const endDate = to || from;
-      const totalDays = differenceInDays(endDate, from) + 1;
-      
+      let totalDays = differenceInDays(endDate, from) + 1;
+
       if (totalDays <= 0) {
         form.setValue('duration', 0);
         return;
       }
-      
-      form.setValue('duration', 0); // Reset before calculating
 
-      const attendanceQuery = query(
-        collection(firestore, 'attendances'),
-        where('employeeId', '==', selectedEmployeeId),
-        where('date', '>=', format(from, 'yyyy-MM-dd')),
-        where('date', '<=', format(endDate, 'yyyy-MM-dd')),
-        where('status', '==', 'Off')
-      );
-
+      // Query for 'Off' days within the selected date range for the employee
       try {
+        const attendanceQuery = query(
+          collection(firestore, 'attendances'),
+          where('employeeId', '==', selectedEmployeeId),
+          where('date', '>=', format(from, 'yyyy-MM-dd')),
+          where('date', '<=', format(endDate, 'yyyy-MM-dd')),
+          where('status', '==', 'Off')
+        );
+
         const querySnapshot = await getDocs(attendanceQuery);
-        const offDays = querySnapshot.size;
-        const workDays = totalDays - offDays;
-        form.setValue('duration', workDays > 0 ? workDays : 0);
+        const offDaysCount = querySnapshot.size;
+        const workDays = totalDays - offDaysCount;
+
+        form.setValue('duration', workDays > 0 ? workDays : 0, { shouldValidate: true });
       } catch (error) {
         console.error("Error fetching attendance for duration calculation:", error);
-        form.setValue('duration', totalDays);
+        // Fallback to total days on error
+        form.setValue('duration', totalDays, { shouldValidate: true });
       }
     };
 
@@ -351,6 +357,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
                             readOnly
                             placeholder="Durasi akan terhitung otomatis"
                             {...field}
+                            value={field.value || 0}
                             className="bg-muted"
                         />
                         </FormControl>
