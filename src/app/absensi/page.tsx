@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from "react";
-import { PlusCircle, Upload, Loader2 } from "lucide-react";
+import { PlusCircle, Upload, Loader2, CalendarRange } from "lucide-react";
 import { motion } from "framer-motion";
 
 import PageHeader from "@/components/shared/page-header";
@@ -14,6 +14,8 @@ import {
 import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { ImportAbsensiDialog } from "@/components/absensi/import-dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 
 export default function AbsensiPage() {
@@ -65,19 +67,42 @@ export default function AbsensiPage() {
             </PageHeader>
 
              <motion.div variants={itemVariants}>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Daftar Kehadiran</CardTitle>
-                        <CardDescription>Tampilan data kehadiran pegawai akan ditampilkan di sini.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="h-64 flex flex-col items-center justify-center text-center border-2 border-dashed rounded-lg">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-                            <p className="font-semibold text-muted-foreground">Fitur dalam pengembangan</p>
-                            <p className="text-sm text-muted-foreground">Tampilan tabel data absensi akan segera hadir.</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <Tabs defaultValue="jadwal" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="jadwal">Jadwal Kerja</TabsTrigger>
+                        <TabsTrigger value="absensi">Rekap Absensi</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="jadwal">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Jadwal Kerja Bulanan</CardTitle>
+                                <CardDescription>Tampilan jadwal kerja pegawai per bulan akan ditampilkan di sini.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-96 flex flex-col items-center justify-center text-center border-2 border-dashed rounded-lg">
+                                    <CalendarRange className="h-12 w-12 text-muted-foreground mb-4" />
+                                    <p className="font-semibold text-muted-foreground">Fitur dalam pengembangan</p>
+                                    <p className="text-sm text-muted-foreground">Tampilan kalender atau tabel jadwal kerja akan segera hadir.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                    <TabsContent value="absensi">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Daftar Kehadiran</CardTitle>
+                                <CardDescription>Tampilan data kehadiran pegawai akan ditampilkan di sini.</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-96 flex flex-col items-center justify-center text-center border-2 border-dashed rounded-lg">
+                                    <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mb-4" />
+                                    <p className="font-semibold text-muted-foreground">Fitur dalam pengembangan</p>
+                                    <p className="text-sm text-muted-foreground">Tampilan tabel data absensi akan segera hadir.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+                </Tabs>
              </motion.div>
         </motion.div>
     );
