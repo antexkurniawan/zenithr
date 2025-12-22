@@ -81,6 +81,7 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
+      onMouseDown={(e) => e.preventDefault()}
       {...props}
     >
       <SelectScrollUpButton />
