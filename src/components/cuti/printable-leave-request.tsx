@@ -47,7 +47,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
     const finalRemainingLeave = remainingLeaveBeforeThis - leaveToBeTaken;
 
     return (
-        <div id="printable-container" className="bg-white text-black font-serif">
+        <div id="printable-container" className="bg-white text-black font-sans">
              <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col text-xs">
                 {/* --- HEADER --- */}
                 <header className="relative mb-2">
@@ -61,7 +61,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                          />
                     </div>
                     <div className="text-center">
-                        <p className="font-bold text-sm underline">FORM PERMOHONAN CUTI / IZIN / TUGAS KANTOR (FPCI)</p>
+                        <p className="font-bold text-base underline">FORM PERMOHONAN CUTI / IZIN / TUGAS KANTOR (FPCI)</p>
                     </div>
                 </header>
 
@@ -108,7 +108,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                     </div>
                     <div className="mt-2 ml-4">
                         <p>Catatan :</p>
-                         <table className="mt-1 text-xs ml-4" style={{ borderSpacing: '0 2px' }}>
+                         <table className="mt-1 text-xs" style={{ borderSpacing: '0 2px', width: '320px' }}>
                             <tbody>
                                 <tr>
                                     <td className="w-48">- Hak cuti Tahun {currentYear}</td>
@@ -122,23 +122,23 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                     <td className="w-16 text-center border-b border-dotted border-black">{isAnnualLeave ? leaveAlreadyTaken : ''}</td>
                                     <td className="pl-2">Hari</td>
                                 </tr>
-                                <tr>
-                                    <td className="pl-4">Sisa Cuti Tersedia</td>
-                                    <td className="w-4 text-center">=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-black">{isAnnualLeave ? remainingLeaveBeforeThis : ''}</td>
-                                    <td className="pl-2">Hari</td>
-                                </tr>
                                 <tr className="border-b-2 border-black">
-                                    <td className="pl-4 pb-1">Cuti Akan Diambil</td>
+                                    <td className="pl-4 pb-1">Sisa Cuti Tersedia</td>
                                     <td className="w-4 text-center pb-1">=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-black pb-1">{isAnnualLeave ? leaveToBeTaken : ''}</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black pb-1">{isAnnualLeave ? remainingLeaveBeforeThis : ''}</td>
                                     <td className="pl-2 pb-1">Hari</td>
                                 </tr>
-                                 <tr>
-                                    <td className="pt-1">- Sisa Cuti Tahun {currentYear}</td>
+                                <tr>
+                                    <td className="pl-4 pt-1">Cuti Akan Diambil</td>
                                     <td className="w-4 text-center pt-1">=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-black pt-1">{isAnnualLeave ? finalRemainingLeave : ''}</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black pt-1">{isAnnualLeave ? leaveToBeTaken : ''}</td>
                                     <td className="pl-2 pt-1">Hari</td>
+                                </tr>
+                                 <tr className="border-b-2 border-black">
+                                    <td className="pt-1 pb-1">- Sisa Cuti Tahun {currentYear}</td>
+                                    <td className="w-4 text-center pt-1 pb-1">=</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black pt-1 pb-1">{isAnnualLeave ? finalRemainingLeave : ''}</td>
+                                    <td className="pl-2 pt-1 pb-1">Hari</td>
                                 </tr>
                             </tbody>
                         </table>
