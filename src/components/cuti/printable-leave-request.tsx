@@ -112,33 +112,33 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                             <tbody>
                                 <tr>
                                     <td className="w-48">- Cuti tersisa Tahun sebelumnya</td>
-                                    <td>=</td>
+                                    <td className="w-4 text-center">=</td>
                                     <td className="w-16 text-center border-b border-dotted border-black">...</td>
-                                    <td>Hari</td>
+                                    <td className="pl-2">Hari</td>
                                 </tr>
                                 <tr>
                                     <td className="w-48">- Hak cuti Tahun {currentYear}</td>
-                                    <td>=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-black">{annualLeaveQuota}</td>
-                                    <td>Hari</td>
+                                    <td className="w-4 text-center">=</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black">{isAnnualLeave ? annualLeaveQuota : ''}</td>
+                                    <td className="pl-2">Hari</td>
                                 </tr>
                                 <tr>
                                     <td className="pl-4">Cuti sudah diambil</td>
-                                    <td>=</td>
+                                    <td className="w-4 text-center">=</td>
                                     <td className="w-16 text-center border-b border-dotted border-black">{isAnnualLeave ? leaveAlreadyTaken : ''}</td>
-                                    <td>Hari</td>
+                                    <td className="pl-2">Hari</td>
+                                </tr>
+                                 <tr className="border-b-2 border-black">
+                                    <td className="pl-4 pb-1">Cuti Akan Diambil</td>
+                                    <td className="w-4 text-center pb-1">=</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black pb-1">{isAnnualLeave ? leaveToBeTaken : ''}</td>
+                                    <td className="pl-2 pb-1">Hari</td>
                                 </tr>
                                  <tr>
-                                    <td className="pl-4">Cuti Akan Diambil</td>
-                                    <td>=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-black">{isAnnualLeave ? leaveToBeTaken : ''}</td>
-                                    <td>Hari</td>
-                                </tr>
-                                 <tr>
-                                    <td className="pl-4 border-t-2 border-black">- Sisa Cuti Tahun {currentYear}</td>
-                                    <td className='border-t-2 border-black'>=</td>
-                                    <td className="w-16 text-center border-b border-dotted border-t-2 border-black">{isAnnualLeave ? finalRemainingLeave : ''}</td>
-                                    <td className='border-t-2 border-black'>Hari</td>
+                                    <td className="pt-1">- Sisa Cuti Tahun {currentYear}</td>
+                                    <td className="w-4 text-center pt-1">=</td>
+                                    <td className="w-16 text-center border-b border-dotted border-black pt-1">{isAnnualLeave ? finalRemainingLeave : ''}</td>
+                                    <td className="pl-2 pt-1">Hari</td>
                                 </tr>
                             </tbody>
                         </table>
