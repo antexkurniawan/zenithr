@@ -232,8 +232,8 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
 
                 <div className="flex items-center gap-8 mt-2">
                     <span>Ijin ini diberikan dengan ketentuan :</span>
-                    <div className="flex items-center gap-2"><Checkbox checked={request.deductLeave === false} /> Bebas</div>
-                    <div className="flex items-center gap-2"><Checkbox checked={request.deductLeave === true} /> Potong Cuti</div>
+                    <div className="flex items-center gap-2"><Checkbox checked={isPermit && request.deductLeave === false} /> Bebas</div>
+                    <div className="flex items-center gap-2"><Checkbox checked={isPermit && request.deductLeave === true} /> Potong Cuti</div>
                 </div>
                 
                  {/* --- SIGNATURES --- */}
@@ -270,5 +270,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
         </div>
     );
 }
+
+    
 
     
