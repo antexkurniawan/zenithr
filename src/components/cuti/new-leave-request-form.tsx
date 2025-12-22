@@ -129,7 +129,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        const newRequestData: any = {
+        const newRequestData: Omit<LeaveRequest, 'id' | 'duration' | 'createdAt'> & {createdAt: any} = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
             employeeJobTitle: selectedEmployee.jobTitle,
@@ -140,21 +140,20 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
             requesterId: user.uid,
             requesterName: userProfile.name,
             createdAt: serverTimestamp(),
-            // Duration is now optional and will be calculated later
+            leaveType: data.leaveType,
+            permitType: data.permitType,
+            dutyType: data.dutyType,
+            explanation: data.explanation,
+            contactAddress: data.contactAddress,
+            contactPhone: data.contactPhone,
+            deductLeave: data.deductLeave,
         };
 
-        if (data.leaveType) newRequestData.leaveType = data.leaveType;
-        if (data.permitType) newRequestData.permitType = data.permitType;
-        if (data.dutyType) newRequestData.dutyType = data.dutyType;
-        if (data.explanation) newRequestData.explanation = data.explanation;
-        if (data.contactAddress) newRequestData.contactAddress = data.contactAddress;
-        if (data.contactPhone) newRequestData.contactPhone = data.contactPhone;
-        if (data.deductLeave) newRequestData.deductLeave = data.deductLeave;
 
         await addDoc(requestsCollectionRef, newRequestData);
 
         toast.success("Permohonan Berhasil Diajukan!", {
-            description: `Permohonan ${data.requestType} untuk ${selectedEmployee.name} telah disimpan.`,
+            description: \`Permohonan \${data.requestType} untuk \${selectedEmployee.name} telah disimpan.\`,
         });
         setModalOpen(false);
 
@@ -220,7 +219,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                       >
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl><RadioGroupItem value="Cuti" disabled={isEligibleForLeave === false} /></FormControl>
-                          <FormLabel className={`font-normal ${isEligibleForLeave === false ? 'text-muted-foreground cursor-not-allowed' : ''}`}>Cuti</FormLabel>
+                          <FormLabel className={\`font-normal \${isEligibleForLeave === false ? 'text-muted-foreground cursor-not-allowed' : ''}\`}>Cuti</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl><RadioGroupItem value="Izin" /></FormControl>

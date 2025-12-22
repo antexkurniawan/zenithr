@@ -137,4 +137,3 @@ export type LeaveRequest = {
   rejectionReason?: string;
   createdAt: Timestamp;
 };
-

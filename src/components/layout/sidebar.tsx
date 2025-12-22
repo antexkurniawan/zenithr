@@ -9,6 +9,7 @@ import {
   Users,
   User,
   CalendarCheck2,
+  CalendarDays,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,6 +28,7 @@ const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/pegawai", label: "Pegawai", icon: Users },
   { href: "/briefings", label: "Briefing", icon: FileText },
+  { href: "/absensi", label: "Absensi", icon: CalendarDays },
   { href: "/warnings", label: "Surat Peringatan", icon: FileWarning },
   { href: "/cuti", label: "Cuti & Izin", icon: CalendarCheck2 },
   { href: "/laporan", label: "Laporan", icon: LineChart },

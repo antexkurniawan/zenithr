@@ -50,12 +50,23 @@ interface ImportDialogProps {
 }
 
 const statusMap: { [key: string]: AttendanceStatus | null } = {
+  'M': 'Hadir',
   'MASUK': 'Hadir',
-  'SAKIT': 'Sakit', 'S': 'Sakit',
-  'IZIN': 'Izin', 'I': 'Izin',
-  'ALPHA': 'Alpha', 'A': 'Alpha',
-  'CUTI': 'Cuti', 'C': 'Cuti',
-  'OFF': 'Off', 'LIBUR': 'Off',
+  '24J': 'Hadir',
+  'LKJ': 'Hadir',
+  'S': 'Sakit',
+  'SAKIT': 'Sakit',
+  'I': 'Izin',
+  'IZIN': 'Izin',
+  'A': 'Alpha',
+  'ALPHA': 'Alpha',
+  'C': 'Cuti',
+  'CUTI': 'Cuti',
+  'O': 'Off',
+  'OFF': 'Off',
+  'OS': 'Off', // OFF Standby
+  'LN': 'Off', // Libur Nasional
+  'LIBUR': 'Off',
 };
 
 // Helper to convert Excel serial date to JS Date
@@ -115,23 +126,23 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
                  try {
                     recordDate = new Date(tanggal);
                  } catch(e) {
-                     console.warn(`Invalid date format for row ${index + 7}:`, tanggal);
+                     console.warn(\`Invalid date format for row \${index + 7}:\`, tanggal);
                      return;
                  }
             }
              if (isNaN(recordDate.getTime())) {
-                console.warn(`Could not parse date for row ${index + 7}:`, tanggal);
+                console.warn(\`Could not parse date for row \${index + 7}:\`, tanggal);
                 return;
             }
 
-            const checkInDateTime = `${recordDate.toISOString().split('T')[0]}T${jam || '00:00:00'}`;
+            const checkInDateTime = jam ? \`\${recordDate.toISOString().split('T')[0]}T\${jam}\` : undefined;
 
             records.push({
                 employeeNik: String(nik).trim(),
                 employeeName: String(name).trim(),
                 date: recordDate.toISOString().split('T')[0],
                 status: mappedStatus,
-                checkIn: jam ? checkInDateTime : undefined,
+                checkIn: checkInDateTime,
             });
           }
         });
@@ -197,7 +208,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
       }
 
       toast.success('Impor Selesai!', {
-        description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan.`,
+        description: \`\${recordsAdded} data absensi berhasil diimpor. \${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan.\`,
       });
       setModalOpen(false);
 
@@ -216,7 +227,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
       <DialogHeader>
         <DialogTitle>Impor Data Absensi</DialogTitle>
         <DialogDescription>
-          Unggah file laporan Excel absensi. Sistem akan membaca setiap baris sebagai data kehadiran.
+          Unggah file laporan Excel absensi/jadwal kerja. Sistem akan membaca setiap baris sebagai data kehadiran.
         </DialogDescription>
       </DialogHeader>
 
@@ -309,7 +320,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
           ) : (
             <Upload className="mr-2 h-4 w-4" />
           )}
-          Impor {parsedData.length > 0 ? `${parsedData.length} Data` : ''}
+          Impor {parsedData.length > 0 ? \`\${parsedData.length} Data\` : ''}
         </Button>
       </DialogFooter>
     </DialogContent>

@@ -114,28 +114,27 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        const updatedRequestData: any = {
+        const updatedRequestData: Partial<LeaveRequest> = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
             employeeJobTitle: selectedEmployee.jobTitle,
             requestType: data.requestType,
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
-            updatedAt: serverTimestamp(),
+            updatedAt: serverTimestamp() as any,
+            leaveType: data.leaveType,
+            permitType: data.permitType,
+            dutyType: data.dutyType,
+            explanation: data.explanation,
+            contactAddress: data.contactAddress,
+            contactPhone: data.contactPhone,
+            deductLeave: data.deductLeave,
         };
-
-        if (data.leaveType) updatedRequestData.leaveType = data.leaveType;
-        if (data.permitType) updatedRequestData.permitType = data.permitType;
-        if (data.dutyType) updatedRequestData.dutyType = data.dutyType;
-        if (data.explanation) updatedRequestData.explanation = data.explanation;
-        if (data.contactAddress) updatedRequestData.contactAddress = data.contactAddress;
-        if (data.contactPhone) updatedRequestData.contactPhone = data.contactPhone;
-        if (data.deductLeave) updatedRequestData.deductLeave = data.deductLeave;
 
         await updateDoc(requestDocRef, updatedRequestData);
 
         toast.success("Permohonan Berhasil Diperbarui!", {
-            description: `Permohonan untuk ${selectedEmployee.name} telah diubah.`,
+            description: \`Permohonan untuk \${selectedEmployee.name} telah diubah.\`,
         });
         setModalOpen(false);
 
