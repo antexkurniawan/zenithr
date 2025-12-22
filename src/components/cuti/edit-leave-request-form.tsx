@@ -51,6 +51,7 @@ const formSchema = z.object({
     contactAddress: z.string().optional(),
     contactPhone: z.string().optional(),
     deductLeave: z.boolean().optional(),
+    duration: z.number().optional(), // Duration is now optional
 }).refine(data => {
     if (data.requestType === "Cuti") return !!data.leaveType;
     if (data.requestType === "Izin") return !!data.permitType;
@@ -90,6 +91,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         contactAddress: request.contactAddress,
         contactPhone: request.contactPhone,
         deductLeave: request.deductLeave,
+        duration: request.duration,
     }
   });
   
@@ -129,6 +131,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
             contactAddress: data.contactAddress,
             contactPhone: data.contactPhone,
             deductLeave: data.deductLeave,
+            duration: data.duration, // Keep duration if provided
         };
 
         await updateDoc(requestDocRef, updatedRequestData);
@@ -294,6 +297,31 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
                 )}
               />
 
+              {requestType === 'Cuti' && (
+                <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Durasi (Hari)</FormLabel>
+                        <FormControl>
+                        <Input
+                            type="number"
+                            placeholder="Jumlah hari cuti yang diambil"
+                            onChange={e => field.onChange(parseInt(e.target.value, 10))}
+                            value={field.value}
+                        />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                            Isi manual jumlah hari kerja yang digunakan (tidak termasuk hari OFF).
+                        </FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+             )}
+
+
               <FormField
                 control={form.control}
                 name="explanation"
@@ -374,3 +402,5 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
     </Form>
   );
 }
+
+    

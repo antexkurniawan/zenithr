@@ -6,10 +6,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertCircle, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { format, differenceInYears, parse } from 'date-fns';
+import { format, differenceInYears, parse, differenceInDays } from 'date-fns';
 import { collection, doc, serverTimestamp, addDoc } from 'firebase/firestore';
 
-import type { Employee, UserProfile } from "@/lib/types";
+import type { Employee, UserProfile, LeaveRequest } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -37,7 +37,6 @@ import { DateRangePicker } from '../ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { Switch } from '../ui/switch';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { differenceInDays } from 'date-fns';
 
 
 const formSchema = z.object({
@@ -53,6 +52,7 @@ const formSchema = z.object({
     contactAddress: z.string().optional(),
     contactPhone: z.string().optional(),
     deductLeave: z.boolean().optional(),
+    duration: z.number().optional(), // Duration is now optional
 }).refine(data => {
     if (data.requestType === "Cuti") return !!data.leaveType;
     if (data.requestType === "Izin") return !!data.permitType;
@@ -129,7 +129,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         const startDate = data.dateRange.from as Date;
         const endDate = data.dateRange.to || startDate;
         
-        const newRequestData: Omit<LeaveRequest, 'id' | 'duration' | 'createdAt'> & {createdAt: any} = {
+        const newRequestData: Omit<LeaveRequest, 'id' | 'createdAt'> & {createdAt: any} = {
             employeeId: selectedEmployee.id,
             employeeName: selectedEmployee.name,
             employeeJobTitle: selectedEmployee.jobTitle,
@@ -147,6 +147,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
             contactAddress: data.contactAddress,
             contactPhone: data.contactPhone,
             deductLeave: data.deductLeave,
+            duration: data.duration, // Keep duration if provided
         };
 
 
@@ -322,6 +323,31 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                 )}
               />
 
+             {requestType === 'Cuti' && (
+                <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Durasi (Hari)</FormLabel>
+                        <FormControl>
+                        <Input
+                            type="number"
+                            placeholder="Jumlah hari cuti yang diambil"
+                            onChange={e => field.onChange(parseInt(e.target.value, 10))}
+                            value={field.value}
+                        />
+                        </FormControl>
+                        <FormDescription className="text-xs">
+                            Isi manual jumlah hari kerja yang digunakan (tidak termasuk hari OFF).
+                        </FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+             )}
+
+
               <FormField
                 control={form.control}
                 name="explanation"
@@ -402,3 +428,5 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
     </Form>
   );
 }
+
+    

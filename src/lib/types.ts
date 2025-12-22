@@ -122,7 +122,7 @@ export type LeaveRequest = {
   dutyType?: DutySubType;
   startDate: string; // ISO DateTime string
   endDate: string; // ISO DateTime string
-  duration?: number; // In days for leave
+  duration?: number; // In days for leave, now optional
   explanation?: string;
   contactAddress?: string;
   contactPhone?: string;
@@ -136,4 +136,7 @@ export type LeaveRequest = {
   rejectedBy?: string;
   rejectionReason?: string;
   createdAt: Timestamp;
+  updatedAt?: Timestamp;
 };
+
+    

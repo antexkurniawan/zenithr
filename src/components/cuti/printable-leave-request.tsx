@@ -249,13 +249,13 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <tbody>
                             <tr className="h-16">
                                 <td className="border border-black p-1 align-middle">
-                                    {requester?.signatureUrl && <Image src={requester.signatureUrl} alt="TTD Pemohon" width={100} height={50} className="mx-auto object-contain" />}
+                                    {/* Signature area for applicant */}
                                 </td>
                                 <td className="border border-black p-1 align-middle">
-                                     {request.status !== 'Pending' && supervisor?.operationPointCoordinatorSignatureUrl && <Image src={supervisor.operationPointCoordinatorSignatureUrl} alt="TTD Atasan" width={100} height={50} className="mx-auto object-contain" />}
+                                     {/* Signature area for indirect supervisor */}
                                 </td>
                                 <td className="border border-black p-1 align-middle">
-                                    {request.status === 'Approved' && supervisor?.signatureUrl && <Image src={supervisor.signatureUrl} alt="TTD Atasan" width={100} height={50} className="mx-auto object-contain" />}
+                                    {/* Signature area for direct supervisor */}
                                 </td>
                             </tr>
                             <tr className="bg-gray-100">
