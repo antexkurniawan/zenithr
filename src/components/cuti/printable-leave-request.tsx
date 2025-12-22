@@ -117,28 +117,28 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                     <td className="pl-2">Hari</td>
                                 </tr>
                                  <tr>
-                                    <td className="pl-4">Cuti sudah diambil</td>
+                                    <td className="w-48">- Cuti sudah diambil</td>
                                     <td className="w-4 text-center">=</td>
                                     <td className="w-16 text-center">{isAnnualLeave ? leaveAlreadyTaken : ''}</td>
                                     <td className="pl-2">Hari</td>
                                 </tr>
-                                <tr className="border-b-2 border-black">
-                                    <td className="pl-4 pb-1">Sisa Cuti Tersedia</td>
+                                <tr>
+                                    <td className="w-48">- Sisa Cuti Tersedia</td>
                                     <td className="w-4 text-center pb-1">=</td>
                                     <td className="w-16 text-center pb-1">{isAnnualLeave ? remainingLeaveBeforeThis : ''}</td>
-                                    <td className="pl-2 pb-1">Hari</td>
+                                    <td className="pl-2">Hari</td>
                                 </tr>
                                 <tr>
-                                    <td className="pl-4 pt-1">Cuti Akan Diambil</td>
+                                    <td className="w-48">- Cuti Akan Diambil</td>
                                     <td className="w-4 text-center pt-1">=</td>
                                     <td className="w-16 text-center pt-1">{isAnnualLeave ? leaveToBeTaken : ''}</td>
-                                    <td className="pl-2 pt-1">Hari</td>
+                                    <td className="pl-2">Hari</td>
                                 </tr>
-                                 <tr className="border-b-2 border-black">
-                                    <td className="pt-1 pb-1">- Sisa Cuti Tahun {currentYear}</td>
+                                 <tr>
+                                    <td className="w-48">- Sisa Cuti Tahun {currentYear}</td>
                                     <td className="w-4 text-center pt-1 pb-1">=</td>
                                     <td className="w-16 text-center pt-1 pb-1">{isAnnualLeave ? finalRemainingLeave : ''}</td>
-                                    <td className="pl-2 pt-1 pb-1">Hari</td>
+                                    <td className="pl-2">Hari</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -209,8 +209,8 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <thead>
                             <tr>
                                 <td className="p-1 w-1/3 font-semibold">Pemohon,</td>
-                                <td className="p-1 w-1/3 font-semibold">Mengetahui,</td>
                                 <td className="p-1 w-1/3 font-semibold">Menyetujui,</td>
+                                <td className="p-1 w-1/3 font-semibold">Mengetahui,</td>
                             </tr>
                         </thead>
                         <tbody>
@@ -233,8 +233,9 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                             <tr>
                                 <td className="p-1 uppercase">{request.employeeJobTitle}</td>
                                 <td className="p-1 uppercase">{supervisor?.jobTitle || ''}</td>
-                                <td className="p-1 uppercase">O. P. Coordinator</td>
+                                <td className="p-1 uppercase">Operation Point Coordinator</td>
                             </tr>
+
                         </tbody>
                     </table>
                 </div>
