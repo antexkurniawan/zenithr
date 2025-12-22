@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -114,6 +113,8 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         form.setValue('duration', 0);
         return;
       }
+      
+      form.setValue('duration', 0); // Reset before calculating
 
       const attendanceQuery = query(
         collection(firestore, 'attendances'),
@@ -443,5 +444,3 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
     </Form>
   );
 }
-
-    

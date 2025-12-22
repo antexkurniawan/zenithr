@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -119,11 +118,13 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
       const { from, to } = dateRange;
       const endDate = to || from;
       const totalDays = differenceInDays(endDate, from) + 1;
-
+      
       if (totalDays <= 0) {
         form.setValue('duration', 0);
         return;
       }
+      
+      form.setValue('duration', 0); // Reset before calculating
       
       const attendanceQuery = query(
         collection(firestore, 'attendances'),
@@ -140,7 +141,6 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         form.setValue('duration', workDays > 0 ? workDays : 0);
       } catch (error) {
         console.error("Error fetching attendance for duration calculation:", error);
-        // Fallback to total days if query fails
         form.setValue('duration', totalDays);
       }
     };
@@ -472,5 +472,3 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
     </Form>
   );
 }
-
-    
