@@ -126,16 +126,16 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
                  try {
                     recordDate = new Date(tanggal);
                  } catch(e) {
-                     console.warn(\`Invalid date format for row \${index + 7}:\`, tanggal);
+                     console.warn(`Invalid date format for row ${index + 7}:`, tanggal);
                      return;
                  }
             }
              if (isNaN(recordDate.getTime())) {
-                console.warn(\`Could not parse date for row \${index + 7}:\`, tanggal);
+                console.warn(`Could not parse date for row ${index + 7}:`, tanggal);
                 return;
             }
 
-            const checkInDateTime = jam ? \`\${recordDate.toISOString().split('T')[0]}T\${jam}\` : undefined;
+            const checkInDateTime = jam ? `${recordDate.toISOString().split('T')[0]}T${jam}` : undefined;
 
             records.push({
                 employeeNik: String(nik).trim(),
@@ -208,7 +208,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
       }
 
       toast.success('Impor Selesai!', {
-        description: \`\${recordsAdded} data absensi berhasil diimpor. \${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan.\`,
+        description: `${recordsAdded} data absensi berhasil diimpor. ${parsedData.length - recordsAdded} data diabaikan karena NIK tidak ditemukan.`,
       });
       setModalOpen(false);
 
@@ -320,7 +320,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
           ) : (
             <Upload className="mr-2 h-4 w-4" />
           )}
-          Impor {parsedData.length > 0 ? \`\${parsedData.length} Data\` : ''}
+          Impor {parsedData.length > 0 ? `${parsedData.length} Data` : ''}
         </Button>
       </DialogFooter>
     </DialogContent>
