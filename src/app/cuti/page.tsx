@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs, startOfYear, endOfYear } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash, Printer } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format, getYear, startOfYear, endOfYear } from 'date-fns';
+import { format, getYear } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
@@ -56,6 +56,7 @@ import { Badge } from '@/components/ui/badge';
 import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NewLeaveRequestForm } from '@/components/cuti/new-leave-request-form';
+import { EditLeaveRequestForm } from '@/components/cuti/edit-leave-request-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { PrintableLeaveRequest } from '@/components/cuti/printable-leave-request';
@@ -80,6 +81,7 @@ const formatDate = (dateString: string) => {
 
 export default function CutiPage() {
   const [isNewModalOpen, setNewModalOpen] = useState(false);
+  const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
   const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [isApproveAlertOpen, setApproveAlertOpen] = useState(false);
@@ -102,38 +104,42 @@ export default function CutiPage() {
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
-  const calculateLeaveBalance = async (employeeId: string, currentRequest: LeaveRequest) => {
-    setLeaveBalance(null); // Reset on new calculation
-    const currentYearStart = startOfYear(new Date());
-    const currentYearEnd = endOfYear(new Date());
+  const calculateLeaveBalance = async (employeeId: string, currentRequestId: string) => {
+    setLeaveBalance(null);
+    const currentYear = getYear(new Date());
+    const yearStart = startOfYear(new Date());
+    const yearEnd = endOfYear(new Date());
 
     const q = query(
-      requestsCollection,
-      where('employeeId', '==', employeeId),
-      where('requestType', '==', 'Cuti'),
-      where('leaveType', '==', 'Tahunan'),
-      where('status', '==', 'Approved'),
-      where('startDate', '>=', currentYearStart.toISOString()),
-      where('startDate', '<=', currentYearEnd.toISOString())
+        requestsCollection,
+        where('employeeId', '==', employeeId),
+        where('requestType', '==', 'Cuti'),
+        where('leaveType', '==', 'Tahunan'),
+        where('status', '==', 'Approved'),
+        where('startDate', '>=', yearStart.toISOString()),
+        where('startDate', '<=', yearEnd.toISOString())
     );
 
     const querySnapshot = await getDocs(q);
 
-    // Calculate total approved leave duration, including the current one if it's approved.
     const usedLeave = querySnapshot.docs.reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
-
+    
     setLeaveBalance({
         used: usedLeave,
         remaining: ANNUAL_LEAVE_QUOTA - usedLeave,
     });
 };
 
+  const openEditModal = (request: LeaveRequest) => {
+    setSelectedRequest(request);
+    setEditModalOpen(true);
+  };
 
   const openDetailModal = async (request: LeaveRequest) => {
     setSelectedRequest(request);
     setDetailModalOpen(true);
     if (request.requestType === 'Cuti' && request.leaveType === 'Tahunan') {
-      await calculateLeaveBalance(request.employeeId, request);
+      await calculateLeaveBalance(request.employeeId, request.id);
     } else {
       setLeaveBalance(null);
     }
@@ -156,7 +162,7 @@ export default function CutiPage() {
   };
 
 
-  const handleUpdateRequestStatus = async (status: 'Approved' | 'Rejected') => {
+  const handleUpdateRequestStatus = (status: 'Approved' | 'Rejected') => {
     if (!selectedRequest || !user) return;
     setIsProcessing(true);
     
@@ -283,7 +289,7 @@ export default function CutiPage() {
                         </>
                     )}
                     <DropdownMenuSeparator />
-                     <DropdownMenuItem onClick={() => toast.info('Fitur Segera Hadir!')}>
+                     <DropdownMenuItem onClick={() => openEditModal(request)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit
                     </DropdownMenuItem>
@@ -559,6 +565,26 @@ export default function CutiPage() {
         </AnimatedDialogContent>
       </Dialog>
 
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setEditModalOpen}>
+        <AnimatedDialogContent open={isEditModalOpen} className="sm:max-w-2xl max-h-[90dvh] flex flex-col">
+            <DialogHeader>
+                <DialogTitle>Edit Permohonan Cuti / Izin / Tugas</DialogTitle>
+            </DialogHeader>
+            {(isLoading || !selectedRequest) ? (
+                <div className="flex justify-center items-center p-8">
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
+                </div>
+            ) : (
+                <EditLeaveRequestForm 
+                    employees={employees ?? []} 
+                    request={selectedRequest}
+                    setModalOpen={setEditModalOpen} 
+                />
+            )}
+        </AnimatedDialogContent>
+      </Dialog>
+
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -585,5 +611,3 @@ export default function CutiPage() {
     </motion.div>
   );
 }
-
-    
