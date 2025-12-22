@@ -102,11 +102,10 @@ export default function CutiPage() {
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
-  const calculateLeaveBalance = async (employeeId: string) => {
+  const calculateLeaveBalance = async (employeeId: string, currentRequestId?: string) => {
     setLeaveBalance(null); // Reset on new calculation
-    const currentYear = new Date();
-    const yearStart = startOfYear(currentYear);
-    const yearEnd = endOfYear(currentYear);
+    const currentYearStart = startOfYear(new Date());
+    const currentYearEnd = endOfYear(new Date());
 
     const q = query(
       requestsCollection,
@@ -114,12 +113,14 @@ export default function CutiPage() {
       where('requestType', '==', 'Cuti'),
       where('leaveType', '==', 'Tahunan'),
       where('status', '==', 'Approved'),
-      where('startDate', '>=', yearStart.toISOString()),
-      where('startDate', '<=', yearEnd.toISOString())
+      where('startDate', '>=', currentYearStart.toISOString()),
+      where('startDate', '<=', currentYearEnd.toISOString())
     );
 
     const querySnapshot = await getDocs(q);
-    const usedLeave = querySnapshot.docs.reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
+    const usedLeave = querySnapshot.docs
+      .filter(doc => doc.id !== currentRequestId) // Exclude the current request from the "already used" calculation
+      .reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
     
     setLeaveBalance({
       used: usedLeave,
@@ -127,11 +128,12 @@ export default function CutiPage() {
     });
   };
 
+
   const openDetailModal = async (request: LeaveRequest) => {
     setSelectedRequest(request);
     setDetailModalOpen(true);
     if (request.requestType === 'Cuti' && request.leaveType === 'Tahunan') {
-      await calculateLeaveBalance(request.employeeId);
+      await calculateLeaveBalance(request.employeeId, request.id);
     } else {
       setLeaveBalance(null);
     }
@@ -583,3 +585,5 @@ export default function CutiPage() {
     </motion.div>
   );
 }
+
+    
