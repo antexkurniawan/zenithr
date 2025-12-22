@@ -33,7 +33,8 @@ export default function AbsensiPage() {
     const [isImportModalOpen, setImportModalOpen] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [scheduleData, setScheduleData] = useState<ScheduleData>({});
-    const [isLoading, setIsLoading] = useState(false);
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const firestore = useFirestore();
 
@@ -55,12 +56,13 @@ export default function AbsensiPage() {
                 getDocs(attendanceQuery),
             ]);
 
-            const employees = employeesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+            const employeeList = employeesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Employee));
+            setEmployees(employeeList);
             const attendances = attendanceSnapshot.docs.map(doc => doc.data() as Attendance);
 
             const data: ScheduleData = {};
 
-            employees.forEach(emp => {
+            employeeList.forEach(emp => {
                 data[emp.id] = {
                     employee: emp,
                     schedule: {}
@@ -159,8 +161,8 @@ export default function AbsensiPage() {
                             </Button>
                         </motion.div>
                     </DialogTrigger>
-                    <AnimatedDialogContent open={isImportModalOpen}>
-                        <ImportAbsensiDialog setModalOpen={setImportModalOpen} />
+                    <AnimatedDialogContent open={isImportModalOpen} className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
+                        <ImportAbsensiDialog employees={employees} setModalOpen={setImportModalOpen} />
                     </AnimatedDialogContent>
                 </Dialog>
             </PageHeader>

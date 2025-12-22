@@ -47,6 +47,7 @@ type ParsedRow = {
 };
 
 interface ImportDialogProps {
+  employees: Employee[];
   setModalOpen: (open: boolean) => void;
 }
 
@@ -88,7 +89,7 @@ const parseSheetName = (sheetName: string): { year: number, month: number } | nu
 };
 
 
-export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
+export function ImportAbsensiDialog({ employees, setModalOpen }: ImportDialogProps) {
   const [parsedData, setParsedData] = useState<ParsedRow[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -226,31 +227,27 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   };
 
   const handleDownloadTemplate = () => {
-    const currentMonthName = format(new Date(), 'MMMM yyyy', { locale: id });
-    
-    // Create header row with NIK, Nama, and days 1 to 31
-    const header: {[key: string]: any} = { 'NIK': '', 'Nama': '' };
-    for (let i = 1; i <= 31; i++) {
-        header[i] = '';
-    }
+        if (!employees || employees.length === 0) {
+            toast.info("Tidak ada data pegawai", { description: "Database pegawai masih kosong. Tambahkan pegawai terlebih dahulu."});
+            return;
+        }
+        
+        const currentMonthName = format(new Date(), 'MMMM yyyy', { locale: id });
+        
+        // Create data rows from existing employees
+        const data = employees.map(emp => ({
+            'NIK': emp.nik,
+            'Nama': emp.name,
+        }));
 
-    const sampleRow1 = { ...header, 'NIK': '12345', 'Nama': 'JEMBRI J. SYAMSI' };
-    sampleRow1[1] = 'M'; sampleRow1[2] = 'M'; sampleRow1[3] = 'O'; sampleRow1[4] = 'S';
-    
-    const sampleRow2 = { ...header, 'NIK': '67890', 'Nama': 'ISKANDAR DUNGGIO' };
-    sampleRow2[1] = 'O'; sampleRow2[2] = 'O'; sampleRow2[3] = 'M'; sampleRow2[4] = 'M';
+        const ws = XLSX.utils.json_to_sheet(data, {
+            header: ['NIK', 'Nama', ...Array.from({length: 31}, (_, i) => i + 1)]
+        });
 
-    const data = [sampleRow1, sampleRow2];
-    
-    const ws = XLSX.utils.json_to_sheet(data, {
-        header: ['NIK', 'Nama', ...Array.from({length: 31}, (_, i) => i + 1)]
-    });
-
-    const wb = XLSX.utils.book_new();
-    // Use a dynamic sheet name like "Juli 2024"
-    XLSX.utils.book_append_sheet(wb, ws, currentMonthName);
-    XLSX.writeFile(wb, `Template_Jadwal_Kerja_${currentMonthName}.xlsx`);
-};
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, currentMonthName);
+        XLSX.writeFile(wb, `Template_Jadwal_Kerja_${currentMonthName}.xlsx`);
+    };
 
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
