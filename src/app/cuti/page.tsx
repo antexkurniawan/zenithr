@@ -107,8 +107,6 @@ export default function CutiPage() {
   const calculateLeaveBalance = async (employeeId: string, currentRequestId: string) => {
     setLeaveBalance(null);
     const currentYear = getYear(new Date());
-    const yearStart = startOfYear(new Date());
-    const yearEnd = endOfYear(new Date());
 
     const q = query(
         requestsCollection,
@@ -120,12 +118,12 @@ export default function CutiPage() {
 
     const querySnapshot = await getDocs(q);
 
-    // Calculate previously used leave, excluding the current request being viewed/approved
+    // Calculate previously used leave, explicitly excluding the current request from this total.
     const usedLeave = querySnapshot.docs
       .filter(doc => {
           const data = doc.data();
-          // Pastikan startDate ada dan dalam tahun berjalan
-          return data.startDate && new Date(data.startDate).getFullYear() === currentYear;
+          // Ensure it's in the current year and it's not the request we are currently viewing
+          return doc.id !== currentRequestId && new Date(data.startDate).getFullYear() === currentYear;
       })
       .reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
     
