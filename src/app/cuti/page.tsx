@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format, getYear } from 'date-fns';
+import { format, getYear, startOfYear, endOfYear } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
@@ -98,9 +98,9 @@ export default function CutiPage() {
 
   const calculateLeaveBalance = async (employeeId: string) => {
     setLeaveBalance(null); // Reset on new calculation
-    const currentYear = getYear(new Date());
-    const startDate = new Date(currentYear, 0, 1).toISOString();
-    const endDate = new Date(currentYear, 11, 31).toISOString();
+    const currentYear = new Date();
+    const yearStart = startOfYear(currentYear);
+    const yearEnd = endOfYear(currentYear);
 
     const q = query(
       requestsCollection,
@@ -108,8 +108,8 @@ export default function CutiPage() {
       where('requestType', '==', 'Cuti'),
       where('leaveType', '==', 'Tahunan'),
       where('status', '==', 'Approved'),
-      where('startDate', '>=', startDate),
-      where('startDate', '<=', endDate)
+      where('startDate', '>=', yearStart.toISOString()),
+      where('startDate', '<=', yearEnd.toISOString())
     );
 
     const querySnapshot = await getDocs(q);
