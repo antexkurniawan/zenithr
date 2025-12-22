@@ -104,10 +104,12 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         const requestsCollectionRef = collection(firestore, 'leave_requests');
         
         let duration = 0;
-        if(data.dateRange.from && data.dateRange.to) {
-            duration = differenceInDays(data.dateRange.to, data.dateRange.from) + 1;
-        } else if (data.dateRange.from) {
-            duration = 1;
+        const startDate = data.dateRange.from as Date;
+        // If 'to' is not selected, it's a single-day request, so 'to' is the same as 'from'.
+        const endDate = data.dateRange.to || startDate;
+
+        if(startDate && endDate) {
+            duration = differenceInDays(endDate, startDate) + 1;
         }
 
         const newRequestData = {
@@ -118,8 +120,8 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
             leaveType: data.leaveType,
             permitType: data.permitType,
             dutyType: data.dutyType,
-            startDate: (data.dateRange.from as Date).toISOString(),
-            endDate: (data.dateRange.to || data.dateRange.from as Date).toISOString(),
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
             duration,
             explanation: data.explanation,
             contactAddress: data.contactAddress,
