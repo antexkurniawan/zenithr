@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, Upload, FileCheck2, AlertCircle, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { collection, writeBatch, serverTimestamp, getDocs, query, where, doc } from 'firebase/firestore';
+import { format, isValid, parse, getYear, getMonth, setDate } from 'date-fns';
 
 import { useFirestore } from '@/firebase';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,6 @@ type ParsedRow = {
   employeeName: string;
   date: string;
   status: AttendanceStatus;
-  checkIn?: string;
 };
 
 interface ImportDialogProps {
@@ -69,12 +69,21 @@ const statusMap: { [key: string]: AttendanceStatus | null } = {
   'LIBUR': 'Off',
 };
 
-// Helper to convert Excel serial date to JS Date
-const excelDateToJSDate = (serial: number) => {
-    const utc_days  = Math.floor(serial - 25569);
-    const utc_value = utc_days * 86400;
-    const date_info = new Date(utc_value * 1000);
-    return new Date(date_info.getFullYear(), date_info.getMonth(), date_info.getDate());
+// Helper to get the year and month from the sheet name, e.g., "Juli 2024"
+const parseSheetName = (sheetName: string): { year: number, month: number } | null => {
+    const months: { [key: string]: number } = {
+        'januari': 0, 'februari': 1, 'maret': 2, 'april': 3, 'mei': 4, 'juni': 5,
+        'juli': 6, 'agustus': 7, 'september': 8, 'oktober': 9, 'november': 10, 'desember': 11
+    };
+    const parts = sheetName.trim().toLowerCase().split(' ');
+    if (parts.length === 2) {
+        const month = months[parts[0]];
+        const year = parseInt(parts[1], 10);
+        if (month !== undefined && !isNaN(year)) {
+            return { year, month };
+        }
+    }
+    return null;
 };
 
 
@@ -98,53 +107,47 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
 
-        // Convert sheet to JSON, starting from row 6 (header at row 6)
-        const jsonData: any[] = XLSX.utils.sheet_to_json(ws, { range: 5, header: 'A' });
+        const dateInfo = parseSheetName(wsname);
+        if (!dateInfo) {
+            toast.error("Format Nama Sheet Salah", {
+                description: "Nama sheet harus dalam format 'Bulan Tahun', contoh: 'Juli 2024'."
+            });
+            setIsLoading(false);
+            return;
+        }
+
+        const { year, month } = dateInfo;
+
+        const jsonData: any[] = XLSX.utils.sheet_to_json(ws);
         const records: ParsedRow[] = [];
 
         jsonData.forEach((row, index) => {
-          // Assuming column order: NO, NIK, NAMA, KETERANGAN, TANGGAL, JAM
-          const nik = row['B'];
-          const name = row['C'];
-          const keterangan = row['D'];
-          const tanggal = row['E'];
-          const jam = row['F'];
+          const nik = row['NIK'];
+          const name = row['Nama'];
 
-          if (!nik || !name || !keterangan || !tanggal) {
-              return; // Skip rows that don't have essential data
+          if (!nik || !name) {
+              return; // Skip rows without NIK or Name
           }
           
-          const mappedStatus = statusMap[String(keterangan).trim().toUpperCase()];
+          Object.keys(row).forEach(key => {
+              const day = parseInt(key, 10);
+              if (!isNaN(day) && day >= 1 && day <= 31) {
+                  const statusValue = row[key];
+                  const mappedStatus = statusMap[String(statusValue).trim().toUpperCase()];
 
-          if (mappedStatus) {
-            let recordDate: Date;
-            if (typeof tanggal === 'number') { // Excel serial date
-                recordDate = excelDateToJSDate(tanggal);
-            } else if (tanggal instanceof Date) {
-                recordDate = tanggal;
-            } else {
-                 try {
-                    recordDate = new Date(tanggal);
-                 } catch(e) {
-                     console.warn(`Invalid date format for row ${index + 7}:`, tanggal);
-                     return;
-                 }
-            }
-             if (isNaN(recordDate.getTime())) {
-                console.warn(`Could not parse date for row ${index + 7}:`, tanggal);
-                return;
-            }
-
-            const checkInDateTime = jam ? `${recordDate.toISOString().split('T')[0]}T${jam}` : undefined;
-
-            records.push({
-                employeeNik: String(nik).trim(),
-                employeeName: String(name).trim(),
-                date: recordDate.toISOString().split('T')[0],
-                status: mappedStatus,
-                checkIn: checkInDateTime,
-            });
-          }
+                  if (mappedStatus) {
+                      const recordDate = new Date(year, month, day);
+                      if (isValid(recordDate) && getMonth(recordDate) === month) {
+                         records.push({
+                            employeeNik: String(nik).trim(),
+                            employeeName: String(name).trim(),
+                            date: format(recordDate, 'yyyy-MM-dd'),
+                            status: mappedStatus,
+                        });
+                      }
+                  }
+              }
+          })
         });
         
         setParsedData(records);
@@ -152,7 +155,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
       } catch (error) {
         console.error("Error parsing file:", error);
         toast.error('Gagal Membaca File', {
-          description: 'Terjadi kesalahan saat memproses file Excel Anda. Pastikan formatnya benar.',
+          description: 'Terjadi kesalahan saat memproses file Excel Anda. Pastikan format dan nama sheet benar.',
         });
         setParsedData([]);
       } finally {
@@ -194,7 +197,6 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
                 employeeNik: record.employeeNik,
                 date: record.date,
                 status: record.status,
-                checkIn: record.checkIn,
                 importedAt: serverTimestamp() as any,
             };
             const docRef = doc(collection(firestore, 'attendances'));
@@ -223,35 +225,39 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
   };
 
   const handleDownloadTemplate = () => {
-    const data = [
-        { NO: 1, NIK: '12345', NAMA: 'JEMBRI J. SYAMSI', KETERANGAN: '24J', TANGGAL: '2024-07-01', JAM: '08:00' },
-        { NO: 2, NIK: '12345', NAMA: 'JEMBRI J. SYAMSI', KETERANGAN: 'O', TANGGAL: '2024-07-02', JAM: '' },
-        { NO: 3, NIK: '67890', NAMA: 'ISKANDAR DUNGGIO', KETERANGAN: 'LKJ', TANGGAL: '2024-07-01', JAM: '09:00' },
-        { NO: 4, NIK: '67890', NAMA: 'ISKANDAR DUNGGIO', KETERANGAN: 'OS', TANGGAL: '2024-07-02', JAM: '' },
-    ];
-    const ws = XLSX.utils.json_to_sheet(data);
-
-    // Add title and headers manually
-    XLSX.utils.sheet_add_aoa(ws, [['LAPORAN KEHADIRAN KARYAWAN']], { origin: 'A1' });
-    XLSX.utils.sheet_add_aoa(ws, [['PERIODE: JULI 2024']], { origin: 'A2' });
-    XLSX.utils.sheet_add_aoa(ws, [[' ']], { origin: 'A3' }); // Spacer
-    XLSX.utils.sheet_add_aoa(ws, [[' ']], { origin: 'A4' }); // Spacer
-    XLSX.utils.sheet_add_aoa(ws, [['NO', 'NIK', 'NAMA', 'KETERANGAN', 'TANGGAL', 'JAM']], { origin: 'A6' });
+    const currentMonthName = format(new Date(), 'MMMM yyyy', { locale: { code: 'id' } });
     
-    // Replace the auto-generated header
-    ws['!rows'] = [{ hpt: 15 }, { hpt: 15 }, { hpt: 15 }, { hpt: 15 }, { hpt: 15 }, { hpt: 20 }];
+    // Create header row with NIK, Nama, and days 1 to 31
+    const header: {[key: string]: any} = { 'NIK': '', 'Nama': '' };
+    for (let i = 1; i <= 31; i++) {
+        header[i] = '';
+    }
+
+    const sampleRow1 = { ...header, 'NIK': '12345', 'Nama': 'JEMBRI J. SYAMSI' };
+    sampleRow1[1] = 'M'; sampleRow1[2] = 'M'; sampleRow1[3] = 'O'; sampleRow1[4] = 'S';
+    
+    const sampleRow2 = { ...header, 'NIK': '67890', 'Nama': 'ISKANDAR DUNGGIO' };
+    sampleRow2[1] = 'O'; sampleRow2[2] = 'O'; sampleRow2[3] = 'M'; sampleRow2[4] = 'M';
+
+    const data = [sampleRow1, sampleRow2];
+    
+    const ws = XLSX.utils.json_to_sheet(data, {
+        header: ['NIK', 'Nama', ...Array.from({length: 31}, (_, i) => i + 1)]
+    });
+
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Jadwal Kerja');
-    XLSX.writeFile(wb, 'Template_Jadwal_Kerja.xlsx');
+    // Use a dynamic sheet name like "Juli 2024"
+    XLSX.utils.book_append_sheet(wb, ws, currentMonthName);
+    XLSX.writeFile(wb, `Template_Jadwal_Kerja_${currentMonthName}.xlsx`);
 };
 
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
       <DialogHeader className="flex-row items-center justify-between">
           <div className="space-y-1">
-            <DialogTitle>Impor Data Absensi</DialogTitle>
+            <DialogTitle>Impor Data Jadwal Kerja</DialogTitle>
             <DialogDescription>
-              Unggah file laporan Excel absensi/jadwal kerja. Sistem akan membaca setiap baris sebagai data kehadiran.
+              Unggah file jadwal kerja bulanan. Nama sheet harus sesuai format "Bulan Tahun", cth: "Juli 2024".
             </DialogDescription>
           </div>
            <Button variant="outline" onClick={handleDownloadTemplate}>
@@ -293,7 +299,7 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
               <Alert variant="default" className="bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300">
                   <AlertCircle className="h-4 w-4 !text-blue-800 dark:!text-blue-300" />
                   <AlertDescription>
-                      {parsedData.length} data absensi valid ditemukan dan siap untuk diimpor. Data dengan NIK yang tidak terdaftar akan diabaikan.
+                      {parsedData.length} data absensi valid ditemukan dan siap untuk diimpor. Data dengan NIK yang tidak terdaftar di database akan diabaikan.
                   </AlertDescription>
               </Alert>
               <div className="border rounded-md">
