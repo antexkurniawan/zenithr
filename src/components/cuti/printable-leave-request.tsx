@@ -18,7 +18,7 @@ interface PrintableLeaveRequestProps {
 }
 
 const Checkbox = ({ checked }: { checked: boolean }) => (
-    <div className="w-4 h-4 border border-black flex items-center justify-center">
+    <div className="w-4 h-4 border border-black flex items-center justify-center bg-white">
         {checked && <span className="font-bold text-xs">X</span>}
     </div>
 );
@@ -46,10 +46,10 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
     const cutiTersisaSebelumnya = sisaCuti + cutiAkanDiambil;
 
     return (
-        <div id="printable-container" className="bg-white text-black font-sans">
-             <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col font-serif text-xs">
+        <div id="printable-container" className="bg-white text-black font-serif">
+             <div data-printable-page="true" className="w-[210mm] min-h-[297mm] p-8 bg-white flex flex-col text-xs">
                 {/* --- HEADER --- */}
-                <header className="relative">
+                <header className="relative mb-2">
                     <div className="absolute left-0 top-0 w-32">
                          <Image 
                             src={setraLogoBase64} 
@@ -76,20 +76,20 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <tr>
                             <td className="w-24">NAMA</td>
                             <td className="w-4">:</td>
-                            <td className="border-b border-dotted border-black">{request.employeeName}</td>
+                            <td className="font-semibold">{request.employeeName}</td>
                             <td className="w-32 text-right pr-2">Wilayah Operation</td>
                             <td className="w-4">:</td>
-                            <td className="w-48 border-b border-dotted border-black">{supervisor?.workArea || ''}</td>
+                            <td className="w-48 font-semibold">{supervisor?.workArea || ''}</td>
                         </tr>
                          <tr>
                             <td>JABATAN</td>
                             <td>:</td>
-                            <td className="border-b border-dotted border-black">{request.employeeJobTitle}</td>
+                            <td className="font-semibold">{request.employeeJobTitle}</td>
                         </tr>
                          <tr>
                             <td>DEPT</td>
                             <td>:</td>
-                            <td className="border-b border-dotted border-black">OPERASIONAL</td>
+                            <td className="font-semibold">OPERASIONAL</td>
                         </tr>
                     </tbody>
                 </table>
@@ -108,11 +108,11 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <tbody>
                             <tr>
                                 <td className="w-16">Selama</td>
-                                <td className="w-20 border-b border-dotted border-black text-center">{isLeave ? request.duration : ''}</td>
+                                <td className="w-20 text-center font-semibold">{isLeave ? request.duration : ''}</td>
                                 <td>hari pada tanggal / bulan / tahun</td>
-                                <td className="w-40 border-b border-dotted border-black text-center">{isLeave ? formatDate(startDate) : ''}</td>
+                                <td className="w-40 text-center font-semibold">{isLeave ? formatDate(startDate) : ''}</td>
                                 <td className="px-2">s/d</td>
-                                <td className="w-40 border-b border-dotted border-black text-center">{isLeave ? formatDate(endDate) : ''}</td>
+                                <td className="w-40 text-center font-semibold">{isLeave ? formatDate(endDate) : ''}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -121,19 +121,19 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                             <tr>
                                 <td className="w-48">Pada saat cuti, saya dapat dihubungi di nomor telepon</td>
                                 <td className="w-4">:</td>
-                                <td className="border-b border-dotted border-black">{isLeave && request.contactAddress === 'Dalam Kota' ? request.contactPhone : ''}</td>
+                                <td className="font-semibold">{isLeave && request.contactAddress === 'Dalam Kota' ? request.contactPhone : ''}</td>
                                 <td className="w-20 text-right pr-2">Luar Kota</td>
                                 <td className="w-4">:</td>
-                                <td className="w-48 border-b border-dotted border-black">{isLeave && request.contactAddress === 'Luar Kota' ? request.contactPhone : ''}</td>
+                                <td className="w-48 font-semibold">{isLeave && request.contactAddress === 'Luar Kota' ? request.contactPhone : ''}</td>
                             </tr>
                         </tbody>
                     </table>
                     <div className="mt-2 pl-4">
-                        <p>Catatan :</p>
+                        <p className="font-semibold">Catatan :</p>
                          <table className="w-[350px] mt-1 text-xs">
                             <tbody>
                                 <tr>
-                                    <td className="w-40 pl-4">Cuti tersisa Tahun ({currentYear})</td>
+                                    <td className="w-48 pl-4">Cuti tersisa Tahun ({currentYear})</td>
                                     <td className="w-4">=</td>
                                     <td className="w-20 text-right pr-1">{isAnnualLeave ? cutiTersisaSebelumnya : '-'}</td>
                                     <td>Hari</td>
@@ -150,18 +150,18 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                     <td className="w-20 text-right pr-1">{cutiSudahDiambil}</td>
                                     <td>Hari</td>
                                 </tr>
-                                 <tr className="h-4"><td></td></tr>
+                                 <tr className="h-2"><td></td></tr>
                                  <tr>
                                     <td className="pl-4">Cuti akan diambil</td>
                                     <td>=</td>
                                     <td className="w-20 text-right pr-1">{cutiAkanDiambil}</td>
                                     <td>Hari</td>
                                 </tr>
-                                <tr>
-                                    <td className="pl-4">Sisa Cuti Tahun ({currentYear})</td>
-                                    <td>=</td>
-                                    <td className="w-20 text-right pr-1">{sisaCuti}</td>
-                                    <td>Hari</td>
+                                 <tr>
+                                    <td className="pl-4 border-t border-black">Sisa Cuti Tahun ({currentYear})</td>
+                                    <td className='border-t border-black'>=</td>
+                                    <td className="w-20 text-right pr-1 border-t border-black">{sisaCuti}</td>
+                                    <td className='border-t border-black'>Hari</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -195,20 +195,20 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <tr>
                             <td className="w-20">Hari, Tanggal</td>
                             <td className="w-4">:</td>
-                            <td className="w-48 border-b border-dotted border-black">{!isLeave ? formatDate(startDate) : ''}</td>
+                            <td className="w-48 font-semibold">{!isLeave ? formatDate(startDate) : ''}</td>
                             <td className="px-2">s/d</td>
-                            <td className="w-48 border-b border-dotted border-black">{!isLeave ? formatDate(endDate) : ''}</td>
+                            <td className="w-48 font-semibold">{!isLeave ? formatDate(endDate) : ''}</td>
                             <td></td>
                         </tr>
                         <tr>
                             <td>Jam</td>
                             <td>:</td>
-                            <td colSpan={4} className="border-b border-dotted border-black">{!isLeave ? `${format(startDate, 'HH:mm')} s/d ${format(endDate, 'HH:mm')}`: ''}</td>
+                            <td colSpan={4} className="font-semibold">{!isLeave ? `${format(startDate, 'HH:mm')} s/d ${format(endDate, 'HH:mm')}`: ''}</td>
                         </tr>
                         <tr>
                             <td className="align-top">Penjelasan</td>
                             <td className="align-top">:</td>
-                            <td colSpan={4} className="border-b border-dotted border-black h-8 align-top">{request.explanation || ''}</td>
+                            <td colSpan={4} className="h-8 align-top font-semibold">{request.explanation || ''}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -218,7 +218,7 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                         <tr>
                             <td className="w-48">Saya dapat dihubungi di nomor telepon</td>
                             <td className="w-4">:</td>
-                            <td className="border-b border-dotted border-black">{!isLeave ? request.contactPhone : ''}</td>
+                            <td className="font-semibold">{!isLeave ? request.contactPhone : ''}</td>
                         </tr>
                     </tbody>
                 </table>
@@ -252,9 +252,9 @@ export function PrintableLeaveRequest({ request, requester, supervisor, leaveBal
                                 </td>
                             </tr>
                             <tr className="bg-gray-100">
-                                <td className="border border-black p-1">{request.employeeName}</td>
-                                <td className="border border-black p-1">{indirectSupervisorName}</td>
-                                <td className="border border-black p-1">{supervisorName}</td>
+                                <td className="border border-black p-1 font-semibold">{request.employeeName}</td>
+                                <td className="border border-black p-1 font-semibold">{indirectSupervisorName}</td>
+                                <td className="border border-black p-1 font-semibold">{supervisorName}</td>
                             </tr>
                         </tbody>
                     </table>
