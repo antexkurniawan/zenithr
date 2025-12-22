@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { AlertCircle, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { format, differenceInDays, differenceInYears } from 'date-fns';
+import { format, differenceInYears, parse } from 'date-fns';
 import { collection, doc, serverTimestamp, addDoc } from 'firebase/firestore';
 
 import type { Employee, UserProfile } from "@/lib/types";
@@ -37,6 +37,7 @@ import { DateRangePicker } from '../ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { Switch } from '../ui/switch';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { differenceInDays } from 'date-fns';
 
 
 const formSchema = z.object({
@@ -87,21 +88,22 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
   const selectedEmployeeId = form.watch("employeeId");
 
   useEffect(() => {
-    if (selectedEmployeeId && requestType === 'Cuti') {
+    if (selectedEmployeeId) {
       const employee = employees.find(e => e.id === selectedEmployeeId);
       if (employee && employee.joinDate) {
         const tenure = differenceInYears(new Date(), new Date(employee.joinDate));
-        setIsEligibleForLeave(tenure >= 1);
-        if (tenure < 1) {
-            form.setValue('requestType', undefined); // Reset selection if not eligible
+        const eligible = tenure >= 1;
+        setIsEligibleForLeave(eligible);
+        if (!eligible && form.getValues('requestType') === 'Cuti') {
+            form.resetField('requestType');
         }
       } else {
         setIsEligibleForLeave(false); // Not eligible if no join date
       }
     } else {
-      setIsEligibleForLeave(true); // Always eligible for non-leave requests
+      setIsEligibleForLeave(null); // No employee selected
     }
-  }, [selectedEmployeeId, employees, requestType, form]);
+  }, [selectedEmployeeId, employees, form]);
 
 
   const filteredEmployees = employees.filter(employee =>
@@ -222,8 +224,8 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                         className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
                       >
                         <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl><RadioGroupItem value="Cuti" disabled={!isEligibleForLeave} /></FormControl>
-                          <FormLabel className={`font-normal ${!isEligibleForLeave ? 'text-muted-foreground cursor-not-allowed' : ''}`}>Cuti</FormLabel>
+                          <FormControl><RadioGroupItem value="Cuti" disabled={isEligibleForLeave === false} /></FormControl>
+                          <FormLabel className={`font-normal ${isEligibleForLeave === false ? 'text-muted-foreground cursor-not-allowed' : ''}`}>Cuti</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl><RadioGroupItem value="Izin" /></FormControl>
@@ -259,7 +261,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl><SelectTrigger><SelectValue placeholder="Pilih jenis cuti..." /></SelectTrigger></FormControl>
                         <SelectContent>
-                          <SelectItem value="Tahunan" disabled={!isEligibleForLeave}>Tahunan</SelectItem>
+                          <SelectItem value="Tahunan" disabled={isEligibleForLeave === false}>Tahunan</SelectItem>
                           <SelectItem value="Besar">Besar</SelectItem>
                           <SelectItem value="Hamil/Keguguran">Hamil / Keguguran</SelectItem>
                         </SelectContent>
