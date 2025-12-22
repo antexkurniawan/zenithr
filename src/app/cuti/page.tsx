@@ -98,26 +98,25 @@ export default function CutiPage() {
   const handleUpdateRequestStatus = async (status: 'Approved' | 'Rejected') => {
     if (!selectedRequest || !user) return;
     setIsProcessing(true);
-    try {
-        const requestRef = doc(firestore, 'leave_requests', selectedRequest.id);
-        await updateDoc(requestRef, {
-            status: status,
-            approvedBy: status === 'Approved' ? user.uid : null,
-            rejectedBy: status === 'Rejected' ? user.uid : null,
-        });
-        toast.success(`Permohonan ${status === 'Approved' ? 'Disetujui' : 'Ditolak'}`, {
-            description: `Permohonan dari ${selectedRequest.employeeName} telah diubah.`,
-        });
-        refetchRequests(); // Refresh data table
-    } catch (error) {
-        console.error("Error updating request status:", error);
-        toast.error("Gagal Memperbarui Status");
-    } finally {
-        setIsProcessing(false);
-        setApproveAlertOpen(false);
-        setRejectAlertOpen(false);
-        setSelectedRequest(null);
-    }
+    
+    const requestRef = doc(firestore, 'leave_requests', selectedRequest.id);
+    
+    await updateDoc(requestRef, {
+        status: status,
+        approvedBy: status === 'Approved' ? user.uid : null,
+        rejectedBy: status === 'Rejected' ? user.uid : null,
+    });
+    
+    toast.success(`Permohonan ${status === 'Approved' ? 'Disetujui' : 'Ditolak'}`, {
+        description: `Permohonan dari ${selectedRequest.employeeName} telah diubah.`,
+    });
+    
+    // The useCollection hook will automatically refetch. No manual refetch needed here.
+    
+    setIsProcessing(false);
+    setApproveAlertOpen(false);
+    setRejectAlertOpen(false);
+    setSelectedRequest(null);
   };
 
   const columns: ColumnDef<LeaveRequest>[] = [
