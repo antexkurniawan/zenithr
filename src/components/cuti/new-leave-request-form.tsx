@@ -153,7 +153,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
         await addDoc(requestsCollectionRef, newRequestData);
 
         toast.success("Permohonan Berhasil Diajukan!", {
-            description: \`Permohonan \${data.requestType} untuk \${selectedEmployee.name} telah disimpan.\`,
+            description: `Permohonan ${data.requestType} untuk ${selectedEmployee.name} telah disimpan.`,
         });
         setModalOpen(false);
 
@@ -219,7 +219,7 @@ export function NewLeaveRequestForm({ employees, setModalOpen }: NewLeaveRequest
                       >
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl><RadioGroupItem value="Cuti" disabled={isEligibleForLeave === false} /></FormControl>
-                          <FormLabel className={\`font-normal \${isEligibleForLeave === false ? 'text-muted-foreground cursor-not-allowed' : ''}\`}>Cuti</FormLabel>
+                          <FormLabel className={`font-normal ${isEligibleForLeave === false ? 'text-muted-foreground cursor-not-allowed' : ''}`}>Cuti</FormLabel>
                         </FormItem>
                         <FormItem className="flex items-center space-x-2 space-y-0">
                           <FormControl><RadioGroupItem value="Izin" /></FormControl>

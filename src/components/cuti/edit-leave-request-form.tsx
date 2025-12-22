@@ -134,7 +134,7 @@ export function EditLeaveRequestForm({ employees, request, setModalOpen }: EditL
         await updateDoc(requestDocRef, updatedRequestData);
 
         toast.success("Permohonan Berhasil Diperbarui!", {
-            description: \`Permohonan untuk \${selectedEmployee.name} telah diubah.\`,
+            description: `Permohonan untuk ${selectedEmployee.name} telah diubah.`,
         });
         setModalOpen(false);
 
