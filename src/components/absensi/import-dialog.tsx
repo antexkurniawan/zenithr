@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Loader2, Upload, FileCheck2, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, FileCheck2, AlertCircle, Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { collection, writeBatch, serverTimestamp, getDocs, query, where, doc } from 'firebase/firestore';
 
@@ -222,13 +222,42 @@ export function ImportAbsensiDialog({ setModalOpen }: ImportDialogProps) {
     }
   };
 
+  const handleDownloadTemplate = () => {
+    const data = [
+        { NO: 1, NIK: '12345', NAMA: 'JEMBRI J. SYAMSI', KETERANGAN: '24J', TANGGAL: '2024-07-01', JAM: '08:00' },
+        { NO: 2, NIK: '12345', NAMA: 'JEMBRI J. SYAMSI', KETERANGAN: 'O', TANGGAL: '2024-07-02', JAM: '' },
+        { NO: 3, NIK: '67890', NAMA: 'ISKANDAR DUNGGIO', KETERANGAN: 'LKJ', TANGGAL: '2024-07-01', JAM: '09:00' },
+        { NO: 4, NIK: '67890', NAMA: 'ISKANDAR DUNGGIO', KETERANGAN: 'OS', TANGGAL: '2024-07-02', JAM: '' },
+    ];
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Add title and headers manually
+    XLSX.utils.sheet_add_aoa(ws, [['LAPORAN KEHADIRAN KARYAWAN']], { origin: 'A1' });
+    XLSX.utils.sheet_add_aoa(ws, [['PERIODE: JULI 2024']], { origin: 'A2' });
+    XLSX.utils.sheet_add_aoa(ws, [[' ']], { origin: 'A3' }); // Spacer
+    XLSX.utils.sheet_add_aoa(ws, [[' ']], { origin: 'A4' }); // Spacer
+    XLSX.utils.sheet_add_aoa(ws, [['NO', 'NIK', 'NAMA', 'KETERANGAN', 'TANGGAL', 'JAM']], { origin: 'A6' });
+    
+    // Replace the auto-generated header
+    ws['!rows'] = [{ hpt: 15 }, { hpt: 15 }, { hpt: 15 }, { hpt: 15 }, { hpt: 15 }, { hpt: 20 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Jadwal Kerja');
+    XLSX.writeFile(wb, 'Template_Jadwal_Kerja.xlsx');
+};
+
   return (
     <DialogContent className="sm:max-w-4xl max-h-[90dvh] flex flex-col">
-      <DialogHeader>
-        <DialogTitle>Impor Data Absensi</DialogTitle>
-        <DialogDescription>
-          Unggah file laporan Excel absensi/jadwal kerja. Sistem akan membaca setiap baris sebagai data kehadiran.
-        </DialogDescription>
+      <DialogHeader className="flex-row items-center justify-between">
+          <div className="space-y-1">
+            <DialogTitle>Impor Data Absensi</DialogTitle>
+            <DialogDescription>
+              Unggah file laporan Excel absensi/jadwal kerja. Sistem akan membaca setiap baris sebagai data kehadiran.
+            </DialogDescription>
+          </div>
+           <Button variant="outline" onClick={handleDownloadTemplate}>
+              <Download className="mr-2 h-4 w-4" />
+              Unduh Template
+          </Button>
       </DialogHeader>
 
       <div className="flex-grow overflow-y-auto -mx-6 px-6">
