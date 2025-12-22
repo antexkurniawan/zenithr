@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
-import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { useState, useMemo } from 'react';
+import { collection, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs } from 'firebase/firestore';
 import {
   ColumnDef,
   flexRender,
@@ -10,9 +10,9 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle } from 'lucide-react';
+import { PlusCircle, Loader2, MoreHorizontal, CheckCircle, XCircle, Eye, Edit, Trash2, CalendarDays, User, FileText, Hash } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
+import { format, getYear } from 'date-fns';
 import { id } from 'date-fns/locale';
 
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
@@ -31,6 +31,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
@@ -47,22 +48,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { AnimatedDialogContent } from "@/components/shared/animated-dialog";
 import { Badge } from '@/components/ui/badge';
 import PageHeader from '@/components/shared/page-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { NewLeaveRequestForm } from '@/components/cuti/new-leave-request-form';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 const MotionCard = motion(Card);
 
-const statusVariant: Record<RequestStatus, 'success' | 'secondary' | 'destructive'> = {
-    'Pending': 'secondary',
-    'Approved': 'success',
-    'Rejected': 'destructive',
-};
+const ANNUAL_LEAVE_QUOTA = 12;
 
 const badgeStatusClasses: Record<RequestStatus, string> = {
   Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -80,9 +78,12 @@ const formatDate = (dateString: string) => {
 export default function CutiPage() {
   const [isNewModalOpen, setNewModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
+  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
   const [isApproveAlertOpen, setApproveAlertOpen] = useState(false);
   const [isRejectAlertOpen, setRejectAlertOpen] = useState(false);
+  const [isDeleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [leaveBalance, setLeaveBalance] = useState<{ used: number; remaining: number } | null>(null);
   
   const firestore = useFirestore();
   const { user } = useUser();
@@ -95,13 +96,65 @@ export default function CutiPage() {
   const employeesQuery = useMemoFirebase(() => query(employeesCollection, orderBy('name', 'asc')), [employeesCollection]);
   const { data: employees, isLoading: isLoadingEmployees } = useCollection<Employee>(employeesQuery);
 
+  const calculateLeaveBalance = async (employeeId: string) => {
+    setLeaveBalance(null); // Reset on new calculation
+    const currentYear = getYear(new Date());
+    const startDate = new Date(currentYear, 0, 1).toISOString();
+    const endDate = new Date(currentYear, 11, 31).toISOString();
+
+    const q = query(
+      requestsCollection,
+      where('employeeId', '==', employeeId),
+      where('requestType', '==', 'Cuti'),
+      where('leaveType', '==', 'Tahunan'),
+      where('status', '==', 'Approved'),
+      where('startDate', '>=', startDate),
+      where('startDate', '<=', endDate)
+    );
+
+    const querySnapshot = await getDocs(q);
+    const usedLeave = querySnapshot.docs.reduce((acc, doc) => acc + (doc.data().duration || 0), 0);
+    
+    setLeaveBalance({
+      used: usedLeave,
+      remaining: ANNUAL_LEAVE_QUOTA - usedLeave,
+    });
+  };
+
+  const openDetailModal = async (request: LeaveRequest) => {
+    setSelectedRequest(request);
+    setDetailModalOpen(true);
+    if (request.requestType === 'Cuti' && request.leaveType === 'Tahunan') {
+      await calculateLeaveBalance(request.employeeId);
+    } else {
+      setLeaveBalance(null);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedRequest) return;
+    setIsProcessing(true);
+    const requestRef = doc(firestore, 'leave_requests', selectedRequest.id);
+    
+    await deleteDoc(requestRef);
+
+    toast.success("Permohonan Dihapus", {
+      description: `Permohonan dari ${selectedRequest.employeeName} telah dihapus.`,
+    });
+
+    setIsProcessing(false);
+    setDeleteAlertOpen(false);
+    setSelectedRequest(null);
+  };
+
+
   const handleUpdateRequestStatus = async (status: 'Approved' | 'Rejected') => {
     if (!selectedRequest || !user) return;
     setIsProcessing(true);
     
     const requestRef = doc(firestore, 'leave_requests', selectedRequest.id);
     
-    await updateDoc(requestRef, {
+    updateDoc(requestRef, {
         status: status,
         approvedBy: status === 'Approved' ? user.uid : null,
         rejectedBy: status === 'Rejected' ? user.uid : null,
@@ -110,8 +163,6 @@ export default function CutiPage() {
     toast.success(`Permohonan ${status === 'Approved' ? 'Disetujui' : 'Ditolak'}`, {
         description: `Permohonan dari ${selectedRequest.employeeName} telah diubah.`,
     });
-    
-    // The useCollection hook will automatically refetch. No manual refetch needed here.
     
     setIsProcessing(false);
     setApproveAlertOpen(false);
@@ -147,7 +198,6 @@ export default function CutiPage() {
       id: "actions",
       cell: ({ row }) => {
         const request = row.original;
-        if (request.status !== 'Pending') return null;
 
         return (
             <DropdownMenu>
@@ -158,25 +208,49 @@ export default function CutiPage() {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                        className="text-green-600 focus:bg-green-100 focus:text-green-700"
-                        onClick={() => {
-                            setSelectedRequest(request);
-                            setApproveAlertOpen(true);
-                        }}
-                    >
-                        <CheckCircle className="mr-2 h-4 w-4" />
-                        Setujui
+                    <DropdownMenuItem onClick={() => openDetailModal(request)}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Lihat Detail
+                    </DropdownMenuItem>
+                    {request.status === 'Pending' && (
+                        <>
+                           <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-green-600 focus:bg-green-100 focus:text-green-700"
+                                onClick={() => {
+                                    setSelectedRequest(request);
+                                    setApproveAlertOpen(true);
+                                }}
+                            >
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Setujui
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="text-red-600 focus:bg-red-100 focus:text-red-700"
+                                onClick={() => {
+                                    setSelectedRequest(request);
+                                    setRejectAlertOpen(true);
+                                }}
+                            >
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Tolak
+                            </DropdownMenuItem>
+                        </>
+                    )}
+                    <DropdownMenuSeparator />
+                     <DropdownMenuItem onClick={() => toast.info('Fitur Segera Hadir!')}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
                     </DropdownMenuItem>
                     <DropdownMenuItem
                         className="text-red-600 focus:bg-red-100 focus:text-red-700"
                         onClick={() => {
                             setSelectedRequest(request);
-                            setRejectAlertOpen(true);
+                            setDeleteAlertOpen(true);
                         }}
                     >
-                        <XCircle className="mr-2 h-4 w-4" />
-                        Tolak
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Hapus
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
@@ -215,6 +289,11 @@ export default function CutiPage() {
       },
     },
   };
+  
+  const getSubtype = (request: LeaveRequest | null) => {
+    if (!request) return '-';
+    return request.leaveType || request.permitType || request.dutyType || '-';
+  }
 
   return (
     <motion.div 
@@ -295,6 +374,7 @@ export default function CutiPage() {
         </CardContent>
       </MotionCard>
       
+       {/* Modals and Alerts */}
       <AlertDialog open={isApproveAlertOpen} onOpenChange={setApproveAlertOpen}>
         <AlertDialogContent>
             <AlertDialogHeader>
@@ -330,6 +410,103 @@ export default function CutiPage() {
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AlertDialog open={isDeleteAlertOpen} onOpenChange={setDeleteAlertOpen}>
+        <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Hapus Permohonan?</AlertDialogTitle>
+                <AlertDialogDescription>
+                    Tindakan ini tidak bisa dibatalkan. Anda akan menghapus permohonan <strong>{selectedRequest?.requestType}</strong> dari <strong>{selectedRequest?.employeeName}</strong>.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={isProcessing} className="bg-destructive hover:bg-destructive/90">
+                    {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Ya, Hapus
+                </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={isDetailModalOpen} onOpenChange={setDetailModalOpen}>
+        <AnimatedDialogContent open={isDetailModalOpen} className="sm:max-w-xl max-h-[90dvh] flex flex-col">
+          {selectedRequest && (
+            <>
+              <DialogHeader>
+                  <DialogTitle>Detail Permohonan</DialogTitle>
+                  <DialogDescription>
+                      Permohonan dari {selectedRequest.employeeName}
+                  </DialogDescription>
+              </DialogHeader>
+              <div className="flex-grow overflow-y-auto -mx-6 px-6">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2"><User className="h-5 w-5"/>Informasi Pegawai</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="font-semibold text-muted-foreground">Nama</div>
+                      <div>{selectedRequest.employeeName}</div>
+                      <div className="font-semibold text-muted-foreground">Jabatan</div>
+                      <div>{selectedRequest.employeeJobTitle}</div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2"><FileText className="h-5 w-5"/>Detail Permohonan</CardTitle>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                      <div className="font-semibold text-muted-foreground">Jenis Permohonan</div>
+                      <div>{selectedRequest.requestType}</div>
+                      <div className="font-semibold text-muted-foreground">Sub-Jenis</div>
+                      <div>{getSubtype(selectedRequest)}</div>
+                       <div className="font-semibold text-muted-foreground">Tanggal Mulai</div>
+                      <div>{formatDate(selectedRequest.startDate)}</div>
+                       <div className="font-semibold text-muted-foreground">Tanggal Selesai</div>
+                      <div>{formatDate(selectedRequest.endDate)}</div>
+                      <div className="font-semibold text-muted-foreground">Durasi</div>
+                      <div>{selectedRequest.duration || 1} hari</div>
+                      <div className="font-semibold text-muted-foreground">Status</div>
+                      <div> <Badge className={badgeStatusClasses[selectedRequest.status]}>{selectedRequest.status}</Badge></div>
+                      {selectedRequest.explanation && (
+                        <>
+                          <div className="font-semibold text-muted-foreground col-span-2 pt-2">Penjelasan</div>
+                          <div className="col-span-2 text-muted-foreground bg-slate-50 p-2 rounded-md">{selectedRequest.explanation}</div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {leaveBalance !== null && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2"><CalendarDays className="h-5 w-5"/>Saldo Cuti Tahunan {getYear(new Date())}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                          <p className="text-2xl font-bold">{ANNUAL_LEAVE_QUOTA}</p>
+                          <p className="text-xs text-muted-foreground">Hak Cuti</p>
+                        </div>
+                        <div>
+                           <p className="text-2xl font-bold">{leaveBalance.used}</p>
+                          <p className="text-xs text-muted-foreground">Terpakai</p>
+                        </div>
+                         <div>
+                           <p className="text-2xl font-bold text-primary">{leaveBalance.remaining}</p>
+                          <p className="text-xs text-muted-foreground">Sisa Cuti</p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </AnimatedDialogContent>
+      </Dialog>
+
 
       <div className="flex items-center justify-end space-x-2 py-4">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
